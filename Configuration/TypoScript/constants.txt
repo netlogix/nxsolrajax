@@ -1,0 +1,4 @@
+plugin.tx_nxsolrajax {
+	# cat=plugin.tx_nxsolrajax; type=string; label=Add angular-ui / bootstrap datepicker
+	includeAngularUiDatepicker = 1
+}

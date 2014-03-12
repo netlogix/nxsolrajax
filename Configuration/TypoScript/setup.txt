@@ -1,0 +1,77 @@
+plugin.tx_nxsolrajax {
+
+	mvc {
+		throwPageNotFoundExceptionIfActionCantBeResolved = 1
+	}
+
+	features {
+		skipDefaultArguments = 1
+	}
+
+	view {
+		pluginNamespace = tx_solr
+	}
+
+	settings {
+
+	}
+}
+
+page.includeJS.nxsolrajax = EXT:nxsolrajax/Resources/Public/Scripts/Solrajax.min.js
+
+[globalVar = LIT:1 = {$plugin.tx_nxsolrajax.includeAngularUiDatepicker}]
+page {
+	includeJSlibs {
+		angularui-position = EXT:nxsolrajax/Resources/Public/Scripts/Common/Service/Position.min.js
+		angularui-datepicker = EXT:nxsolrajax/Resources/Public/Scripts/Common/Directives/Datepicker.min.js
+	}
+ }
+[GLOBAL]
+
+[globalVar = GP:tx_solr|isAjax > 0] || [globalString = Search Pages]
+
+plugin.tx_solr {
+	search {
+		faceting = 1
+		faceting {
+			facetLinkUrlParameters = tx_solr[isAjax]=1
+		}
+		results {
+			resultClassNameMapping {
+				defaultResult = Netlogix\Nxsolrajax\Domain\Model\Dto\Result
+			}
+		}
+	}
+}
+
+## Clear existing JS and CSS because it's already loaded
+page {
+	includeJSlibs >
+	includeJS >
+	includeJSFooterlibs >
+	includeJSFooter >
+	includeCSS >
+	headerData >
+	meta >
+	bodyTag >
+
+	config {
+		disableAllHeaderCode = 1
+		disablePrefixComment = 1
+		additionalHeaders = Content-type:application/json
+	}
+
+	10 >
+	10 = USER
+	10 {
+		userFunc = \TYPO3\CMS\Extbase\Core\Bootstrap->run
+
+		vendorName = Netlogix
+		extensionName = Nxsolrajax
+		pluginName = AjaxSearch
+		controller = Search
+		action = search
+		settings < plugin.tx_solr
+	}
+}
+[GLOBAL]

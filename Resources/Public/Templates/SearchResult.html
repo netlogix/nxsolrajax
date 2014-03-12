@@ -1,0 +1,109 @@
+<script type="text/ng-template" id="solr/facet/default.html">
+	<h5 class="facet-label csc-header">{{facet.label}}</h5>
+	<ul class="facet-option-list default">
+		<li class="facet-option" data-ng-repeat="option in facet.options">
+			<a href="" data-ng-click="select(option.url)" data-ng-class="{active: option.active, selected: option.selected}">
+				<span data-ng-bind-html="option.text"></span>&nbsp;<span class="facet-result-count">({{option.count}})</span>
+			</a>
+		</li>
+	</ul>
+</script>
+
+<script type="text/ng-template" id="solr/facet/queryGroup.html">
+	<h5 class="facet-label csc-header">{{facet.label}}</h5>
+	<ul class="facet-option-list queryGroup">
+		<li class="facet-option" data-ng-repeat="option in facet.options">
+			<a href="" data-ng-click="select(option.url)" data-ng-class="{active: option.active, selected: option.selected}">
+				<span data-ng-bind-html="option.text"></span>&nbsp;<span class="facet-result-count">({{option.count}})</span>
+			</a>
+		</li>
+	</ul>
+</script>
+
+<script type="text/ng-template" id="solr/facet/hierarchy.html">
+	<h5 class="facet-label csc-header">{{facet.label}}</h5>
+	<ul class="facet-option-list hierarchy">
+		<li class="facet-option" data-ng-repeat="option in facet.options">
+			<a href="" data-ng-click="select(option.url)" data-ng-class="{active: option.active, selected: option.selected}">
+				<span data-ng-bind-html="option.text"></span>&nbsp;<span class="facet-result-count">({{option.count}})</span>
+			</a>
+			<ul class="facet-option-list" data-ng-if="option.options && option.active">
+				<li class="facet-option" data-ng-repeat="option in option.options">
+					<a href="" data-ng-click="select(option.url)" data-ng-class="{active: option.active, selected: option.selected}">
+						<span data-ng-bind-html="option.text"></span>&nbsp;<span class="facet-result-count">({{option.count}})</span>
+					</a>
+					<ul class="facet-option-list" data-ng-if="option.options && option.active">
+						<li class="facet-option" data-ng-repeat="option in option.options">
+							<a href="" data-ng-click="select(option.url)" data-ng-class="{active: option.active, selected: option.selected}">
+								<span data-ng-bind-html="option.text"></span>&nbsp;<span class="facet-result-count">({{option.count}})</span>
+							</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</li>
+	</ul>
+</script>
+
+<script type="text/ng-template" id="solr/facet/dateRange.html">
+	<h5 class="facet-label csc-header">{{facet.label}}</h5>
+	<div class="form-inline">
+		<div class="form-group">
+			<label class="sr-only" for="daterange-start">From</label>
+			<input type="text" id="daterange-start" class="form-control" name="daterange-start" data-ng-model="facet.options.start" data-datepicker-popup="{{facet.options.format}}" data-min="facet.options.min" data-max="facet.options.max" />
+		</div>
+		<div class="form-group">
+			<label class="sr-only" for="daterange-end">To</label>
+			<input type="text" id="daterange-end" class="form-control" name="daterange-end" data-ng-model="facet.options.end" data-datepicker-popup="{{facet.options.format}}" data-min="facet.options.min" data-max="facet.options.max" />
+		</div>
+	</div>
+</script>
+
+<div class="row" data-ng-class="{'tx-solr-loading': loading}">
+	<div id="tx-solr-search-functions" class="col-sm-3">
+
+		<ul class="facets list-unstyled">
+			<li class="facet" data-ng-if="facets.usedFacets">
+				<a href="" data-ng-click="select(facets.usedFacets.removeAll.url)">
+					Show all
+				</a>
+			</li>
+			<li class="facet" data-ng-repeat="facet in facets.availableFacets">
+				<div data-ng-include="'solr/facet/' + facet.type + '.html'"></div>
+			</li>
+		</ul>
+	</div>
+
+	<div id="tx-solr-search" class="col-sm-9">
+
+		<section class="search-results">
+
+			<div class="more text-center" data-ng-if="results.prevLink" data-ng-hide="loading">
+				<a class="button-default" href="" data-ng-click="loadPrev()">Show previous  releases</a>
+			</div>
+
+			<div class="more text-center" data-ng-if="results.prevLink" data-ng-show="loading">
+				<a class="button-default"><span class="animate-spin icon-spin6"></span> Loading…</a>
+			</div>
+
+			<ul class="list-unstyled results-list">
+				<li class="single-result" data-ng-repeat="document in results.resultDocuments">
+					<div data-ng-bind-html="document.content"></div>
+				</li>
+			</ul>
+
+			<div class="more text-center" data-ng-if="results.nextLink" data-ng-hide="loading">
+				<a class="button-default" href="" data-ng-click="loadNext()">Show more releases</a>
+			</div>
+
+			<div class="more text-center" data-ng-if="results.nextLink" data-ng-show="loading">
+				<a class="button-default"><span class="animate-spin icon-spin6"></span> Loading…</a>
+			</div>
+
+			<div class="result-more-count text-center" data-ng-if="results.nextLink">
+				<span>{{results.count - results.resultDocuments.length}} more results</span>
+			</div>
+
+		</section>
+	</div>
+</div>
