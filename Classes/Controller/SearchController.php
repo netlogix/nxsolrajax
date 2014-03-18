@@ -59,6 +59,8 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 
 	/**
 	 * @param integer $page
+	 *
+	 * @return void
 	 */
 	public function searchAction($page = 0) {
 		if ($this->query !== NULL) {
@@ -70,7 +72,7 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 
 			$result = $this->getMoreLinks($page);
 
-			$result = array('facets' => $this->processFacets(), 'result' => $this->processResult($result));
+			$result = array('facets' => $this->processFacets(), 'result' => $this->processResult($result), 'search' => $this->processSearch());
 
 			$this->view->assign('object', $result);
 		}
@@ -78,6 +80,8 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 
 	/**
 	 * @param integer $page
+	 *
+	 * @return void
 	 */
 	public function moreResultsAction($page) {
 		if ($this->query !== NULL) {
@@ -89,14 +93,13 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 
 			$result = $this->getMoreLinks($page);
 
-			$result = array('result' => $this->processResult($result));
+			$result = array('result' => $this->processResult($result), 'search' => $this->processSearch());
 			$this->view->assign('object', $result);
 		}
 	}
 
 	/**
 	 * @param integer $page
-	 * @param integer $offSet
 	 *
 	 * @return array
 	 */
@@ -142,4 +145,17 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 		return $resultProcessor->processResult($result);
 	}
 
+	/**
+	 * @param array $result
+	 *
+	 * @return array
+	 */
+	protected function processSearch($result = array()) {
+
+		/** @var \Netlogix\Nxsolrajax\Service\Processor\SearchProcessor $resultProcessor */
+		$resultProcessor = $this->objectManager->get('Netlogix\\Nxsolrajax\\Service\\Processor\\SearchProcessor');
+
+		$result['url'] = $this->uriBuilder->reset()->uriFor('search', array('isAjax' => 1));
+		return $resultProcessor->processResult($result);
+	}
 } 
