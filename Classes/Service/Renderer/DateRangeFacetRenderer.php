@@ -46,10 +46,10 @@ class DateRangeFacetRenderer extends \Tx_Solr_Facet_DateRangeFacetRenderer {
 		$result = $this->getHandlePositions();
 
 		if ($this->active) {
-			$result['url'] = $this->buildResetFacetUrl();
-		} else {
-			$result['url'] = $this->buildAddFacetUrl($this->facetName);
+			$result['resetUrl'] = $this->buildResetFacetUrl();
 		}
+		$result['url'] = $this->buildAddFacetUrl();
+		$result['delimiter'] = \tx_solr_query_filterencoder_DateRange::DELIMITER;
 
 		return $result;
 	}
@@ -66,14 +66,39 @@ class DateRangeFacetRenderer extends \Tx_Solr_Facet_DateRangeFacetRenderer {
 		$facetOptions = $this->getFacetOptions();
 		$counts = array_keys((array)$facetOptions['counts']);
 
-		$result['active'] = $this->active;
-		$result['start'] = $this->active ? date($facetConfiguration['format'], strtotime($facetOptions['start'])) : '';
-		$result['end'] = $this->active ? date($facetConfiguration['format'], strtotime($facetOptions['end'])) : '';
-		$result['value'] = $this->active ? $facetOptions['start'] . \tx_solr_query_filterencoder_DateRange::DELIMITER . $facetOptions['end'] : '';
+		$result['selected'] = $this->active;
+		$result['format'] = $facetConfiguration['jsFormat'] ?: 'MM/dd/yyyy';
+		$result['start'] = '';
+		$result['end'] = '';
 		$result['min'] = date($facetConfiguration['format'], strtotime(current($counts)));
 		$result['max'] = date($facetConfiguration['format'], strtotime(end($counts)));
 
+		$filters = $this->search->getQuery()->getFilters();
+		foreach ($filters as $filter) {
+			if (preg_match('/\(' . $this->facetConfiguration['field'] . ':\[(.*)\]\)/', $filter, $matches) ){
+				$range = explode('TO', $matches[1]);
+				$range = array_map('trim', $range);
+
+				$result['start'] = ($range[0] == '*') ? '' : date($facetConfiguration['format'], \Tx_Solr_Util::isoToTimestamp($range[0]));
+				$result['end'] = ($range[1] == '*') ? '' : date($facetConfiguration['format'], \Tx_Solr_Util::isoToTimestamp($range[1]));
+				break;
+			}
+		}
+
 		return $result;
+	}
+
+	/**
+	 * tbd
+	 */
+	protected function buildAddFacetUrl() {
+		/** @var $facetOption \Tx_Solr_Facet_FacetOption */
+		$facetOption      = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_Facet_FacetOption', $this->facetName, '{filterValue}');
+		/** @var $linkBuilder \tx_solr_facet_LinkBuilder */
+		$facetLinkBuilder = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_Facet_LinkBuilder', $this->search->getQuery(), $this->facetName, $facetOption);
+		$facetLinkBuilder->setLinkTargetPageId($this->linkTargetPageId);
+
+		return htmlspecialchars_decode($facetLinkBuilder->getReplaceFacetOptionUrl());
 	}
 
 }
