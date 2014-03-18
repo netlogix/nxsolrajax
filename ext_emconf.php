@@ -19,7 +19,9 @@ $EM_CONF[$_EXTKEY] = array(
 	'version' => '1.0.0',
 	'state' => 'stable',
 	'constraints' => array(
-		'depends' => array(),
+		'depends' => array(
+			'solr'
+		),
 		'conflicts' => array(),
 		'suggests' => array(),
 	),
