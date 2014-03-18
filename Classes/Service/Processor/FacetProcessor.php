@@ -130,10 +130,10 @@ class FacetProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processor
 			if ($facet->isActive()) {
 				$this->facetsActive = TRUE;
 			}
-			$facet = $facetRenderer->renderFacet();
-			$facet['type'] = $facetConfiguration['type'] ?: 'default';
+			$facetResult = $facetRenderer->renderFacet();
+			$facetResult['type'] = $facetConfiguration['type'] ?: 'default';
 
-			$facetContent[] = $facet;
+			$facetContent[] = $facetResult;
 		}
 
 		return $facetContent;
@@ -196,7 +196,7 @@ class FacetProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processor
 		}
 
 		$template->addVariable('remove_facet', $facetsInUse);
-		$template->addVariable('remove_all_facets', array('url' => $queryLinkBuilder->getQueryUrl(array('filter' => array(), 'isAjax' => 1)), 'text' => 'LLL:faceting_removeAllFilters'));
+		$template->addVariable('remove_all_facets', array('url' => $queryLinkBuilder->getQueryUrl(array('filter' => array(), 'isAjax' => 1)), 'text' => 'solr.facet.showAll'));
 
 		$content = array();
 		if (count($facetsInUse)) {
