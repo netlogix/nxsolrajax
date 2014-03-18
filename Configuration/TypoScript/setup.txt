@@ -28,6 +28,16 @@ page {
  }
 [GLOBAL]
 
+[globalVar = LIT:1 = {$plugin.tx_nxsolrajax.includeAngularUiTypeahead}]
+page {
+	includeJSlibs {
+		angularui-position = EXT:nxsolrajax/Resources/Public/Scripts/Common/Service/Position.min.js
+		angularui-bindhtml = EXT:nxsolrajax/Resources/Public/Scripts/Common/Service/BindHtml.min.js
+		angularui-typeahead = EXT:nxsolrajax/Resources/Public/Scripts/Common/Directives/Typeahead.min.js
+	}
+ }
+[GLOBAL]
+
 [globalVar = GP:tx_solr|isAjax > 0] || [globalString = Search Pages]
 
 plugin.tx_solr {
