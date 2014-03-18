@@ -314,7 +314,7 @@
 			clearText: 'Clear',
 			closeText: 'Done',
 			closeOnDateSelection: true,
-			appendToBody: false,
+			appendToBody: true,
 			showButtonBar: true
 		})
 
