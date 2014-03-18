@@ -106,6 +106,8 @@ class Facet implements \Netlogix\Nxcrudextbase\Domain\Model\DataTransfer\DataTra
 			$facetOption = array(
 				'label' => $rawFacetOption['facet']['label'],
 				'type' => $rawFacetOption['type'],
+				'active' => FALSE,
+				'resetUrl' => '',
 				'options' => array()
 			);
 
@@ -117,9 +119,19 @@ class Facet implements \Netlogix\Nxcrudextbase\Domain\Model\DataTransfer\DataTra
 						'count' => $facetLink['count'],
 						'selected' => intval($facetLink['selected']),
 					);
+					if ($facetLink['selected']) {
+						$facetOption['active'] = TRUE;
+						$facetOption['resetUrl'] = htmlspecialchars_decode($facetLink['url']);
+					}
 				}
 			} else {
 				$facetOption['options'] = $rawFacetOption['singleFacetOption'];
+				foreach ($rawFacetOption['singleFacetOption'] as $facetLink) {
+					if ($facetLink['active']) {
+						$facetOption['active'] = TRUE;
+						$facetOption['resetUrl'] =  htmlspecialchars_decode($facetLink['reseturl']);
+					}
+				}
 			}
 
 			$facetOptions[] = $facetOption;

@@ -78,6 +78,7 @@ class HierarchicalFacetRenderer extends \Tx_Solr_Facet_HierarchicalFacetRenderer
 				'numberOfResults' => $facetOption->getNumberOfResults(),
 				'url'             => $optionLinkUrl,
 				'selected'        => $optionSelected,
+				'resetUrl'        => $optionSelected ? $facetLinkBuilder->getRemoveFacetOptionUrl() : '',
 			);
 		}
 
@@ -116,6 +117,7 @@ class HierarchicalFacetRenderer extends \Tx_Solr_Facet_HierarchicalFacetRenderer
 				$topLevelMenu = array(
 					'text'            => $this->getFacetOptionLabel($facetOptionKey, $facetOption['numberOfResults']),
 					'url'             => $facetOption['url'],
+					'resetUrl'        => $facetOption['resetUrl'],
 					'count'           => $facetOption['numberOfResults'],
 					'selected'        => $facetOption['selected'],
 					'active'          => $facetOption['selected'],
@@ -130,6 +132,7 @@ class HierarchicalFacetRenderer extends \Tx_Solr_Facet_HierarchicalFacetRenderer
 					foreach ($subMenu as $option) {
 						if ($option['selected'] || $option['active']) {
 							$topLevelMenu['active'] = TRUE;
+							$topLevelMenu['resetUrl'] = $option['resetUrl'];
 						}
 					}
 				}
@@ -160,6 +163,7 @@ class HierarchicalFacetRenderer extends \Tx_Solr_Facet_HierarchicalFacetRenderer
 				$currentMenu = array(
 					'text'            => $this->getFacetOptionLabel($facetOptionKey, $facetOption['numberOfResults']),
 					'url'             => $facetOption['url'],
+					'resetUrl'        => $facetOption['resetUrl'],
 					'count'           => $facetOption['numberOfResults'],
 					'selected'        => $facetOption['selected'],
 					'active'          => $facetOption['selected'],
@@ -178,6 +182,7 @@ class HierarchicalFacetRenderer extends \Tx_Solr_Facet_HierarchicalFacetRenderer
 					foreach ($subMenu as $option) {
 						if ($option['selected'] || $option['active']) {
 							$currentMenu['active'] = TRUE;
+							$currentMenu['resetUrl'] = $option['resetUrl'];
 						}
 					}
 				}
