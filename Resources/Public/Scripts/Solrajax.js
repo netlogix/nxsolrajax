@@ -36,6 +36,7 @@
 
 	app.controller('SearchResultCtrl', ['searchResponse', '$http', '$location', '$scope', 'dateFilter', function (response, $http, $location, $scope, dateFilter) {
 
+		$scope.showFacetFilters = false;
 		$scope.loading = false;
 		$scope.q = '';
 

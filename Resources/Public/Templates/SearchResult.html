@@ -1,5 +1,5 @@
 <script type="text/ng-template" id="solr/facet/default.html">
-	<h3 class="facet-label csc-header">{{facet.label}}</h3>
+	<h4 class="facet-label csc-header">{{facet.label}}</h4>
 	<ul class="facet-option-list default">
 		<li data-ng-if="facet.active">
 			<a href="" data-ng-click="select(facet.resetUrl)" class="facet-option-reset-link">{{'solr.facet.removeSelection' | translate}}</a>
@@ -13,7 +13,7 @@
 </script>
 
 <script type="text/ng-template" id="solr/facet/queryGroup.html">
-	<h3 class="facet-label csc-header">{{facet.label}}</h3>
+	<h4 class="facet-label csc-header">{{facet.label}}</h4>
 	<ul class="facet-option-list queryGroup">
 		<li data-ng-if="facet.active">
 			<a href="" data-ng-click="select(facet.resetUrl)" class="facet-option-reset-link">{{'solr.facet.removeSelection' | translate}}</a>
@@ -27,7 +27,7 @@
 </script>
 
 <script type="text/ng-template" id="solr/facet/hierarchy.html">
-	<h3 class="facet-label csc-header">{{facet.label}}</h3>
+	<h4 class="facet-label csc-header">{{facet.label}}</h4>
 	<ul class="facet-option-list hierarchy">
 		<li data-ng-if="facet.active">
 			<a href="" data-ng-click="select(facet.resetUrl)" class="facet-option-reset-link">{{'solr.facet.removeSelection' | translate}}</a>
@@ -55,7 +55,7 @@
 </script>
 
 <script type="text/ng-template" id="solr/facet/dateRange.html">
-	<h3 class="facet-label csc-header" data-ng-if="facet.options.selected">{{facet.label}}</h3>
+	<h4 class="facet-label csc-header" data-ng-if="facet.options.selected">{{facet.label}}</h4>
 	<div class="form-group">
 		<input data-ng-show="facet.options.start" type="text" id="daterange-start-selected" class="form-control form-control-remove" readonly="readonly" data-ng-value="facet.options.start | date:facet.options.format" data-ng-click="removeStartDate(facet.options)" />
 		<input data-ng-hide="facet.options.start" placeholder="{{'solr.facet.dateRange.from' | translate}}" type="text" id="daterange-start" class="form-control" name="daterange-start" data-ng-model="facet.options.start" data-datepicker-popup="{{facet.options.format}}" data-min-date="facet.options.min" data-max-date="facet.options.max" data-ng-change="selectDate(facet.options)" />
@@ -67,16 +67,25 @@
 </script>
 
 <div class="row" data-ng-class="{'tx-solr-loading': loading}">
-	<div id="tx-solr-search-functions" class="col-sm-3">
+	<div id="tx-solr-search-functions" class="col-md-3 tx-solr-search-functions">
 
-		<ul class="facets list-unstyled">
+		<div class="facets-show" ng-class="{'facets-show-active': showFacetFilters}">
+			<a href="" class="icon-plus" ng-click="showFacetFilters = true">
+				{{'solr.facet.showFilter' | translate}}
+			</a>
+			<a href="" class="icon-minus-1" ng-click="showFacetFilters = false">
+				{{'solr.facet.showFilter' | translate}}
+			</a>
+		</div>
+
+		<ul class="facets list-unstyled" ng-class="{'facets-open': showFacetFilters}">
 			<li class="facet" data-ng-if="facets.usedFacets">
 				<a href="" data-ng-click="select(facets.usedFacets.removeAll.url)">
 					{{'solr.facet.news.showAll' | translate}}
 				</a>
 			</li>
-			<li class="facet">
-				<h3 class="facet-label csc-header">{{'solr.facet.keyword' | translate}}</h3>
+			<li class="facet facet-keyword">
+				<h4 class="facet-label csc-header">{{'solr.facet.keyword' | translate}}</h4>
 				<div data-ng-form="keyword">
 					<div class="form-group">
 						<input data-ng-show="search.q" type="text" class="form-control form-control-remove" data-ng-model="search.q" readonly="readonly" data-ng-click="removeSearch()" />
@@ -94,7 +103,7 @@
 		</ul>
 	</div>
 
-	<div id="tx-solr-search" class="col-sm-9">
+	<div id="tx-solr-search" class="col-md-9 tx-solr-search">
 
 		<section class="search-results">
 
