@@ -92,6 +92,17 @@
 			$scope.selectDate(option);
 		};
 
+		$scope.isDateSelected = function() {
+			var selected = false;
+			angular.forEach($scope.facets.availableFacets, function(facet) {
+				if ((facet.type === 'queryGroup' || facet.type === 'dateRange') && facet.active) {
+					selected = true;
+				}
+			});
+
+			return selected;
+		};
+
 		$scope.loadPrev = function () {
 			$scope.loading = true;
 			$http.get($scope.results.prevLink).then(function (response) {

@@ -84,7 +84,7 @@
 			</a>
 		</div>
 
-		<ul class="facets list-unstyled clearfix" ng-class="{'facets-open': showFacetFilters}">
+		<ul class="facets list-unstyled clearfix" ng-class="{'facets-open': showFacetFilters, 'facets-date-selected': isDateSelected()}">
 			<li class="facet facet-used" data-ng-if="facets.usedFacets">
 				<a href="" data-ng-click="select(facets.usedFacets.removeAll.url)">
 					{{'solr.facet.news.showAll' | translate}}
