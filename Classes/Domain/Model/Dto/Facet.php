@@ -124,10 +124,16 @@ class Facet implements \Netlogix\Nxcrudextbase\Domain\Model\DataTransfer\DataTra
 						$facetOption['resetUrl'] = htmlspecialchars_decode($facetLink['url']);
 					}
 				}
+			} elseif ($facetOption['type'] === 'dateRange') {
+				$facetOption['options'] = $rawFacetOption['singleFacetOption'];
+				if ($facetOption['options']['selected'] === TRUE) {
+					$facetOption['active'] = TRUE;
+					$facetOption['resetUrl'] =  htmlspecialchars_decode($facetOption['options']['reseturl']);
+				}
 			} else {
 				$facetOption['options'] = $rawFacetOption['singleFacetOption'];
 				foreach ($rawFacetOption['singleFacetOption'] as $facetLink) {
-					if ($facetLink['active']) {
+					if ($facetLink['active'] === TRUE) {
 						$facetOption['active'] = TRUE;
 						$facetOption['resetUrl'] =  htmlspecialchars_decode($facetLink['reseturl']);
 					}
