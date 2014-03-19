@@ -29,7 +29,7 @@
 
 	app.value('nx.solrajax.searchresult.initUrl', '');
 	app.run(['$location', 'nx.solrajax.searchresult.initUrl', function ($location, initUrl) {
-		if ($location.path() == '' && initUrl) {
+		if ($location.path() === '' && initUrl) {
 			$location.path(initUrl);
 		}
 	}]);
@@ -75,7 +75,7 @@
 			if (!option.start && !option.end) {
 				target = option.reseturl;
 			} else {
-				target = decodeURI(option.url).replace(encodeURI('{filterValue}'), encodeURI(start + option.delimiter + end))
+				target = decodeURI(option.url).replace(encodeURI('{filterValue}'), encodeURI(start + option.delimiter + end));
 			}
 
 			$location.path(target);
