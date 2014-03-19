@@ -56,13 +56,19 @@
 
 <script type="text/ng-template" id="solr/facet/dateRange.html">
 	<h4 class="facet-label csc-header" data-ng-if="facet.options.selected">{{facet.label}}</h4>
-	<div class="form-group">
-		<input data-ng-show="facet.options.start" type="text" id="daterange-start-selected" class="form-control form-control-remove" readonly="readonly" data-ng-value="facet.options.start | date:facet.options.format" data-ng-click="removeStartDate(facet.options)" />
-		<input data-ng-hide="facet.options.start" placeholder="{{'solr.facet.dateRange.from' | translate}}" type="text" id="daterange-start" class="form-control" name="daterange-start" data-ng-model="facet.options.start" data-datepicker-popup="{{facet.options.format}}" data-min-date="facet.options.min" data-max-date="facet.options.max" data-ng-change="selectDate(facet.options)" />
-	</div>
-	<div class="form-group">
-		<input data-ng-show="facet.options.end" type="text" id="daterange-end-selected" class="form-control form-control-remove" readonly="readonly" data-ng-value="facet.options.end | date:facet.options.format" data-ng-click="removeEndDate(facet.options)" />
-		<input data-ng-hide="facet.options.end" placeholder="{{'solr.facet.dateRange.to' | translate}}" type="text" id="daterange-end" class="form-control" name="daterange-start" data-ng-model="facet.options.end" data-datepicker-popup="{{facet.options.format}}" data-min-date="facet.options.min" data-max-date="facet.options.max" data-ng-change="selectDate(facet.options)" />
+	<div class="row">
+		<div class="col-xs-6 col-sm-12 col-md-6">
+			<div class="form-group">
+				<input data-ng-show="facet.options.start" type="text" id="daterange-start-selected" class="form-control form-control-remove" readonly="readonly" data-ng-value="facet.options.start | date:facet.options.format" data-ng-click="removeStartDate(facet.options)" />
+				<input data-ng-hide="facet.options.start" placeholder="{{'solr.facet.dateRange.from' | translate}}" type="text" id="daterange-start" class="form-control" name="daterange-start" data-ng-model="facet.options.start" data-datepicker-popup="{{facet.options.format}}" data-min-date="facet.options.min" data-max-date="facet.options.max" data-ng-change="selectDate(facet.options)" />
+			</div>
+		</div>
+		<div class="col-xs-6 col-sm-12 col-md-6">
+			<div class="form-group">
+				<input data-ng-show="facet.options.end" type="text" id="daterange-end-selected" class="form-control form-control-remove" readonly="readonly" data-ng-value="facet.options.end | date:facet.options.format" data-ng-click="removeEndDate(facet.options)" />
+				<input data-ng-hide="facet.options.end" placeholder="{{'solr.facet.dateRange.to' | translate}}" type="text" id="daterange-end" class="form-control" name="daterange-start" data-ng-model="facet.options.end" data-datepicker-popup="{{facet.options.format}}" data-min-date="facet.options.min" data-max-date="facet.options.max" data-ng-change="selectDate(facet.options)" />
+			</div>
+		</div>
 	</div>
 </script>
 
@@ -78,8 +84,8 @@
 			</a>
 		</div>
 
-		<ul class="facets list-unstyled" ng-class="{'facets-open': showFacetFilters}">
-			<li class="facet" data-ng-if="facets.usedFacets">
+		<ul class="facets list-unstyled clearfix" ng-class="{'facets-open': showFacetFilters}">
+			<li class="facet facet-used" data-ng-if="facets.usedFacets">
 				<a href="" data-ng-click="select(facets.usedFacets.removeAll.url)">
 					{{'solr.facet.news.showAll' | translate}}
 				</a>
@@ -97,13 +103,13 @@
 				</div>
 				<hr />
 			</li>
-			<li class="facet" data-ng-repeat="facet in facets.availableFacets" data-ng-class="'facet-' + facet.type | lowercase">
+			<li class="facet facet-filter" data-ng-repeat="facet in facets.availableFacets" data-ng-class="'facet-' + (facet.options.selected ? 'seleced' : 'unselected') + ' facet-' + facet.type | lowercase">
 				<div data-ng-include="'solr/facet/' + facet.type + '.html'"></div>
 			</li>
 		</ul>
 	</div>
 
-	<div id="tx-solr-search" class="col-md-9 tx-solr-search">
+	<div id="tx-solr-search" class="col-md-6 col-sm-8 tx-solr-search">
 
 		<section class="search-results">
 
@@ -134,5 +140,11 @@
 			</div>
 
 		</section>
+	</div>
+	<div class="col-md-3 col-sm-4">
+		<div class="well well-sm">
+			<p>{{'solr.teaser.news.text' | translate}}</p>
+			<p><a href="" target="_blank" class="button-default">{{'solr.teaser.news.button' | translate}}</a></p>
+		</div>
 	</div>
 </div>
