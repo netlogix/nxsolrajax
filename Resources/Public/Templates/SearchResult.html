@@ -79,7 +79,7 @@
 			<a href="" class="icon-plus" ng-click="showFacetFilters = true">
 				{{'solr.facet.showFilter' | translate}}
 			</a>
-			<a href="" class="icon-minus-1" ng-click="showFacetFilters = false">
+			<a href="" class="icon-minus" ng-click="showFacetFilters = false">
 				{{'solr.facet.showFilter' | translate}}
 			</a>
 		</div>
@@ -118,7 +118,7 @@
 			</div>
 
 			<div class="more text-center" data-ng-if="results.prevLink" data-ng-show="loading">
-				<a class="button-default"><span class="animate-spin icon-spin6"></span> {{'solr.results.loading' | translate}}</a>
+				<a class="button-default"><span class="animate-spin icon-spin"></span> {{'solr.results.loading' | translate}}</a>
 			</div>
 
 			<ul class="list-unstyled results-list">
@@ -132,7 +132,7 @@
 			</div>
 
 			<div class="more text-center" data-ng-if="results.nextLink" data-ng-show="loading">
-				<a class="button-default"><span class="animate-spin icon-spin6"></span> {{'solr.results.loading' | translate}}</a>
+				<a class="button-default"><span class="animate-spin icon-spin"></span> {{'solr.results.loading' | translate}}</a>
 			</div>
 
 			<div class="result-more-count text-center" data-ng-if="results.nextLink">
