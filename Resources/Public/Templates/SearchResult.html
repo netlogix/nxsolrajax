@@ -95,7 +95,7 @@
 				<div data-ng-form="keyword">
 					<div class="form-group">
 						<input data-ng-show="search.q" type="text" class="form-control form-control-remove" data-ng-model="search.q" readonly="readonly" data-ng-click="removeSearch()" />
-						<input data-ng-hide="search.q" type="text" id="keyword" class="form-control" name="keyword" required="required" data-ng-model="q" data-typeahead="suggestion as suggestion.name for suggestion in autoSuggestion($viewValue)" data-typeahead-on-select="submitSearch()" />
+						<input data-ng-hide="search.q" type="text" id="keyword" class="form-control form-control-search" name="keyword" required="required" data-ng-model="q" placeholder="{{'solr.facet.keywordPlaceholder' | translate}}" data-typeahead="suggestion as suggestion.name for suggestion in autoSuggestion($viewValue)" data-typeahead-on-select="submitSearch()" />
 					</div>
 					<div class="form-group" data-ng-hide="search.q">
 						<button type="submit" class="button-default" data-ng-disabled="keyword.$invalid" data-ng-click="submitSearch()">{{'solr.facet.search' | translate}}</button>
