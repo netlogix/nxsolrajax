@@ -113,11 +113,11 @@
 
 		<section class="search-results">
 
-			<div class="more text-center" data-ng-if="results.prevLink" data-ng-hide="loading">
-				<a class="button-default" href="" data-ng-click="loadPrev()">Show previous releases</a>
+			<div class="more" data-ng-if="results.prevLink" data-ng-hide="loading">
+				<a class="button-default" href="" data-ng-click="loadPrev()">{{'solr.results.news.showPrevious' | translate}}</a>
 			</div>
 
-			<div class="more text-center" data-ng-if="results.prevLink" data-ng-show="loading">
+			<div class="more" data-ng-if="results.prevLink" data-ng-show="loading">
 				<a class="button-default"><span class="animate-spin icon-spin"></span> {{'solr.results.loading' | translate}}</a>
 			</div>
 
@@ -127,16 +127,12 @@
 				</li>
 			</ul>
 
-			<div class="more text-center" data-ng-if="results.nextLink" data-ng-hide="loading">
-				<a class="button-default" href="" data-ng-click="loadNext()">{{'solr.results.news.showMore' | translate}}</a>
+			<div class="more" data-ng-if="results.nextLink" data-ng-hide="loading">
+				<a class="button-default" href="" data-ng-click="loadNext()">{{'solr.results.news.showMore' | translate}} ({{results.count - results.resultDocuments.length}})</a>
 			</div>
 
-			<div class="more text-center" data-ng-if="results.nextLink" data-ng-show="loading">
+			<div class="more" data-ng-if="results.nextLink" data-ng-show="loading">
 				<a class="button-default"><span class="animate-spin icon-spin"></span> {{'solr.results.loading' | translate}}</a>
-			</div>
-
-			<div class="result-more-count text-center" data-ng-if="results.nextLink">
-				<span>{{results.count - results.resultDocuments.length}} {{'solr.results.more' | translate}}</span>
 			</div>
 
 		</section>
