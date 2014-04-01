@@ -1,3 +1,4 @@
+/* global angular:ture */
 (function (window, angular, undefined) {
 	'use strict';
 
@@ -7,15 +8,15 @@
 	var app = angular.module('nx.solrajax', [
 		'ngSanitize',
 		'ui.bootstrap.datepicker',
-		'ui.bootstrap.typeahead'
+		'ui.bootstrap.typeahead',
+		'nx.angular.variables'
 	]);
 
-	app.constant('nx.solrajax.searchresult.templateUrl', 'typo3conf/ext/nxsolrajax/Resources/Public/Templates/SearchResult.html?1395144505');
-	app.config(['$routeProvider', 'nx.solrajax.searchresult.templateUrl', function ($routeProvider, templateUrl) {
+	app.config(['$routeProvider', 'nxConfigurationServiceProvider', function ($routeProvider, configurationService) {
 
 		$routeProvider.when('/search/:path*', {
 			controller: 'SearchResultCtrl',
-			templateUrl: templateUrl,
+			templateUrl: configurationService.value('nx.solrajax.searchresult.templateUrl'),
 			resolve: {
 				searchResponse: ['$location', '$http', function ($location, $http) {
 					return $http.get($location.path(), {
@@ -25,13 +26,6 @@
 			}
 		});
 
-	}]);
-
-	app.value('nx.solrajax.searchresult.initUrl', '');
-	app.run(['$location', 'nx.solrajax.searchresult.initUrl', function ($location, initUrl) {
-		if ($location.path() === '' && initUrl) {
-			$location.path(initUrl);
-		}
 	}]);
 
 	app.controller('SearchResultCtrl', ['searchResponse', '$http', '$location', '$scope', 'dateFilter', function (response, $http, $location, $scope, dateFilter) {
