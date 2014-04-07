@@ -14,7 +14,7 @@
 
 	app.config(['$routeProvider', 'nxConfigurationServiceProvider', function ($routeProvider, configurationService) {
 
-		$routeProvider.when('/search/:path*', {
+		$routeProvider.when('/ajaxsearch/:path*', {
 			controller: 'SearchResultCtrl',
 			templateUrl: configurationService.value('nx.solrajax.searchresult.templateUrl'),
 			resolve: {
