@@ -126,4 +126,23 @@
 
 	}]);
 
+	/**
+	 * See http://docs.angularjs.org/api/ng/service/$sce#trustAsHtml
+	 */
+	app.directive('nxBindResult', ['$sce', '$parse', '$compile', function($sce, $parse, $compile) {
+		return function(scope, element, attr) {
+			element.addClass('ng-binding').data('$binding', attr.nxBindResult);
+
+			var parsed = $parse(attr.nxBindResult);
+
+			function getStringValue() {
+				return (parsed(scope) || '').toString();
+			}
+
+			scope.$watch(getStringValue, function ngBindHtmlWatchAction(value) {
+				element.html($compile($sce.getTrustedHtml($sce.trustAsHtml(parsed(scope))))(scope) || '');
+			});
+		};
+	}]);
+
 }(window, angular));
