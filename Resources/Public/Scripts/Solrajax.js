@@ -41,7 +41,7 @@
 		$scope.autoSuggestion = function (search) {
 			return $http.get($scope.search.suggestUrl, {
 				params: {
-					q: search
+					q: search.toLowerCase()
 				}
 			}).then(function (ressult) {
 				return ressult.data.results;
@@ -49,7 +49,7 @@
 		};
 
 		$scope.submitSearch = function () {
-			var queryString = $scope.q.name || $scope.q;
+			var queryString = this.q.name || this.q;
 			$location.path($scope.search.url + '?q=' + queryString);
 		};
 
