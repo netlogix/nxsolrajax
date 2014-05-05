@@ -81,11 +81,10 @@ class ResultProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processo
 		$result['offset'] = $this->search->getResultOffset();
 
 		$resultClassNameMapping = $this->settings['search']['results']['resultClassNameMapping'];
-		$responseDocuments = $this->search->getResultDocuments();
+		$responseDocuments = $this->getResultDocuments();
 
 		foreach($responseDocuments as $responseDocument) {
-			$type = $responseDocument->type;
-			$responseDocument = $this->processDocumentFieldsToArray($responseDocument);
+			$type = $responseDocument['type'];
 			if (array_key_exists($type, $resultClassNameMapping)) {
 				$dtoClassName = $resultClassNameMapping[$type];
 			} else {
@@ -100,6 +99,92 @@ class ResultProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processo
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Query URL with a suggested/corrected query
+	 *
+	 * @return string Suggestion/spellchecked query URL
+	 */
+	public function getSuggestion() {
+		/** @var \Tx_Solr_SpellChecker $spellChecker */
+		$spellChecker = $this->objectManager->get('Tx_Solr_SpellChecker');
+		$suggestions = $spellChecker->getSuggestions();
+
+		$query = clone $this->search->getQuery();
+		$query->setKeywords($suggestions['collation']);
+
+		/** @var \Tx_Solr_Query_LinkBuilder $queryLinkBuilder */
+		$queryLinkBuilder = $this->objectManager->get('Tx_Solr_Query_LinkBuilder', $query);
+		$queryLinkBuilder->setLinkTargetPageId($GLOBALS['TSFE']->id);
+
+		$result = array(
+			'suggestion' => $suggestions['collation'],
+			'suggestionUrl' => $queryLinkBuilder->getQueryUrl(array('isAjax' => 1))
+		);
+
+		return $result;
+	}
+
+	/**
+	 * @return $this
+	 */
+	public function getParentPlugin() {
+		return $this;
+	}
+
+	/**
+	 * @return \Tx_Solr_Search
+	 */
+	public function getSearch() {
+		return $this->search;
+	}
+
+	/**
+	 * @return array
+	 */
+	protected function getResultDocuments() {
+		$responseDocuments = $this->search->getResultDocuments();
+		$resultDocuments = array();
+
+		if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifyResultSet'])) {
+			foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifyResultSet'] as $classReference) {
+				$resultSetModifier = \TYPO3\CMS\Core\Utility\GeneralUtility::getUserObj($classReference);
+
+				if ($resultSetModifier instanceof \Tx_Solr_ResultSetModifier) {
+					$responseDocuments = $resultSetModifier->modifyResultSet($this, $responseDocuments);
+				} else {
+					throw new \UnexpectedValueException(
+						get_class($resultSetModifier) . ' must implement interface Tx_Solr_ResultSetModifier',
+						1310386927
+					);
+				}
+			}
+		}
+
+		foreach ($responseDocuments as $resultDocument) {
+			$temporaryResultDocument = $this->processDocumentFieldsToArray($resultDocument);
+
+			if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifyResultDocument'])) {
+				foreach($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifyResultDocument'] as $classReference) {
+					$resultDocumentModifier = \TYPO3\CMS\Core\Utility\GeneralUtility::getUserObj($classReference);
+
+					if ($resultDocumentModifier instanceof \Tx_Solr_ResultDocumentModifier) {
+						$temporaryResultDocument = $resultDocumentModifier->modifyResultDocument($this, $temporaryResultDocument);
+					} else {
+						throw new \UnexpectedValueException(
+							get_class($resultDocumentModifier) . ' must implement interface Tx_Solr_ResultDocumentModifier',
+							1310386725
+						);
+					}
+				}
+			}
+
+			$resultDocuments[] = $temporaryResultDocument;
+			unset($temporaryResultDocument);
+		}
+
+		return $resultDocuments;
 	}
 
 	/**
@@ -164,31 +249,6 @@ class ResultProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processo
 		}
 
 		return $document;
-	}
-
-	/**
-	 * Query URL with a suggested/corrected query
-	 *
-	 * @return string Suggestion/spellchecked query URL
-	 */
-	public function getSuggestion() {
-		/** @var \Tx_Solr_SpellChecker $spellChecker */
-		$spellChecker = $this->objectManager->get('Tx_Solr_SpellChecker');
-		$suggestions = $spellChecker->getSuggestions();
-
-		$query = clone $this->search->getQuery();
-		$query->setKeywords($suggestions['collation']);
-
-		/** @var \Tx_Solr_Query_LinkBuilder $queryLinkBuilder */
-		$queryLinkBuilder = $this->objectManager->get('Tx_Solr_Query_LinkBuilder', $query);
-		$queryLinkBuilder->setLinkTargetPageId($GLOBALS['TSFE']->id);
-
-		$result = array(
-			'suggestion' => $suggestions['collation'],
-			'suggestionUrl' => $queryLinkBuilder->getQueryUrl(array('isAjax' => 1))
-		);
-
-		return $result;
 	}
 
 }
