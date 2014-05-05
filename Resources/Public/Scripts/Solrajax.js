@@ -38,6 +38,10 @@
 		$scope.results = response.data.result;
 		$scope.search = response.data.search;
 
+		$scope.typeFacet = function() {
+			return $scope.facets.availableFacets.filter(function(facet) {return facet.label ? facet.label.toLowerCase() === 'type' : false;})[0];
+		};
+
 		$scope.autoSuggestion = function (search) {
 			return $http.get($scope.search.suggestUrl, {
 				params: {
@@ -139,7 +143,7 @@
 				return (parsed(scope) || '').toString();
 			}
 
-			scope.$watch(getStringValue, function ngBindHtmlWatchAction(value) {
+			scope.$watch(getStringValue, function ngBindHtmlWatchAction() {
 				element.html($compile($sce.getTrustedHtml($sce.trustAsHtml(parsed(scope))))(scope) || '');
 			});
 		};
