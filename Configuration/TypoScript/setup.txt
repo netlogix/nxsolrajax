@@ -18,6 +18,7 @@ plugin.tx_nxsolrajax {
 }
 
 page.includeJS.nxsolrajax = EXT:nxsolrajax/Resources/Public/Scripts/Solrajax.min.js
+page.includeJS.nxsolrajaxAutoSuggest = EXT:nxsolrajax/Resources/Public/Scripts/AutoSuggest.min.js
 
 [globalVar = LIT:1 = {$plugin.tx_nxsolrajax.includeAngularUiDatepicker}]
 page {
