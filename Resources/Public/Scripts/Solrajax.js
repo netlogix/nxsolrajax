@@ -32,13 +32,16 @@
 
 		$scope.showFacetFilters = false;
 		$scope.loading = false;
-		$scope.q = '';
+		$scope.q = response.data.search.q || '';
 
 		$scope.facets = response.data.facets;
 		$scope.results = response.data.result;
 		$scope.search = response.data.search;
 
 		$scope.typeFacet = function() {
+			if (angular.isUndefined($scope.facets.availableFacets)) {
+				return false;
+			}
 			return $scope.facets.availableFacets.filter(function(facet) {return facet.label ? facet.label.toLowerCase() === 'type' : false;})[0];
 		};
 

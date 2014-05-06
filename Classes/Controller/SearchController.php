@@ -73,9 +73,10 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 			$result = $this->getMoreLinks($page);
 
 			$result = array('facets' => $this->processFacets(), 'result' => $this->processResult($result), 'search' => $this->processSearch());
-
-			$this->view->assign('object', $result);
+		} else {
+			$result = array('facets' => array(), 'result' => array(), 'search' => $this->processSearch(array('empty' => TRUE)));
 		}
+		$this->view->assign('object', $result);
 	}
 
 	/**
