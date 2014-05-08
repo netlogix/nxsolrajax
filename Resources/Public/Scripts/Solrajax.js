@@ -131,6 +131,16 @@
 			});
 		};
 
+		$scope.isSiteActive = function(name) {
+			return $scope.search.site.selected === name;
+		};
+
+		$scope.selectSite = function(name) {
+			if (!angular.isUndefined($scope.search.site[name])) {
+				$scope.select($scope.search.site[name]);
+			}
+		};
+
 	}]);
 
 	/**
