@@ -169,11 +169,11 @@ class SuggestController implements \TYPO3\CMS\Core\SingletonInterface {
 	protected function getAdditionalFilters() {
 		$additionalFilters = array();
 
-		if (!empty($solrConfiguration['search.']['query.']['filter.'])) {
-			foreach ($solrConfiguration['search.']['query.']['filter.'] as $filterKey => $filter) {
-				if (!is_array($solrConfiguration['search.']['query.']['filter.'][$filterKey])) {
-					if (is_array($solrConfiguration['search.']['query.']['filter.'][$filterKey . '.'])) {
-						$filter = $this->typoscriptFrontendController->cObj->stdWrap($solrConfiguration['search.']['query.']['filter.'][$filterKey], $solrConfiguration['search.']['query.']['filter.'][$filterKey . '.']);
+		if (!empty($this->settings['search.']['query.']['filter.'])) {
+			foreach ($this->settings['search.']['query.']['filter.'] as $filterKey => $filter) {
+				if (!is_array($this->settings['search.']['query.']['filter.'][$filterKey])) {
+					if (is_array($this->settings['search.']['query.']['filter.'][$filterKey . '.'])) {
+						$filter = $this->typoscriptFrontendController->cObj->stdWrap($this->settings['search.']['query.']['filter.'][$filterKey], $this->settings['search.']['query.']['filter.'][$filterKey . '.']);
 					}
 
 					$additionalFilters[$filterKey] = $filter;
