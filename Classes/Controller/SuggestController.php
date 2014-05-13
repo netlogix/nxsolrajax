@@ -99,7 +99,7 @@ class SuggestController implements \TYPO3\CMS\Core\SingletonInterface {
 	 * @param \Tx_Solr_SuggestQuery $suggestQuery
 	 */
 	protected function injectSuggestQuery(\Tx_Solr_SuggestQuery $suggestQuery) {
-		$allowedSites = str_replace('__solr_current_site', \Tx_Solr_Site::getSiteByPageId($this->typoscriptFrontendController->id)->getDomain(), $this->settings['search.']['query.']['allowedSites']);
+		$allowedSites = \Tx_Solr_Util::resolveSiteHashAllowedSites($GLOBALS['TSFE']->id, $this->settings['search.']['query.']['allowedSites']);
 
 		$suggestQuery->setUserAccessGroups(explode(',', $this->typoscriptFrontendController->gr_list));
 		$suggestQuery->addFilter('(endtime:[NOW/MINUTE TO *] OR endtime:"' . \Tx_Solr_Util::timestampToIso(0) . '")');
@@ -178,6 +178,21 @@ class SuggestController implements \TYPO3\CMS\Core\SingletonInterface {
 
 					$additionalFilters[$filterKey] = $filter;
 				}
+			}
+		}
+
+		$solrParameter = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('tx_solr');
+		if (!empty($solrParameter['filter'])) {
+			foreach($solrParameter['filter'] as $filter) {
+				list($filterKey, $filterValue) = explode(':', $filter);
+				if (is_array($this->settings['search.']['faceting.']['facets.'][$filterKey . '.'])) {
+					$facetConfig = $this->settings['search.']['faceting.']['facets.'][$filterKey . '.'];
+					if ($facetConfig['type'] == 'hierarchy') {
+						$filterValue = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_Query_FilterEncoder_Hierarchy')->decodeFilter($filterValue, $facetConfig);
+					}
+					$additionalFilters[] = $facetConfig['field'] . ':' . $filterValue;
+				}
+
 			}
 		}
 
