@@ -17,6 +17,7 @@
 
 		$scope.q = '';
 		$scope.suggestUrl = suggestUrl;
+		$scope.targetPageUrl = targetPage + '?q=QUERY_STRING';
 
 		$scope.getSuggestions = function (search) {
 			return $http.get($scope.suggestUrl, {
@@ -30,7 +31,7 @@
 
 		$scope.submit = function () {
 			var queryString = this.q.name || this.q;
-			window.location.href = targetPage + '?q=' + queryString;
+			window.location.href = $scope.targetPageUrl.replace('QUERY_STRING' ,queryString);
 		};
 
 	}]);
