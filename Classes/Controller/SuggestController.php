@@ -99,11 +99,18 @@ class SuggestController implements \TYPO3\CMS\Core\SingletonInterface {
 	 * @param \Tx_Solr_SuggestQuery $suggestQuery
 	 */
 	protected function injectSuggestQuery(\Tx_Solr_SuggestQuery $suggestQuery) {
-		$allowedSites = \Tx_Solr_Util::resolveSiteHashAllowedSites($GLOBALS['TSFE']->id, $this->settings['search.']['query.']['allowedSites']);
 
-		$suggestQuery->setUserAccessGroups(explode(',', $this->typoscriptFrontendController->gr_list));
-		$suggestQuery->addFilter('(endtime:[NOW/MINUTE TO *] OR endtime:"' . \Tx_Solr_Util::timestampToIso(0) . '")');
-		$suggestQuery->setSiteHashFilter($allowedSites);
+		$searchComponents = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_Search_SearchComponentManager')->getSearchComponents(\Tx_Solr_Search_SearchComponentManagerInterface::CONTEXT_SUGGEST);
+		/** @var \Tx_Solr_SearchComponent $searchComponent */
+		foreach ($searchComponents as $searchComponent) {
+			$searchComponent->setSearchConfiguration($this->settings['search.']);
+
+			if ($searchComponent instanceof \Tx_Solr_QueryAware) {
+				$searchComponent->setQuery($suggestQuery);
+			}
+
+			$searchComponent->initializeSearchComponent();
+		}
 		$suggestQuery->setOmitHeader();
 
 		foreach ($this->getAdditionalFilters() as $additionalFilter) {
@@ -189,6 +196,12 @@ class SuggestController implements \TYPO3\CMS\Core\SingletonInterface {
 					$facetConfig = $this->settings['search.']['faceting.']['facets.'][$filterKey . '.'];
 					if ($facetConfig['type'] == 'hierarchy') {
 						$filterValue = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('Tx_Solr_Query_FilterEncoder_Hierarchy')->decodeFilter($filterValue, $facetConfig);
+					} elseif ($facetConfig['type'] == 'queryGroup') {
+						if (array_key_exists($filterValue . '.', $facetConfig['queryGroup.'])) {
+							$filterValue = $facetConfig['queryGroup.'][$filterValue . '.']['query'];
+						} else {
+							continue;
+						}
 					}
 					$additionalFilters[] = $facetConfig['field'] . ':' . $filterValue;
 				}
