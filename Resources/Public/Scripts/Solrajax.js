@@ -32,6 +32,7 @@
 
 		$scope.showFacetFilters = false;
 		$scope.loading = false;
+		$scope.suggestLoading = false;
 		$scope.q = response.data.search.q || '';
 
 		$scope.facets = response.data.facets;
@@ -55,8 +56,8 @@
 			});
 		};
 
-		$scope.submitSearch = function () {
-			var queryString = this.q.name || this.q;
+		$scope.submitSearch = function ($element) {
+			var queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
 			$location.path($scope.search.url.replace('QUERY_STRING', queryString));
 		};
 
