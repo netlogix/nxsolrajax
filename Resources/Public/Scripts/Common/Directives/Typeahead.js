@@ -15,7 +15,7 @@
 		.factory('typeaheadParser', ['$parse', function ($parse) {
 
 			//                      00000111000000000000022200000000000000003333333333333330000000000044000
-			var TYPEAHEAD_REGEXP = /^\s*(.*?)(?:\s+as\s+(.*?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+(.*)$/;
+			var TYPEAHEAD_REGEXP = /^\s*([\s\S]+?)(?:\s+as\s+([\s\S]+?))?\s+for\s+(?:([\$\w][\$\w\d]*))\s+in\s+([\s\S]+?)$/;
 
 			return {
 				parse: function (input) {
@@ -23,8 +23,8 @@
 					var match = input.match(TYPEAHEAD_REGEXP);
 					if (!match) {
 						throw new Error(
-								'Expected typeahead specification in form of "_modelValue_ (as _label_)? for _item_ in _collection_"' +
-								' but got "' + input + '".');
+							'Expected typeahead specification in form of "_modelValue_ (as _label_)? for _item_ in _collection_"' +
+							' but got "' + input + '".');
 					}
 
 					return {
@@ -77,15 +77,25 @@
 
 						var hasFocus;
 
+						//create a child scope for the typeahead directive so we are not polluting original scope
+						//with typeahead-specific data (matches, query etc.)
+						var scope = originalScope.$new();
+						originalScope.$on('$destroy', function () {
+							scope.$destroy();
+						});
+
 						// WAI-ARIA
+						var popupId = 'typeahead-' + scope.$id + '-' + Math.floor(Math.random() * 10000);
 						element.attr({
 							'aria-autocomplete': 'list',
-							'aria-expanded': false
+							'aria-expanded': false,
+							'aria-owns': popupId
 						});
 
 						//pop-up element used to display matches
 						var popUpEl = angular.element('<div typeahead-popup></div>');
 						popUpEl.attr({
+							id: popupId,
 							matches: 'matches',
 							active: 'activeIdx',
 							select: 'select(activeIdx)',
@@ -97,18 +107,25 @@
 							popUpEl.attr('template-url', attrs.typeaheadTemplateUrl);
 						}
 
-						//create a child scope for the typeahead directive so we are not polluting original scope
-						//with typeahead-specific data (matches, query etc.)
-						var scope = originalScope.$new();
-						originalScope.$on('$destroy', function () {
-							scope.$destroy();
-						});
-
 						var resetMatches = function () {
 							scope.matches = [];
 							scope.activeIdx = -1;
 							element.attr('aria-expanded', false);
 						};
+
+						var getMatchId = function (index) {
+							return popupId + '-option-' + index;
+						};
+
+						// Indicate that the specified match is the active (pre-selected) item in the list owned by this typeahead.
+						// This attribute is added or removed automatically when the `activeIdx` changes.
+						scope.$watch('activeIdx', function (index) {
+							if (index < 0) {
+								element.removeAttr('aria-activedescendant');
+							} else {
+								element.attr('aria-activedescendant', getMatchId(index));
+							}
+						});
 
 						var getMatchesAsync = function (inputValue) {
 
@@ -128,8 +145,8 @@
 										//transform labels
 										for (var i = 0; i < matches.length; i++) {
 											locals[parserResult.itemName] = matches[i];
-
 											scope.matches.push({
+												id: getMatchId(i),
 												label: parserResult.viewMapper(scope, locals),
 												model: matches[i]
 											});
@@ -164,6 +181,18 @@
 						//Declare the timeout promise var outside the function scope so that stacked calls can be cancelled later
 						var timeoutPromise;
 
+						var scheduleSearchWithTimeout = function (inputValue) {
+							timeoutPromise = $timeout(function () {
+								getMatchesAsync(inputValue);
+							}, waitTime);
+						};
+
+						var cancelPreviousTimeout = function () {
+							if (timeoutPromise) {
+								$timeout.cancel(timeoutPromise);
+							}
+						};
+
 						//plug into $parsers pipeline to open a typeahead on view changes initiated from DOM
 						//$parsers kick-in on all the changes coming from the view as well as manually triggered by $setViewValue
 						modelCtrl.$parsers.unshift(function (inputValue) {
@@ -172,17 +201,14 @@
 
 							if (inputValue && inputValue.length >= minSearch) {
 								if (waitTime > 0) {
-									if (timeoutPromise) {
-										$timeout.cancel(timeoutPromise);//cancel previous timeout
-									}
-									timeoutPromise = $timeout(function () {
-										getMatchesAsync(inputValue);
-									}, waitTime);
+									cancelPreviousTimeout();
+									scheduleSearchWithTimeout(inputValue);
 								} else {
 									getMatchesAsync(inputValue);
 								}
 							} else {
 								isLoadingSetter(originalScope, false);
+								cancelPreviousTimeout();
 								resetMatches();
 							}
 
@@ -234,6 +260,7 @@
 							modelCtrl.$setValidity('editable', true);
 
 							onSelectCallback(originalScope, {
+								$element: element,
 								$item: item,
 								$model: model,
 								$label: parserResult.viewMapper(originalScope, locals)
@@ -241,7 +268,7 @@
 
 							resetMatches();
 
-							//return focus to the input element if a mach was selected via a mouse click event
+							//return focus to the input element if a match was selected via a mouse click event
 							// use timeout to avoid $rootScope:inprog error
 							$timeout(function () {
 								element[0].focus();
