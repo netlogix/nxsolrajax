@@ -57,7 +57,7 @@
 
 		$scope.submitSearch = function () {
 			var queryString = this.q.name || this.q;
-			$location.path($scope.search.url + '?q=' + queryString);
+			$location.path($scope.search.url.replace('QUERY_STRING', queryString));
 		};
 
 		$scope.removeSearch = function () {
