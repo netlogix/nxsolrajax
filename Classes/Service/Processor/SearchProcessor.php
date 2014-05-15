@@ -87,12 +87,28 @@ class SearchProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processo
 			$suggestUrl = str_replace('http://', 'https://', $suggestUrl);
 		}
 
-		$suggestUrl .= '?eID=tx_nxsolrajax_suggest&id=' . $GLOBALS['TSFE']->id;
+		$params = array(
+			'eID' => 'tx_nxsolrajax_suggest',
+			'id' => $GLOBALS['TSFE']->id,
+			'L' => $GLOBALS['TSFE']->sys_language_uid,
+		);
 
-			// adds the language parameter to the suggest URL
-		if ($GLOBALS['TSFE']->sys_language_uid > 0) {
-			$suggestUrl .= '&L=' . $GLOBALS['TSFE']->sys_language_uid;
+		$getParams = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('tx_solr');
+		if ($this->settings['suggest']['siteSelector'] && isset($getParams['site'])) {
+			$params['tx_solr']['site'] = $getParams['site'];
 		}
+
+		if (is_array($this->settings['suggest']['filter']) && isset($getParams['filter'])) {
+			foreach($getParams['filter'] as $filter) {
+				$filter = urldecode($filter);
+				list($filterName) = explode(':', $filter);
+				if (array_key_exists($filterName, $this->settings['suggest']['filter'])) {
+					$params['tx_solr']['filter'][] = $filter;
+				}
+			}
+		}
+
+		$suggestUrl .= '?' . http_build_query($params) ;
 
 		return $suggestUrl;
 	}
