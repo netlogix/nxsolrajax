@@ -87,7 +87,7 @@ class FacetProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processor
 		$facetResult = array();
 
 		if ($this->settings['search']['faceting']
-			&& ($this->search->getNumberOfResults() || $this->settings['search']['initializeWithEmptyQuery'] || $this->settings['search']['initializeWithQuery'])
+			&& ($this->search->getNumberOfResults() || $this->settings['search']['initializeWithEmptyQuery'] || $this->settings['search']['initializeWithQuery'] || $this->settings['search']['alwaysShowFacets'])
 		) {
 			$facetResult['availableFacets'] = $this->renderAvailableFacets();
 			$facetResult['usedFacets'] = $this->renderUsedFacets();
@@ -116,7 +116,7 @@ class FacetProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processor
 
 			if (
 				(isset($facetConfiguration['includeInAvailableFacets']) && $facetConfiguration['includeInAvailableFacets'] == '0')
-				|| !$facet->isRenderingAllowed()
+				|| !$facet->isRenderingAllowed() || $facet->getOptionsCount() == 0
 			) {
 					// don't render facets that should not be included in available facets
 					// or that do not meet their requirements to be rendered
