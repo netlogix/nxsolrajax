@@ -120,7 +120,7 @@ class ResultProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processo
 
 		$result = array(
 			'suggestion' => $suggestions['collation'],
-			'suggestionUrl' => $queryLinkBuilder->getQueryUrl(array('isAjax' => 1))
+			'suggestionUrl' => htmlspecialchars_decode($queryLinkBuilder->getQueryUrl(array('isAjax' => 1)))
 		);
 
 		return $result;
