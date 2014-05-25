@@ -110,6 +110,25 @@ class HierarchicalFacetRenderer extends \Tx_Solr_Facet_HierarchicalFacetRenderer
 	protected function getMenuStructure($facetOptions) {
 		$menuStructure = array();
 
+		$activeFacetOptionKey = NULL;
+		foreach ($facetOptions as $facetOptionKey => $facetOption) {
+			if ($facetOption['selected']) {
+				$activeFacetOptionKey = $facetOptionKey;
+				break;
+			}
+		}
+
+		if ($activeFacetOptionKey !== NULL) {
+			$drop = '%^\d+-' . end(explode('-', $activeFacetOptionKey)) . '/\d+/%';
+		} else {
+			$drop = '%^\d+-\d+/%';
+		}
+		foreach ($facetOptions as $facetOptionKey => $facetOption) {
+			if (preg_match($drop, $facetOptionKey)) {
+				unset($facetOptions[$facetOptionKey]);
+			}
+		}
+
 		foreach ($facetOptions as $facetOptionKey => $facetOption) {
 
 				// let's start with top level menu options

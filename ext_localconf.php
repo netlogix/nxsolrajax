@@ -10,16 +10,6 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['Tx_Solr_Facet_HierarchicalFacetRe
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['Tx_Solr_Facet_DateRangeFacetRenderer']['className'] = 'Netlogix\\Nxsolrajax\\Service\\Renderer\\DateRangeFacetRenderer';
 $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['Tx_Solr_Query_FilterEncoder_DateRange']['className'] = 'Netlogix\\Nxsolrajax\\Service\\Query\\FilterEncoder\\DateRange';
 
-// Overwrite solr plugin to enable caching of result.
-// User get the via ajax
-t3lib_extMgm::addPItoST43(
-	'solr',
-	'PiResults/Results.php',
-	'_pi_results',
-	'list_type',
-	TRUE
-);
-
 \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin(
 	'Netlogix.' . $_EXTKEY,
 	'AjaxSearch',
