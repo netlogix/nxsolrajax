@@ -65,7 +65,7 @@
 
 						var inputFormatter = attrs.typeaheadInputFormatter ? $parse(attrs.typeaheadInputFormatter) : undefined;
 
-						var appendToBody = attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : true;
+						var appendToBody = attrs.typeaheadAppendToBody ? originalScope.$eval(attrs.typeaheadAppendToBody) : false;
 
 						//INTERNAL VARIABLES
 
@@ -139,7 +139,7 @@
 								if (onCurrentRequest && hasFocus) {
 									if (matches.length > 0) {
 
-										scope.activeIdx = 0;
+										scope.activeIdx = -1;
 										scope.matches.length = 0;
 
 										//transform labels
@@ -254,10 +254,12 @@
 							var locals = {};
 							var model, item;
 
-							locals[parserResult.itemName] = item = scope.matches[activeIdx].model;
-							model = parserResult.modelMapper(originalScope, locals);
-							$setModelValue(originalScope, model);
-							modelCtrl.$setValidity('editable', true);
+							if (activeIdx !== -1) {
+								locals[parserResult.itemName] = item = scope.matches[activeIdx].model;
+								model = parserResult.modelMapper(originalScope, locals);
+								$setModelValue(originalScope, model);
+								modelCtrl.$setValidity('editable', true);
+							}
 
 							onSelectCallback(originalScope, {
 								$element: element,
