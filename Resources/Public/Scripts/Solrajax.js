@@ -50,7 +50,8 @@
 			return $http.get($scope.search.suggestUrl, {
 				params: {
 					q: search.toLowerCase()
-				}
+				},
+				cache: true
 			}).then(function (ressult) {
 				return ressult.data.results;
 			});

@@ -24,14 +24,15 @@
 			return $http.get($scope.suggestUrl, {
 				params: {
 					q: search.toLowerCase()
-				}
+				},
+				cache: true
 			}).then(function (ressult) {
 				return ressult.data.results;
 			});
 		};
 
 		$scope.submit = function ($element) {
-			var queryString = $scope.suggestLoading ? $element.val() : this.q.name;
+			var queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
 			window.location.href = $scope.targetPageUrl.replace('QUERY_STRING' ,queryString);
 		};
 
