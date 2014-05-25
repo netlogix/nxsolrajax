@@ -62,7 +62,7 @@
 		};
 
 		$scope.removeSearch = function () {
-			$location.path($scope.search.url);
+			$location.path($scope.search.url.replace('QUERY_STRING', ''));
 		};
 
 		$scope.select = function (target) {
