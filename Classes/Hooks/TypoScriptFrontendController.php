@@ -37,7 +37,7 @@ class TypoScriptFrontendController implements \TYPO3\CMS\Core\SingletonInterface
 
 		/** @var \TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController $typoScriptFrontendController */
 		$typoScriptFrontendController = $GLOBALS['TSFE'];
-		if (\TYPO3\CMS\Core\Utility\GeneralUtility::_GP('tx_solr') && !empty($typoScriptFrontendController->config['config']['sendCacheHeaders']) && !$typoScriptFrontendController->beUserLogin && !$typoScriptFrontendController->doWorkspacePreview()) {
+		if (!empty($typoScriptFrontendController->config['config']['enforceSendCacheHeaders']) && !$typoScriptFrontendController->beUserLogin && !$typoScriptFrontendController->doWorkspacePreview()) {
 			$headers = array(
 				'Last-Modified: ' . gmdate('D, d M Y H:i:s T', $typoScriptFrontendController->register['SYS_LASTCHANGED']),
 				'Expires: ' . gmdate('D, d M Y H:i:s T', $typoScriptFrontendController->cacheExpires),
