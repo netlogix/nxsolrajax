@@ -21,6 +21,7 @@ $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects']['Tx_Solr_Query_FilterEncoder_DateR
 	)
 );
 // Registering suggest eID
-$TYPO3_CONF_VARS['FE']['eID_include']['tx_nxsolrajax_suggest'] = 'EXT:nxsolrajax/Classes/Controller/SuggestController.php';
+$GLOBALS['TYPO3_CONF_VARS']['FE']['eID_include']['tx_nxsolrajax_suggest'] = 'EXT:nxsolrajax/Classes/Controller/SuggestController.php';
+$GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['tslib/class.tslib_fe.php']['contentPostProc-output'][$_EXTKEY] = 'Netlogix\\Nxsolrajax\\Hooks\\TypoScriptFrontendController->sendCacheHeaders';
 
 ?>
