@@ -28,7 +28,7 @@
 
 	}]);
 
-	app.controller('SearchResultCtrl', ['searchResponse', '$http', '$location', '$scope', 'dateFilter', function (response, $http, $location, $scope, dateFilter) {
+	app.controller('SearchResultCtrl', ['searchResponse', '$http', '$location', '$scope', '$rootScope', 'dateFilter', function (response, $http, $location, $scope, $rootScope, dateFilter) {
 
 		$scope.showFacetFilters = false;
 		$scope.loading = false;
@@ -107,30 +107,45 @@
 		};
 
 		$scope.loadPrev = function () {
+			$rootScope.$broadcast('$solrajaxLoadMoreStart', $scope.results.prevLink);
 			$scope.loading = true;
-			$http.get($scope.results.prevLink).then(function (response) {
-				$scope.results.prevLink = response.data.result.prevLink || '';
+			$http.get($scope.results.prevLink)
+				.success(function (data, status, headers, config) {
+					$rootScope.$broadcast('$solrajaxLoadMoreSuccess', $scope.results.prevLink);
+					$scope.results.prevLink = data.result.prevLink || '';
 
-				// Add new documents to scope
-				angular.forEach(response.data.result.resultDocuments.reverse(), function (resultDocument) {
-					$scope.results.resultDocuments.unshift(resultDocument);
+					// Add new documents to scope
+					angular.forEach(data.result.resultDocuments.reverse(), function (resultDocument) {
+						$scope.results.resultDocuments.unshift(resultDocument);
+					});
+					$scope.loading = false;
+				})
+				.error(function(data, status, headers, config) {
+					$rootScope.$broadcast('$solrajaxLoadMoreError', $scope.results.prevLink);
+					$scope.results.prevLink = '';
+					$scope.loading = false;
 				});
-				$scope.loading = false;
-			});
 		};
 
 		$scope.loadNext = function () {
+			$rootScope.$broadcast('$solrajaxLoadMoreStart', $scope.results.nextLink);
 			$scope.loading = true;
-			$http.get($scope.results.nextLink, {cache: true}).then(function (response) {
-				$location.replace($scope.results.nextLink);
-				$scope.results.nextLink = response.data.result.nextLink || '';
+			$http.get($scope.results.nextLink, {cache: true})
+				.success(function (data, status, headers, config) {
+					$rootScope.$broadcast('$solrajaxLoadMoreSuccess', $scope.results.nextLink);
+					$scope.results.nextLink = data.result.nextLink || '';
 
-				// Add new documents to scope
-				angular.forEach(response.data.result.resultDocuments, function (resultDocument) {
-					$scope.results.resultDocuments.push(resultDocument);
+					// Add new documents to scope
+					angular.forEach(data.result.resultDocuments, function (resultDocument) {
+						$scope.results.resultDocuments.push(resultDocument);
+					});
+					$scope.loading = false;
+				})
+				.error(function(data, status, headers, config) {
+					$rootScope.$broadcast('$solrajaxLoadMoreError', $scope.results.nextLink);
+					$scope.results.nextLink = '';
+					$scope.loading = false;
 				});
-				$scope.loading = false;
-			});
 		};
 
 		$scope.isSiteActive = function(name) {
