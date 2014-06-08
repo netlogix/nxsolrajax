@@ -133,14 +133,21 @@ class SuggestController implements \TYPO3\CMS\Core\SingletonInterface {
 	public function dispatch() {
 
 		$response = json_encode($this->suggestAction());
+		$headers = array(
+			'Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT',
+			'Expires: ' . gmdate('D, d M Y H:i:s T', $GLOBALS['EXEC_TIME'] + 3600),
+			'ETag: "' . md5($response) . '"',
+			'Cache-Control: max-age=3600',
+			'Pragma: public',
+			'Content-Length: ' . strlen($response),
+			'Content-Type: application/json; charset=utf-8',
+			'Content-Transfer-Encoding: 8bit'
+		);
 
-		header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
-		header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
-		header('Cache-Control: no-cache, must-revalidate');
-		header('Pragma: no-cache');
-		header('Content-Length: ' . strlen($response));
-		header('Content-Type: application/json; charset=utf-8');
-		header('Content-Transfer-Encoding: 8bit');
+		// Send headers:
+		foreach ($headers as $header) {
+			header($header);
+		}
 		echo $response;
 	}
 
