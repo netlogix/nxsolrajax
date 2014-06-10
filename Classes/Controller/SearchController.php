@@ -108,7 +108,7 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 		$links = array();
 
 		if ($page > 0) {
-			$links['prevLink'] = $this->uriBuilder->reset()->setAddQueryString(TRUE)->uriFor('moreResults', array('page' => $page - 1, 'isAjax' => 1));
+			$links['prevLink'] = $this->uriBuilder->reset()->setUseCacheHash(FALSE)->setAddQueryString(TRUE)->uriFor('moreResults', array('page' => $page - 1, 'isAjax' => 1));
 		}
 
 		$resultsPerPage = $this->query->getResultsPerPage();
@@ -116,7 +116,7 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 		$numberOfResults = $this->search->getNumberOfResults();
 
 		if ($numberOfResults - $resultsPerPage > $resultOffset) {
-			$links['nextLink'] = $this->uriBuilder->reset()->setAddQueryString(TRUE)->uriFor('moreResults', array('page' => $page + 1, 'isAjax' => 1));
+			$links['nextLink'] = $this->uriBuilder->reset()->setUseCacheHash(FALSE)->setAddQueryString(TRUE)->uriFor('moreResults', array('page' => $page + 1, 'isAjax' => 1));
 		}
 
 		return $links;
