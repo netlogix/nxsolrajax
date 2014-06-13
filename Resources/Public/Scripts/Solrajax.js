@@ -20,7 +20,8 @@
 			resolve: {
 				searchResponse: ['$location', '$http', function ($location, $http) {
 					return $http.get($location.path(), {
-						params: $location.search()
+						params: $location.search(),
+						cache: true
 					});
 				}]
 			}
@@ -109,7 +110,7 @@
 		$scope.loadPrev = function () {
 			$rootScope.$broadcast('$solrajaxLoadMoreStart', $scope.results.prevLink);
 			$scope.loading = true;
-			$http.get($scope.results.prevLink)
+			$http.get($scope.results.prevLink, {cache: true})
 				.success(function (data, status, headers, config) {
 					$rootScope.$broadcast('$solrajaxLoadMoreSuccess', $scope.results.prevLink);
 					$scope.results.prevLink = data.result.prevLink || '';
@@ -119,6 +120,7 @@
 						$scope.results.resultDocuments.unshift(resultDocument);
 					});
 					$scope.loading = false;
+					preloadResults();
 				})
 				.error(function(data, status, headers, config) {
 					$rootScope.$broadcast('$solrajaxLoadMoreError', $scope.results.prevLink);
@@ -140,6 +142,7 @@
 						$scope.results.resultDocuments.push(resultDocument);
 					});
 					$scope.loading = false;
+					preloadResults();
 				})
 				.error(function(data, status, headers, config) {
 					$rootScope.$broadcast('$solrajaxLoadMoreError', $scope.results.nextLink);
@@ -157,6 +160,17 @@
 				$scope.select($scope.search.site[name]);
 			}
 		};
+
+		function preloadResults() {
+			if ($scope.results.prevLink) {
+				$http.get($scope.results.prevLink, {cache: true});
+			}
+			if ($scope.results.nextLink) {
+				$http.get($scope.results.nextLink, {cache: true});
+			}
+		}
+
+		preloadResults();
 
 	}]);
 
