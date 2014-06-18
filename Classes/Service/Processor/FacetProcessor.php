@@ -132,6 +132,7 @@ class FacetProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processor
 			}
 			$facetResult = $facetRenderer->renderFacet();
 			$facetResult['type'] = $facetConfiguration['type'] ?: 'default';
+			$facetResult['name'] = $facetName;
 
 			$facetContent[] = $facetResult;
 		}

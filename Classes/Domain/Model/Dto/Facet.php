@@ -81,7 +81,7 @@ class Facet implements \Netlogix\Nxcrudextbase\Domain\Model\DataTransfer\DataTra
 		$facetOptions = array(
 			'removeAll' => array(
 				'label' => $this->innermostSelf['usedFacets']['removeAllFacets']['text'],
-				'url' => $this->innermostSelf['usedFacets']['removeAllFacets']['url']
+				'url' => htmlspecialchars_decode($this->innermostSelf['usedFacets']['removeAllFacets']['url'])
 			),
 			'options' => array(),
 		);
@@ -104,6 +104,7 @@ class Facet implements \Netlogix\Nxcrudextbase\Domain\Model\DataTransfer\DataTra
 
 		foreach ($this->innermostSelf['availableFacets'] as $rawFacetOption) {
 			$facetOption = array(
+				'name' => $rawFacetOption['facet']['name'],
 				'label' => $rawFacetOption['facet']['label'],
 				'type' => $rawFacetOption['type'],
 				'active' => FALSE,

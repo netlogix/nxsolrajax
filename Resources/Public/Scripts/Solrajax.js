@@ -44,7 +44,7 @@
 			if (angular.isUndefined($scope.facets.availableFacets)) {
 				return false;
 			}
-			return $scope.facets.availableFacets.filter(function(facet) {return facet.label ? facet.label.toLowerCase() === 'type' : false;})[0];
+			return $scope.facets.availableFacets.filter(function(facet) {return facet.label ? facet.name.toLowerCase() === 'type' : false;})[0];
 		};
 
 		$scope.autoSuggestion = function (search) {
