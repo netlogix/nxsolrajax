@@ -33,7 +33,7 @@
 
 		$scope.submit = function ($element) {
 			var queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
-			window.location.href = $scope.targetPageUrl.replace('QUERY_STRING' ,queryString);
+			window.location.href = window.location.origin + $scope.targetPageUrl.replace('QUERY_STRING' ,queryString);
 		};
 
 	}]);
