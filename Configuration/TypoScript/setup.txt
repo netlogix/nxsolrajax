@@ -39,7 +39,7 @@ page {
  }
 [GLOBAL]
 
-[globalVar = GP:tx_solr|isAjax > 0] || [globalString = Search Pages]
+[globalVar = GP:tx_solr|isAjax > 0] || [globalString = LIT: Comment = Search Pages]
 
 plugin.tx_solr {
 	search {
