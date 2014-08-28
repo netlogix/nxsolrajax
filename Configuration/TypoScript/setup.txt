@@ -17,6 +17,9 @@ plugin.tx_nxsolrajax {
 	}
 }
 
+plugin.tx_nxsolrajax.settings < plugin.tx_solr
+plugin.tx_solr.settings < plugin.tx_solr
+
 page.includeJS.nxsolrajax = EXT:nxsolrajax/Resources/Public/Scripts/Solrajax.min.js
 page.includeJS.nxsolrajaxAutoSuggest = EXT:nxsolrajax/Resources/Public/Scripts/AutoSuggest.min.js
 

@@ -58,7 +58,8 @@ class ResultProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processo
 	 * @return void
 	 */
 	public function injectConfigurationManager(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface $configurationManager) {
-		$this->settings = $configurationManager->getConfiguration( \TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS);
+		$configurationManager->setConfiguration(array('extensionName' => 'solr'));
+		$this->settings = $configurationManager->getConfiguration(\TYPO3\CMS\Extbase\Configuration\ConfigurationManagerInterface::CONFIGURATION_TYPE_SETTINGS, 'solr');
 	}
 
 	/**
