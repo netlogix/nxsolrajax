@@ -7,7 +7,6 @@
 	 */
 	var app = angular.module('nx.solrajax', [
 		'ngSanitize',
-		'ui.bootstrap.datepicker',
 		'ui.bootstrap.typeahead',
 		'nx.angular.variables'
 	]);
@@ -74,6 +73,11 @@
 		$scope.selectDate = function (option) {
 			var start, end, target;
 
+			if (angular.isObject(option.range)) {
+				option.start = option.range.start;
+				option.end = option.range.end;
+			}
+
 			start = option.start ? dateFilter(option.start, 'yyyyMMdd') : '*';
 			end = option.end ? dateFilter(option.end, 'yyyyMMdd') : '*';
 
@@ -84,6 +88,13 @@
 			}
 
 			$location.path(target);
+		};
+
+		$scope.removeDate = function (option) {
+			option.start = '';
+			option.end = '';
+			option.range = '';
+			$scope.selectDate(option);
 		};
 
 		$scope.removeStartDate = function (option) {
@@ -111,7 +122,7 @@
 			$rootScope.$broadcast('$solrajaxLoadMoreStart', $scope.results.prevLink);
 			$scope.loading = true;
 			$http.get($scope.results.prevLink, {cache: true})
-				.success(function (data, status, headers, config) {
+				.success(function (data) {
 					$rootScope.$broadcast('$solrajaxLoadMoreSuccess', $scope.results.prevLink);
 					$scope.results.prevLink = data.result.prevLink || '';
 
@@ -122,7 +133,7 @@
 					$scope.loading = false;
 					preloadResults();
 				})
-				.error(function(data, status, headers, config) {
+				.error(function() {
 					$rootScope.$broadcast('$solrajaxLoadMoreError', $scope.results.prevLink);
 					$scope.results.prevLink = '';
 					$scope.loading = false;
@@ -133,7 +144,7 @@
 			$rootScope.$broadcast('$solrajaxLoadMoreStart', $scope.results.nextLink);
 			$scope.loading = true;
 			$http.get($scope.results.nextLink, {cache: true})
-				.success(function (data, status, headers, config) {
+				.success(function (data) {
 					$rootScope.$broadcast('$solrajaxLoadMoreSuccess', $scope.results.nextLink);
 					$scope.results.nextLink = data.result.nextLink || '';
 
@@ -144,7 +155,7 @@
 					$scope.loading = false;
 					preloadResults();
 				})
-				.error(function(data, status, headers, config) {
+				.error(function() {
 					$rootScope.$broadcast('$solrajaxLoadMoreError', $scope.results.nextLink);
 					$scope.results.nextLink = '';
 					$scope.loading = false;

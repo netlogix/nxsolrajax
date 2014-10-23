@@ -22,6 +22,7 @@ plugin.tx_solr.settings < plugin.tx_solr
 
 page.includeJS.nxsolrajax = EXT:nxsolrajax/Resources/Public/Scripts/Solrajax.min.js
 page.includeJS.nxsolrajaxAutoSuggest = EXT:nxsolrajax/Resources/Public/Scripts/AutoSuggest.min.js
+page.includeJS.nxsolrajaxSimpleDatepicker = EXT:nxsolrajax/Resources/Public/Scripts/SimpleDatepicker.js
 
 [globalVar = LIT:1 = {$plugin.tx_nxsolrajax.includeAngularUiDatepicker}]
 page {
