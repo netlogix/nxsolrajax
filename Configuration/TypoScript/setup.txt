@@ -20,29 +20,6 @@ plugin.tx_nxsolrajax {
 plugin.tx_nxsolrajax.settings < plugin.tx_solr
 plugin.tx_solr.settings < plugin.tx_solr
 
-page.includeJS.nxsolrajax = EXT:nxsolrajax/Resources/Public/Scripts/Solrajax.min.js
-page.includeJS.nxsolrajaxAutoSuggest = EXT:nxsolrajax/Resources/Public/Scripts/AutoSuggest.min.js
-page.includeJS.nxsolrajaxSimpleDatepicker = EXT:nxsolrajax/Resources/Public/Scripts/SimpleDatepicker.js
-
-[globalVar = LIT:1 = {$plugin.tx_nxsolrajax.includeAngularUiDatepicker}]
-page {
-	includeJSlibs {
-		angularui-position = EXT:nxsolrajax/Resources/Public/Scripts/Common/Service/Position.min.js
-		angularui-datepicker = EXT:nxsolrajax/Resources/Public/Scripts/Common/Directives/Datepicker.min.js
-	}
- }
-[GLOBAL]
-
-[globalVar = LIT:1 = {$plugin.tx_nxsolrajax.includeAngularUiTypeahead}]
-page {
-	includeJSlibs {
-		angularui-position = EXT:nxsolrajax/Resources/Public/Scripts/Common/Service/Position.min.js
-		angularui-bindhtml = EXT:nxsolrajax/Resources/Public/Scripts/Common/Service/BindHtml.min.js
-		angularui-typeahead = EXT:nxsolrajax/Resources/Public/Scripts/Common/Directives/Typeahead.min.js
-	}
- }
-[GLOBAL]
-
 [globalVar = GP:tx_solr|isAjax > 0] || [globalString = LIT: Comment = Search Pages]
 
 plugin.tx_solr {

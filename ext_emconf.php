@@ -16,11 +16,14 @@ $EM_CONF[$_EXTKEY] = array(
 	'modify_tables' => '',
 	'clearCacheOnLoad' => 1,
 	'lockType' => '',
-	'version' => '1.0.0',
+	'version' => '1.0.1',
 	'state' => 'stable',
 	'constraints' => array(
 		'depends' => array(
-			'solr'
+			'cms' => '',
+			'php' => '5.3.0-0.0.0',
+			'typo3' => '6.2',
+			'solr' => '3.0.0',
 		),
 		'conflicts' => array(),
 		'suggests' => array(),

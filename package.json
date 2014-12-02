@@ -1,0 +1,32 @@
+{
+  "name": "netzsch-site",
+  "description": "netzsch website site",
+  "repository": "ssh://review.dev.colo.netlogix.de:29418/customers/netzsch/netzsch-dist",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-contrib-clean": "~0.6.0",
+    "grunt-contrib-compass": "^1.0.1",
+    "grunt-contrib-concat": "~0.5.0",
+    "grunt-contrib-csslint": "^0.3.1",
+    "grunt-contrib-cssmin": "~0.10.0",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-contrib-uglify": "^0.6.0",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-html2js": "~0.2.9",
+    "grunt-karma": "^0.9.0",
+    "karma": "^0.12.24",
+    "karma-chrome-launcher": "^0.1.5",
+    "karma-firefox-launcher": "^0.1.3",
+    "karma-jasmine": "^0.2.3",
+    "karma-junit-reporter": "^0.2.2",
+    "karma-opera-launcher": "^0.1.0",
+    "karma-phantomjs-launcher": "^0.1.4",
+    "karma-safari-launcher": "^0.1.1"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  }
+}

@@ -3,19 +3,18 @@
 	'use strict';
 
 	/**
-	 * @name nx.solrajax
+	 * @name netlogix.solrajax.solrajax
 	 */
-	var app = angular.module('nx.solrajax', [
+	var app = angular.module('netlogix.solrajax.solrajax', [
 		'ngSanitize',
-		'ui.bootstrap.typeahead',
-		'nx.angular.variables'
+		'ui.bootstrap.typeahead'
 	]);
 
-	app.config(['$routeProvider', 'nxConfigurationServiceProvider', function ($routeProvider, configurationService) {
+	app.config(['$routeProvider', function ($routeProvider) {
 
 		$routeProvider.when('/ajaxsearch/:path*', {
 			controller: 'SearchResultCtrl',
-			templateUrl: configurationService.value('nx.solrajax.searchresult.templateUrl'),
+			templateUrl: 'templates/solrajax/searchresult.html',
 			resolve: {
 				searchResponse: ['$location', '$http', function ($location, $http) {
 					return $http.get($location.path(), {

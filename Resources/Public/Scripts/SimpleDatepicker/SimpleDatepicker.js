@@ -5,7 +5,7 @@
 	/**
 	 * @name nx.solrajax.simpleDatepicker
 	 */
-	var module = angular.module('nx.solrajax.simpleDatepicker', []);
+	var module = angular.module('netlogix.solrajax.simpleDatepicker', []);
 
 	module.controller('SimpleDatepickerController', ['$scope', 'dateFilter', function ($scope, dateFilter) {
 		var self = this;
@@ -71,7 +71,7 @@
 			function findYear(year) {
 				return $scope.years.filter(function (obj) {
 					if (parseInt(obj.label) === year) {
-						return obj
+						return obj;
 					}
 				})[0];
 			}
@@ -101,12 +101,11 @@
 
 	}]);
 
-	module.value('nx.solrajax.simpleDatepicker.templateUrl', 'typo3conf/ext/nxsolrajax/Resources/Public/Templates/SimpleDatepicker/SimpleDatepicker.html');
-	module.directive('simpleDatepicker', ['nx.solrajax.simpleDatepicker.templateUrl', function (templateUrl) {
+	module.directive('simpleDatepicker', [function () {
 		return {
 			restrict: 'EA',
 			replace: true,
-			templateUrl: templateUrl,
+			templateUrl: 'templates/simpledatepicker/simpledatepicker.html',
 			scope: {
 				selected: '=?',
 				startDate: '=?',

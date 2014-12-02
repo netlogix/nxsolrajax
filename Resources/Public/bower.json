@@ -1,0 +1,14 @@
+{
+  "name": "Netlogix Solr Ajax",
+  "version": "1.0.0",
+  "authors": [
+    "Sascha Nowak <sascha.nowak@netlogix.de>"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "angular": "~1.3.2",
+    "angular-mocks": "~1.3.2",
+    "angular-sanitize": "~1.3.2",
+    "angular-ui-bootstrap": "~0.12.0"
+  }
+}

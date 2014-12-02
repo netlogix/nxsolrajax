@@ -5,11 +5,9 @@
 	/**
 	 * @name nx.solrajax
 	 */
-	var module = angular.module('nx.solrajax.autosuggest', [
-		'ui.bootstrap.typeahead',
-		'nx.angular.variables'
+	var module = angular.module('netlogix.solrajax.autosuggest', [
+		'ui.bootstrap.typeahead'
 	]);
-
 
 	module.value('nx.solrajax.autosuggest.targetPage', '/');
 	module.value('nx.solrajax.autosuggest.suggestUrl', '/');

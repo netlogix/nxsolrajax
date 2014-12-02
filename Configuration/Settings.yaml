@@ -1,0 +1,31 @@
+Netlogix:
+  Nxsolrajax:
+    assets:
+      javascripts:
+        vendor:
+          'angular': 'EXT:nxsolrajax/Resources/Public/bower_components/angular/angular.min.js'
+          'angular-sanitize': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-sanitize/angular-sanitize.min.js'
+        app:
+          'typeahead': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/typeahead/typeahead.js'
+          'position': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/position/position.js'
+          'autoSuggest': 'EXT:nxsolrajax/Resources/Public/Scripts/AutoSuggest/AutoSuggest.js'
+          'simpleDatepicker': 'EXT:nxsolrajax/Resources/Public/Scripts/SimpleDatepicker/SimpleDatepicker.js'
+          'solrajax': 'EXT:nxsolrajax/Resources/Public/Scripts/Solrajax/Solrajax.js'
+      tests:
+        continuous:
+          'vendor': 'EXT:nxsolrajax/Resources/Public/Build/Scripts/Vendor.min.js'
+          'angular-mocks': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-mocks/angular-mocks.js'
+          'templates': 'EXT:nxsolrajax/Resources/Public/Build/Scripts/Templates.min.js'
+          'app': 'EXT:nxsolrajax/Resources/Public/Build/Scripts/App.min.js'
+          'tests': 'EXT:nxsolrajax/Resources/Public/Scripts/Tests/**/*.spec.js'
+        unit:
+          'angular': 'EXT:nxsolrajax/Resources/Public/bower_components/angular/angular.js'
+          'angular-sanitize': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-sanitize/angular-sanitize.js'
+          'angular-mocks': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-mocks/angular-mocks.js'
+          'templates': 'EXT:nxsolrajax/Resources/Public/Build/Scripts/Templates.min.js'
+          'typeahead': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/typeahead/typeahead.js'
+          'position': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/position/position.js'
+          'solrajax': 'EXT:nxsolrajax/Resources/Public/Scripts/**/*.js'
+          'tests': 'EXT:nxsolrajax/Resources/Public/Scripts/Tests/**/*.spec.js'
+      templates:
+        '1': 'EXT:nxsolrajax/Resources/Public/Templates/**/*.html'
