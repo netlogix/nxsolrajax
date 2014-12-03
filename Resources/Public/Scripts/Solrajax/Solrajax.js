@@ -59,15 +59,20 @@
 
 		$scope.submitSearch = function ($element) {
 			var queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
-			$location.path($scope.search.url.replace('QUERY_STRING', queryString));
+			$scope.select($scope.search.url.replace('QUERY_STRING', queryString));
 		};
 
 		$scope.removeSearch = function () {
-			$location.path($scope.search.url.replace('QUERY_STRING', ''));
+			$scope.select($scope.search.url.replace('QUERY_STRING', ''));
 		};
 
 		$scope.select = function (target) {
-			$location.path(target);
+			if ($location.$$html5) {
+				target = target.replace('/ajaxsearch', '');
+			}
+			var pathParts = target.split('?');
+			$location.path(pathParts[0]);
+			$location.search(pathParts[1]);
 		};
 
 		$scope.selectDate = function (option) {
@@ -87,7 +92,7 @@
 				target = decodeURI(option.url).replace(encodeURI('{filterValue}'), encodeURI(start + option.delimiter + end));
 			}
 
-			$location.path(target);
+			$scope.select(target);
 		};
 
 		$scope.removeDate = function (option) {
