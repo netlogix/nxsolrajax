@@ -82,10 +82,12 @@ class ResultProcessor implements \Netlogix\Nxsolrajax\Service\Processor\Processo
 		$result['offset'] = $this->search->getResultOffset();
 
 		$resultClassNameMapping = $this->settings['search']['results']['resultClassNameMapping'];
+		$resultMappingTypeField = $this->settings['search']['results']['resultMappingTypeField'] ?: 'type';
+
 		$responseDocuments = $this->getResultDocuments();
 
 		foreach($responseDocuments as $responseDocument) {
-			$type = $responseDocument['type'];
+			$type = $responseDocument[$resultMappingTypeField];
 			if (array_key_exists($type, $resultClassNameMapping)) {
 				$dtoClassName = $resultClassNameMapping[$type];
 			} else {
