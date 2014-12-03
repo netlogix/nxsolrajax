@@ -5,7 +5,9 @@ Netlogix:
         vendor:
           'angular': 'EXT:nxsolrajax/Resources/Public/bower_components/angular/angular.min.js'
           'angular-sanitize': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-sanitize/angular-sanitize.min.js'
+          'angular-route': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-route/angular-route.js'
         app:
+          'bindHtml': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/bindHtml/bindHtml.js'
           'typeahead': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/typeahead/typeahead.js'
           'position': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/position/position.js'
           'autoSuggest': 'EXT:nxsolrajax/Resources/Public/Scripts/AutoSuggest/AutoSuggest.js'
@@ -21,8 +23,10 @@ Netlogix:
         unit:
           'angular': 'EXT:nxsolrajax/Resources/Public/bower_components/angular/angular.js'
           'angular-sanitize': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-sanitize/angular-sanitize.js'
+          'angular-route': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-route/angular-route.js'
           'angular-mocks': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-mocks/angular-mocks.js'
           'templates': 'EXT:nxsolrajax/Resources/Public/Build/Scripts/Templates.min.js'
+          'bindHtml': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/bindHtml/bindHtml.js'
           'typeahead': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/typeahead/typeahead.js'
           'position': 'EXT:nxsolrajax/Resources/Public/bower_components/angular-ui-bootstrap/src/position/position.js'
           'solrajax': 'EXT:nxsolrajax/Resources/Public/Scripts/**/*.js'
