@@ -23,14 +23,13 @@ plugin.tx_solr.settings < plugin.tx_solr
 [globalVar = GP:tx_solr|isAjax > 0] || [globalString = LIT: Comment = Search Pages]
 
 plugin.tx_solr {
-	search {
-		faceting = 1
-		faceting {
-			facetLinkUrlParameters = tx_solr[isAjax]=1
-		}
-		results {
-			resultClassNameMapping {
-				defaultResult = Netlogix\Nxsolrajax\Domain\Model\Dto\Result
+	settings {
+		search {
+			faceting = 1
+			results {
+				resultClassNameMapping {
+					defaultResult = Netlogix\Nxsolrajax\Domain\Model\Dto\Result
+				}
 			}
 		}
 	}
