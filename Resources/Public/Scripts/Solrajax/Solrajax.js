@@ -6,6 +6,7 @@
 	 * @name netlogix.solrajax.solrajax
 	 */
 	var app = angular.module('netlogix.solrajax.solrajax', [
+		'ngRoute',
 		'ngSanitize',
 		'ui.bootstrap.typeahead'
 	]);
