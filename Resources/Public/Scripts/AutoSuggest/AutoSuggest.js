@@ -9,17 +9,19 @@
 		'ui.bootstrap.typeahead'
 	]);
 
-	module.value('nx.solrajax.autosuggest.targetPage', '/');
-	module.value('nx.solrajax.autosuggest.suggestUrl', '/');
-	module.controller('AutoSuggestCtrl', ['$scope', '$http', 'nx.solrajax.autosuggest.targetPage', 'nx.solrajax.autosuggest.suggestUrl', function($scope, $http, targetPage, suggestUrl) {
+	module.value('netlogix.solrajax.autosuggest.targetPage', '/');
+	module.value('netlogix.solrajax.autosuggest.suggestUrl', '/');
+	module.controller('AutoSuggestCtrl', ['$http', 'netlogix.solrajax.autosuggest.targetPage', 'netlogix.solrajax.autosuggest.suggestUrl', function($http, targetPage, suggestUrl) {
+		var self = this;
 
-		$scope.q = '';
-		$scope.suggestUrl = suggestUrl;
-		$scope.targetPageUrl = targetPage + '?q=QUERY_STRING';
-		$scope.loading = false;
+		self.q = '';
+		self.suggestUrl = suggestUrl;
+		self.targetPageUrl = targetPage + '?q=QUERY_STRING';
+		self.loading = false;
+		self.active = false;
 
-		$scope.getSuggestions = function (search) {
-			return $http.get($scope.suggestUrl, {
+		self.getSuggestions = function (search) {
+			return $http.get(self.suggestUrl, {
 				params: {
 					q: search.toLowerCase()
 				},
@@ -29,9 +31,21 @@
 			});
 		};
 
-		$scope.submit = function ($element) {
-			var queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
-			window.location.href = ($scope.targetPageUrl.indexOf(window.location.origin) === -1 ? window.location.origin + '/' : '') + $scope.targetPageUrl.replace('QUERY_STRING', queryString);
+		self.submitSearch = function ($element) {
+			var queryString = (self.suggestLoading && angular.isDefined($element)) ? $element.val() : self.q.name || self.q;
+			window.location.href = self.targetPageUrl.replace('QUERY_STRING', queryString);
+		};
+
+		self.reset = function () {
+			self.q = '';
+		};
+
+		self.show = function () {
+			self.active = true;
+		};
+
+		self.hide = function () {
+			self.active = false;
 		};
 
 	}]);
