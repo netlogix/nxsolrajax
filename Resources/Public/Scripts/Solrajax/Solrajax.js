@@ -39,13 +39,28 @@
 		$scope.results = response.data.result;
 		$scope.search = response.data.search;
 
+		/**
+		 * @returns {Object}
+		 */
 		$scope.typeFacet = function() {
+			return $scope.getFacetByName('type');
+		};
+
+		/**
+		 * @param {String} name
+		 * @returns {Object}
+		 */
+		$scope.getFacetByName = function (name) {
 			if (angular.isUndefined($scope.facets.availableFacets)) {
 				return false;
 			}
-			return $scope.facets.availableFacets.filter(function(facet) {return facet.label ? facet.name.toLowerCase() === 'type' : false;})[0];
+			return $scope.facets.availableFacets.filter(function(facet) {return facet.label ? facet.name.toLowerCase() === name.toLowerCase() : false;})[0];
 		};
 
+		/**
+		 * @param {String} search
+		 * @returns {Promise}
+		 */
 		$scope.autoSuggestion = function (search) {
 			return $http.get($scope.search.suggestUrl, {
 				params: {
@@ -57,6 +72,9 @@
 			});
 		};
 
+		/**
+		 * @param {Element} $element
+		 */
 		$scope.submitSearch = function ($element) {
 			var queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
 			$scope.select($scope.search.url.replace('QUERY_STRING', queryString));
@@ -66,15 +84,32 @@
 			$scope.select($scope.search.url.replace('QUERY_STRING', ''));
 		};
 
-		$scope.select = function (target) {
+		/**
+		 * @param {String} target
+		 */
+		$scope.getUrl = function (target) {
 			if ($location.$$html5) {
 				target = target.replace('/ajaxsearch', '');
 			}
-			var pathParts = target.split('?');
-			$location.path(pathParts[0]);
-			$location.search(pathParts[1]);
+			return target;
 		};
 
+		/**
+		 * @param {String} target
+		 * @param {Object} $event
+		 */
+		$scope.select = function (target, $event) {
+			if (angular.isDefined($event)) {
+				$event.preventDefault();
+			}
+			var pathParts = $scope.getUrl(target).split('?');
+			$location.path(pathParts[0]);
+			$location.search(pathParts[1] || '');
+		};
+
+		/**
+		 * @param {Object} option
+		 */
 		$scope.selectDate = function (option) {
 			var start, end, target;
 
@@ -95,6 +130,9 @@
 			$scope.select(target);
 		};
 
+		/**
+		 * @param {Object} option
+		 */
 		$scope.removeDate = function (option) {
 			option.start = '';
 			option.end = '';
@@ -102,11 +140,17 @@
 			$scope.selectDate(option);
 		};
 
+		/**
+		 * @param {Object} option
+		 */
 		$scope.removeStartDate = function (option) {
 			option.start = '';
 			$scope.selectDate(option);
 		};
 
+		/**
+		 * @param {Object} option
+		 */
 		$scope.removeEndDate = function (option) {
 			option.end = '';
 			$scope.selectDate(option);
@@ -167,10 +211,17 @@
 				});
 		};
 
+		/**
+		 * @param {String} name
+		 * @returns {Boolean}
+		 */
 		$scope.isSiteActive = function(name) {
 			return $scope.search.site.selected === name;
 		};
 
+		/**
+		 * @param {String} name
+		 */
 		$scope.selectSite = function(name) {
 			if (!angular.isUndefined($scope.search.site[name])) {
 				$scope.select($scope.search.site[name]);
