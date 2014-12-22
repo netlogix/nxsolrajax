@@ -77,6 +77,7 @@ class TemplateView extends \TYPO3\CMS\Fluid\View\StandaloneView implements \Tx_S
 	 * @return mixed
 	 */
 	public function render($actionName = NULL) {
+		$this->assign('settings', $this->settings);
 		return parent::render();
 	}
 
