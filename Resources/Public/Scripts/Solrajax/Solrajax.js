@@ -11,22 +11,22 @@
 		'ui.bootstrap.typeahead'
 	]);
 
-	app.config(['$routeProvider', function ($routeProvider) {
-
-		$routeProvider.when('/ajaxsearch/:path*', {
-			controller: 'SearchResultCtrl',
-			templateUrl: 'templates/solrajax/searchresult.html',
-			resolve: {
-				searchResponse: ['$location', '$http', function ($location, $http) {
-					return $http.get($location.path(), {
-						params: $location.search(),
-						cache: true
-					});
-				}]
-			}
-		});
-
-	}]);
+	//app.config(['$routeProvider', function ($routeProvider) {
+	//
+	//	$routeProvider.when('/ajaxsearch/:path*', {
+	//		controller: 'SearchResultCtrl',
+	//		templateUrl: 'templates/solrajax/searchresult.html',
+	//		resolve: {
+	//			searchResponse: ['$location', '$http', function ($location, $http) {
+	//				return $http.get($location.path(), {
+	//					params: $location.search(),
+	//					cache: true
+	//				});
+	//			}]
+	//		}
+	//	});
+	//
+	//}]);
 
 	app.controller('SearchResultCtrl', ['searchResponse', '$http', '$location', '$scope', '$rootScope', 'dateFilter', function (response, $http, $location, $scope, $rootScope, dateFilter) {
 
