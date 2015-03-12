@@ -63,6 +63,7 @@ class QueryFactory extends \Tx_Solr_PiResults_Results implements \TYPO3\CMS\Core
 
 	public function initializeObject() {
 		$this->conf = $this->typoScriptService->convertPlainArrayToTypoScriptArray($this->settings);
+		$this->cObj = $this->cObj ?: $this->configurationManager->getContentObject();
 		$this->initializeQuery();
 		$this->initializeSearch();
 	}
