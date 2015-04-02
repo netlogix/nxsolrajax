@@ -76,8 +76,12 @@
 		 * @param {Element} $element
 		 */
 		$scope.submitSearch = function ($element) {
-			var queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
-			$scope.select($scope.search.url.replace('QUERY_STRING', queryString));
+			var target = $scope.search.url,
+				queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
+			if ($location.$$html5) {
+				target = target.replace('/ajaxsearch', '');
+			}
+			$scope.select(target.replace('QUERY_STRING', queryString));
 		};
 
 		$scope.removeSearch = function () {

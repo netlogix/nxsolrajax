@@ -156,7 +156,9 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 		/** @var \Netlogix\Nxsolrajax\Service\Processor\SearchProcessor $resultProcessor */
 		$resultProcessor = $this->objectManager->get('Netlogix\\Nxsolrajax\\Service\\Processor\\SearchProcessor');
 
-		$params = array();
+		$params = array(
+			'isAjax' => 1
+		);
 
 		$getParams = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('tx_solr');
 		if ($this->settings['suggest']['siteSelector'] && isset($getParams['site'])) {
@@ -195,7 +197,7 @@ class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestCo
 				if ($parameter === '_typoScriptNodeValue') {
 					continue;
 				}
-				$result[$parameter] = $this->uriBuilder->reset()->setAddQueryString(TRUE)->setUseCacheHash(FALSE)->uriFor('search', array('site' => $parameter));;
+				$result[$parameter] = $this->uriBuilder->reset()->setAddQueryString(TRUE)->setUseCacheHash(FALSE)->uriFor('search', array('isAjax' => 1, 'site' => $parameter));
 			}
 		}
 
