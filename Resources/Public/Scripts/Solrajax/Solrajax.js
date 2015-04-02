@@ -94,6 +94,8 @@
 		$scope.getUrl = function (target) {
 			if ($location.$$html5) {
 				target = target.replace('/ajaxsearch', '');
+			} else {
+				target = $location.absUrl().split('#')[0] + '#!' + target;
 			}
 			return target;
 		};
