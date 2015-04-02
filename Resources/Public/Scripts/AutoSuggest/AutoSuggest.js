@@ -33,6 +33,9 @@
 
 		self.submitSearch = function ($element) {
 			var queryString = (self.suggestLoading && angular.isDefined($element)) ? $element.val() : self.q.name || self.q;
+			if (queryString === '') {
+				return;
+			}
 			window.location.href = self.targetPageUrl.replace('QUERY_STRING', queryString);
 		};
 
