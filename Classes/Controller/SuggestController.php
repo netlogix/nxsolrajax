@@ -81,6 +81,9 @@ class SuggestController implements \TYPO3\CMS\Core\SingletonInterface {
 		$typoscriptFrontendController->rootLine = $typoscriptFrontendController->sys_page->getRootline($typoscriptFrontendController->id, '');
 		$typoscriptFrontendController->initTemplate();
 		$typoscriptFrontendController->getConfigArray();
+		if ($typoscriptFrontendController->cObj === '') {
+			$typoscriptFrontendController->newCObj();
+		}
 
 		\TYPO3\CMS\Core\Core\Bootstrap::getInstance()->loadCachedTca();
 		$typoscriptFrontendController->sys_language_uid = $languageId;
