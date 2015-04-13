@@ -108,9 +108,13 @@
 			if (angular.isDefined($event)) {
 				$event.preventDefault();
 			}
-			var pathParts = $scope.getUrl(target).split('?');
-			$location.path(pathParts[0]);
-			$location.search(pathParts[1] || '');
+			if ($location.$$html5) {
+				var pathParts = $scope.getUrl(target).split('?');
+				$location.path(pathParts[0]);
+				$location.search(pathParts[1] || '');
+			} else {
+				$location.path(target);
+			}
 		};
 
 		/**
