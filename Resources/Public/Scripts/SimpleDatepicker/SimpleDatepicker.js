@@ -1,13 +1,10 @@
 /*global angular:false */
-(function (window, angular, undefined) {
+(function(window, angular, undefined) {
 	'use strict';
 
-	/**
-	 * @name nx.solrajax.simpleDatepicker
-	 */
 	var module = angular.module('netlogix.solrajax.simpleDatepicker', []);
 
-	module.controller('SimpleDatepickerController', ['$scope', 'dateFilter', function ($scope, dateFilter) {
+	module.controller('SimpleDatepickerController', ['$scope', 'dateFilter', function($scope, dateFilter) {
 		var self = this;
 
 		$scope.date = {
@@ -24,7 +21,7 @@
 		$scope.months = [];
 		$scope.years = [];
 
-		$scope.submit = function () {
+		$scope.submit = function() {
 			var start = new Date($scope.date.start.year.date.getFullYear(), $scope.date.start.month.date.getMonth(), 1),
 				end = new Date($scope.date.end.year.date.getFullYear(), $scope.date.end.month.date.getMonth(), 1);
 
@@ -34,7 +31,7 @@
 			}
 		};
 
-		$scope.reset = function () {
+		$scope.reset = function() {
 			if (angular.isFunction($scope.resetCallback)) {
 				$scope.resetCallback();
 			}
@@ -46,14 +43,14 @@
 		self.currentYear = new Date().getFullYear();
 		self.ngModelCtrl = {};
 
-		self.createDateObject = function (date, format) {
+		self.createDateObject = function(date, format) {
 			return {
 				date: date,
 				label: dateFilter(date, format)
 			};
 		};
 
-		self.init = function (ngModelCtrl) {
+		self.init = function(ngModelCtrl) {
 			self.ngModelCtrl = ngModelCtrl;
 
 
@@ -69,7 +66,7 @@
 			var selectedMonth, selectedYear;
 
 			function findYear(year) {
-				return $scope.years.filter(function (obj) {
+				return $scope.years.filter(function(obj) {
 					if (parseInt(obj.label) === year) {
 						return obj;
 					}
@@ -101,7 +98,7 @@
 
 	}]);
 
-	module.directive('simpleDatepicker', [function () {
+	module.directive('simpleDatepicker', [function() {
 		return {
 			restrict: 'EA',
 			replace: true,
@@ -116,7 +113,7 @@
 			},
 			require: ['simpleDatepicker', '?^ngModel'],
 			controller: 'SimpleDatepickerController',
-			link: function ($scope, $element, $attrs, ctrls) {
+			link: function($scope, $element, $attrs, ctrls) {
 				var datepickerCtrl = ctrls[0], ngModelCtrl = ctrls[1];
 				datepickerCtrl.init(ngModelCtrl);
 			}

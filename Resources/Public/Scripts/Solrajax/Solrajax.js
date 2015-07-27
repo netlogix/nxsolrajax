@@ -1,15 +1,13 @@
 /* global angular:ture */
-(function (window, angular, undefined) {
+(function(window, angular, undefined) {
 	'use strict';
 
-	/**
-	 * @name netlogix.solrajax.solrajax
-	 */
 	var app = angular.module('netlogix.solrajax.solrajax', [
 		'ngRoute',
 		'ngSanitize',
 		'ui.bootstrap.typeahead'
 	]);
+	app.controller('SearchResultCtrl', SearchResultCtrl);
 
 	//app.config(['$routeProvider', function ($routeProvider) {
 	//
@@ -28,7 +26,8 @@
 	//
 	//}]);
 
-	app.controller('SearchResultCtrl', ['searchResponse', '$http', '$location', '$scope', '$rootScope', 'dateFilter', function (response, $http, $location, $scope, $rootScope, dateFilter) {
+	SearchResultCtrl.$inject = ['searchResponse', '$http', '$location', '$scope', '$rootScope', 'dateFilter'];
+	function SearchResultCtrl(response, $http, $location, $scope, $rootScope, dateFilter) {
 
 		$scope.showFacetFilters = false;
 		$scope.loading = false;
@@ -50,24 +49,26 @@
 		 * @param {String} name
 		 * @returns {Object}
 		 */
-		$scope.getFacetByName = function (name) {
+		$scope.getFacetByName = function(name) {
 			if (angular.isUndefined($scope.facets.availableFacets)) {
 				return false;
 			}
-			return $scope.facets.availableFacets.filter(function(facet) {return facet.label ? facet.name.toLowerCase() === name.toLowerCase() : false;})[0];
+			return $scope.facets.availableFacets.filter(function(facet) {
+				return facet.label ? facet.name.toLowerCase() === name.toLowerCase() : false;
+			})[0];
 		};
 
 		/**
 		 * @param {String} search
 		 * @returns {Promise}
 		 */
-		$scope.autoSuggestion = function (search) {
+		$scope.autoSuggestion = function(search) {
 			return $http.get($scope.search.suggestUrl, {
 				params: {
 					q: search.toLowerCase()
 				},
 				cache: true
-			}).then(function (ressult) {
+			}).then(function(ressult) {
 				return ressult.data.results;
 			});
 		};
@@ -75,7 +76,7 @@
 		/**
 		 * @param {Element} $element
 		 */
-		$scope.submitSearch = function ($element) {
+		$scope.submitSearch = function($element) {
 			var target = $scope.search.url,
 				queryString = ($scope.suggestLoading && angular.isDefined($element)) ? $element.val() : this.q.name || this.q;
 			if ($location.$$html5) {
@@ -84,14 +85,14 @@
 			$scope.select(target.replace('QUERY_STRING', queryString));
 		};
 
-		$scope.removeSearch = function () {
+		$scope.removeSearch = function() {
 			$scope.select($scope.search.url.replace('QUERY_STRING', ''));
 		};
 
 		/**
 		 * @param {String} target
 		 */
-		$scope.getUrl = function (target) {
+		$scope.getUrl = function(target) {
 			if ($location.$$html5) {
 				target = target.replace('/ajaxsearch', '');
 			} else {
@@ -104,7 +105,7 @@
 		 * @param {String} target
 		 * @param {Object} $event
 		 */
-		$scope.select = function (target, $event) {
+		$scope.select = function(target, $event) {
 			if (angular.isDefined($event)) {
 				$event.preventDefault();
 			}
@@ -120,7 +121,7 @@
 		/**
 		 * @param {Object} option
 		 */
-		$scope.selectDate = function (option) {
+		$scope.selectDate = function(option) {
 			var start, end, target;
 
 			if (angular.isObject(option.range)) {
@@ -143,7 +144,7 @@
 		/**
 		 * @param {Object} option
 		 */
-		$scope.removeDate = function (option) {
+		$scope.removeDate = function(option) {
 			option.start = '';
 			option.end = '';
 			option.range = '';
@@ -153,7 +154,7 @@
 		/**
 		 * @param {Object} option
 		 */
-		$scope.removeStartDate = function (option) {
+		$scope.removeStartDate = function(option) {
 			option.start = '';
 			$scope.selectDate(option);
 		};
@@ -161,7 +162,7 @@
 		/**
 		 * @param {Object} option
 		 */
-		$scope.removeEndDate = function (option) {
+		$scope.removeEndDate = function(option) {
 			option.end = '';
 			$scope.selectDate(option);
 		};
@@ -177,16 +178,16 @@
 			return selected;
 		};
 
-		$scope.loadPrev = function () {
+		$scope.loadPrev = function() {
 			$rootScope.$broadcast('$solrajaxLoadMoreStart', $scope.results.prevLink);
 			$scope.loading = true;
 			$http.get($scope.results.prevLink, {cache: true})
-				.success(function (data) {
+				.success(function(data) {
 					$rootScope.$broadcast('$solrajaxLoadMoreSuccess', $scope.results.prevLink);
 					$scope.results.prevLink = data.result.prevLink || '';
 
 					// Add new documents to scope
-					angular.forEach(data.result.resultDocuments.reverse(), function (resultDocument) {
+					angular.forEach(data.result.resultDocuments.reverse(), function(resultDocument) {
 						$scope.results.resultDocuments.unshift(resultDocument);
 					});
 					$scope.loading = false;
@@ -199,16 +200,16 @@
 				});
 		};
 
-		$scope.loadNext = function () {
+		$scope.loadNext = function() {
 			$rootScope.$broadcast('$solrajaxLoadMoreStart', $scope.results.nextLink);
 			$scope.loading = true;
 			$http.get($scope.results.nextLink, {cache: true})
-				.success(function (data) {
+				.success(function(data) {
 					$rootScope.$broadcast('$solrajaxLoadMoreSuccess', $scope.results.nextLink);
 					$scope.results.nextLink = data.result.nextLink || '';
 
 					// Add new documents to scope
-					angular.forEach(data.result.resultDocuments, function (resultDocument) {
+					angular.forEach(data.result.resultDocuments, function(resultDocument) {
 						$scope.results.resultDocuments.push(resultDocument);
 					});
 					$scope.loading = false;
@@ -249,7 +250,7 @@
 
 		preloadResults();
 
-	}]);
+	}
 
 	/**
 	 * See http://docs.angularjs.org/api/ng/service/$sce#trustAsHtml

@@ -1,4 +1,4 @@
-describe('SimpleDatepicker', function () {
+describe('SimpleDatepicker', function() {
 	beforeEach(module('netlogix.solrajax.simpleDatepicker'));
 
 });
