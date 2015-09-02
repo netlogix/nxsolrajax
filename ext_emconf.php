@@ -20,11 +20,9 @@ $EM_CONF[$_EXTKEY] = array(
 	'state' => 'stable',
 	'constraints' => array(
 		'depends' => array(
-			'cms' => '',
-			'php' => '5.3.0-0.0.0',
-			'typo3' => '6.2',
-			'solr' => '3.0.0',
-			'nxcrudextbase' => '3.0.0',
+			'typo3' => '6.2.0-7.99.99',
+			'nxcrudextbase' => '1.0.0',
+			'solr' => '3.0.*',
 		),
 		'conflicts' => array(),
 		'suggests' => array(),
