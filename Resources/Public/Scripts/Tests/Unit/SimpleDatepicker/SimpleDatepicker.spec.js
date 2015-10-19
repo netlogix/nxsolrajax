@@ -1,4 +1,8 @@
-describe('SimpleDatepicker', function() {
-	beforeEach(module('netlogix.solrajax.simpleDatepicker'));
+(function() {
+	'use strict';
 
-});
+	describe('SimpleDatepicker', function() {
+		beforeEach(module('netlogix.solrajax.simpleDatepicker'));
+	});
+
+})();
