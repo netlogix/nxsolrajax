@@ -110,12 +110,12 @@
 				$event.preventDefault();
 			}
 			if ($location.$$html5) {
-				var pathParts = $scope.getUrl(target).split('?');
-				$location.path(pathParts[0]);
-				$location.search(pathParts[1] || '');
-			} else {
-				$location.path(target);
+				target = $scope.getUrl(target);
 			}
+
+			var pathParts = target.split('?');
+			$location.path(pathParts[0]);
+			$location.search(pathParts[1] || '');
 		};
 
 		/**
