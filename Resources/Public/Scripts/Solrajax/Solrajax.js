@@ -82,7 +82,6 @@
 			if ($location.$$html5) {
 				target = target.replace('/ajaxsearch', '');
 			}
-			console.log(target);
 			$scope.select(target.replace('QUERY_STRING', queryString));
 		};
 
