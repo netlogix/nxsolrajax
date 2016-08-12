@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.0">
+    <file source-language="en" datatype="plaintext" original="messages" date="2016-08-12T00:00:00Z" product-name="nxsolrajax">
+        <header/>
+        <body>
+            <trans-unit id="plugins.index.title">
+                <source xml:lang="en"><![CDATA[Ajax Search: Result]]></source>
+            </trans-unit>
+            <trans-unit id="plugins.index.description">
+                <source xml:lang="en"><![CDATA[Render the app initializer]]></source>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
