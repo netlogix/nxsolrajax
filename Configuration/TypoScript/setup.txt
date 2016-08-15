@@ -19,6 +19,30 @@ plugin.tx_nxsolrajax {
     }
 }
 
+tx_nxsolrajax_suggest_page = PAGE
+tx_nxsolrajax_suggest_page {
+    typeNum = 1471261352
+    config {
+        disableAllHeaderCode = 1
+        disablePrefixComment = 1
+        admPanel = 0
+        debug = 0
+        metaCharset = utf-8
+        additionalHeaders = Content-type:application/json
+    }
+
+    10 = USER
+    10 {
+        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+
+        vendorName = Netlogix
+        extensionName = Nxsolrajax
+        pluginName = suggest
+        controller = Search
+        action = suggest
+    }
+}
+
 [globalVar = GP:tx_solr|isAjax > 0] || [globalString = LIT: Comment = Search Pages]
     page >
     page = PAGE
