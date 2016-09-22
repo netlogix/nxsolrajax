@@ -5,6 +5,7 @@ use ApacheSolrForTypo3\Solr\SuggestQuery;
 use ApacheSolrForTypo3\Solr\Util;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Web\Response;
 
 class SearchController extends \ApacheSolrForTypo3\Solrfluid\Controller\SearchController
 {
@@ -71,6 +72,18 @@ class SearchController extends \ApacheSolrForTypo3\Solrfluid\Controller\SearchCo
         $suggestQuery->setOmitHeader();
 
         return $suggestQuery;
+    }
+
+    /**
+     * Rendered when no search is available.
+     * @return string
+     */
+    public function solrNotAvailableAction()
+    {
+        if ($this->response instanceof Response) {
+            $this->response->setStatus(503);
+        }
+        return json_encode(['status' => 503, 'message' => '']);
     }
 
 }
