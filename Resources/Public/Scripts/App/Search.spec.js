@@ -33,14 +33,14 @@
                         count: 12,
                         label: 'Page',
                         links: {
-                            self: '/en/search/?q=uvex&tx_solr%5Bfilter%5D%5B0%5D=type%3Apage'
+                            self: '/en/search/?q=netlogix&tx_solr%5Bfilter%5D%5B0%5D=type%3Apage'
                         }
                     }, {
                         selected: false,
                         count: 1,
                         label: 'Press',
                         links: {
-                            self: '/en/search/?q=uvex&tx_solr%5Bfilter%5D%5B0%5D=type%3Apress'
+                            self: '/en/search/?q=netlogix&tx_solr%5Bfilter%5D%5B0%5D=type%3Apress'
                         }
                     }]
                 }],
@@ -145,8 +145,24 @@
 
         it('should change the location', function() {
             $httpBackend.flush();
-            controller.select('/en/search/?q=uvex&tx_solr%5Bfilter%5D%5B0%5D=type:page');
-            expect($location.url()).toBe('/en/search/?q=uvex&tx_solr%5Bfilter%5D%5B0%5D=type:page');
+            controller.select('/en/search/?q=netlogix&tx_solr%5Bfilter%5D%5B0%5D=type:page');
+            expect($location.url()).toBe('/en/search/?q=netlogix&tx_solr%5Bfilter%5D%5B0%5D=type:page');
+        });
+
+        it('should submit search', function() {
+            $httpBackend.flush();
+            $location.url('/en/search/');
+            controller.q = 'netlogix';
+            controller.submitSearch();
+            expect($location.url()).toBe('/en/search/?q=netlogix');
+        });
+
+        it('should reset search', function() {
+            $httpBackend.flush();
+            $location.url('/en/search/?q=netlogix');
+            controller.q = 'netlogix';
+            controller.removeSearch();
+            expect($location.url()).toBe('/en/search/');
         });
     });
 

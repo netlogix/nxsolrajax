@@ -7,6 +7,7 @@
     SearchController.$inject = ['searchResponse', '$http', '$location'];
     function SearchController(response, $http, $location) {
         var self = this;
+        self.q = $location.search().q || '';
         self.loading = false;
         self.facets = response.facets;
         self.result = response.result;
@@ -31,6 +32,15 @@
                     self.search.links.next = '';
                     self.loading = false;
                 });
+        };
+
+        self.submitSearch = function() {
+            $location.search({q: self.q});
+        };
+
+        self.removeSearch = function() {
+            self.q = '';
+            $location.search({});
         };
 
         function preloadResults() {
