@@ -1,7 +1,9 @@
 <?php
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
+use ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solrfluid\Domain\Search\Uri\SearchUriBuilder;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -14,6 +16,11 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
     protected $searchUriBuilder;
 
     /**
+     * @var UriBuilder
+     */
+    protected $uriBuilder;
+
+    /**
      * @inheritdoc
      */
     public function __construct()
@@ -22,6 +29,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
 
         $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
         $this->searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
+        $this->uriBuilder = $objectManager->get(UriBuilder::class);
     }
 
     /**
@@ -29,8 +37,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
      */
     public function getResetUrl()
     {
-        $previousRequest = $this->getUsedSearchRequest();
-        return $this->searchUriBuilder->getRemoveAllFacetsUri($previousRequest);
+        return $this->uriBuilder->reset()->build();
     }
 
     /**
@@ -71,7 +78,40 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
     public function getSearchUrl()
     {
         $previousRequest = $this->getUsedSearchRequest();
-        return $this->searchUriBuilder->getNewSearchUri($previousRequest, 'QUERY_STRING');
+        return $this->searchUriBuilder->getNewSearchUri($previousRequest, '{query}');
+    }
+
+    /**
+     * @return string
+     */
+    public function getSuggestUrl()
+    {
+        return $this->uriBuilder->reset()->setTargetPageType('1471261352')->build();
+    }
+
+    /**
+     * @return string
+     */
+    public function getSuggestionUrl()
+    {
+        if (!$this->getHasSpellCheckingSuggestions()) {
+            return '';
+        }
+        /** @var Suggestion $suggestion */
+        $suggestion = current($this->spellCheckingSuggestions)->getSuggestion();
+        $previousRequest = $this->getUsedSearchRequest();
+        return $this->searchUriBuilder->getNewSearchUri($previousRequest, $suggestion);
+    }
+
+    /**
+     * @return string
+     */
+    public function getSuggestion()
+    {
+        if (!$this->getHasSpellCheckingSuggestions()) {
+            return '';
+        }
+        return current($this->spellCheckingSuggestions)->getSuggestion();
     }
 
     /**
@@ -92,12 +132,14 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
         return [
             'search' => [
                 'q' => $this->usedQuery->getKeywords(),
-                'suggestion' => $this->usedSearch->getSpellcheckingSuggestions(),
+                'suggestion' => $this->getSuggestion(),
                 'links' => [
                     'reset' => $this->getResetUrl(),
                     'next' => $this->getNextUrl(),
                     'prev' => $this->getPrevUrl(),
                     'search' => $this->getSearchUrl(),
+                    'suggest' => $this->getSuggestUrl(),
+                    'suggestion' => $this->getSuggestionUrl()
                 ]
             ],
             'facets' => $this->facets->getArrayCopy(),
@@ -118,4 +160,6 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
     {
         return $this->getUsedSearchRequest()->getPage() + 1;
     }
+
+
 }

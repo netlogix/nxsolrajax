@@ -1,11 +1,11 @@
 <?php
-namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options;
+namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange;
 
 use ApacheSolrForTypo3\Solrfluid\Domain\Search\Uri\SearchUriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class OptionsFacet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet implements \JsonSerializable
+class DateRangeFacet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet implements \JsonSerializable
 {
 
     /**
@@ -26,12 +26,12 @@ class OptionsFacet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet
     {
         return [
             'name' => $this->getName(),
-            'type' => self::TYPE_OPTIONS,
+            'type' => self::TYPE_DATE_RANGE,
             'label' => $this->getLabel(),
             'used' => $this->getIsUsed(),
-            'options' => array_values($this->getOptions()->getArrayCopy()),
+            'options' => $this->getRange(),
             'links' => [
-                'reset' => $this->getResetUrl(),
+                'reset' => $this->getResetUrl()
             ]
         ];
     }

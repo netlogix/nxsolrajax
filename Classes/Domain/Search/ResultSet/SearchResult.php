@@ -9,7 +9,7 @@ class SearchResult extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet
      */
     public function getType()
     {
-        return $this->_fields['type_stringS'];
+        return $this->_fields['type'];
     }
 
     /**
