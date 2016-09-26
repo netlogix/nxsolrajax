@@ -151,7 +151,6 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
 
         $result['search']['links']['next'] = $this->getNextUrl();
         $result['search']['links']['prev'] = $this->getPrevUrl();
-        $result['facets'] = $this->facets->getArrayCopy();
         $result['result'] = [
             'q' => $this->usedQuery->getKeywords(),
             'limit' => $this->usedQuery->getResultsPerPage(),
@@ -159,6 +158,11 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
             'totalResults' => $this->usedSearch->getNumberOfResults(),
             'items' => $this->usedSearch->getResultDocumentsEscaped()
         ];
+
+        if ($this->getPage() === 1) {
+            $result['facets'] = $this->facets->getArrayCopy();
+        }
+
         return $result;
     }
 
