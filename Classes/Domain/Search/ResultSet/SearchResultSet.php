@@ -3,8 +3,8 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
 use ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solrfluid\Domain\Search\Uri\SearchUriBuilder;
-use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet\SearchResultSet implements \JsonSerializable
@@ -119,6 +119,26 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
      */
     public function jsonSerialize()
     {
+        $result = [
+            'search' => [
+                'q' => $this->usedQuery ? $this->usedQuery->getKeywords() : '',
+                'suggestion' => $this->getSuggestion(),
+                'links' => [
+                    'reset' => $this->getResetUrl(),
+                    'next' => '',
+                    'prev' => '',
+                    'search' => $this->getSearchUrl(),
+                    'suggest' => $this->getSuggestUrl(),
+                    'suggestion' => $this->getSuggestionUrl()
+                ]
+            ],
+            'facets' => [],
+            'result' => [],
+        ];
+        if ($this->response === null) {
+            return $result;
+        }
+
         $highlightedContent = $this->getUsedSearch()->getHighlightedContent();
 
         /** @var SearchResult $document */
@@ -129,28 +149,17 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
             }
         }
 
-        return [
-            'search' => [
-                'q' => $this->usedQuery->getKeywords(),
-                'suggestion' => $this->getSuggestion(),
-                'links' => [
-                    'reset' => $this->getResetUrl(),
-                    'next' => $this->getNextUrl(),
-                    'prev' => $this->getPrevUrl(),
-                    'search' => $this->getSearchUrl(),
-                    'suggest' => $this->getSuggestUrl(),
-                    'suggestion' => $this->getSuggestionUrl()
-                ]
-            ],
-            'facets' => $this->facets->getArrayCopy(),
-            'result' => [
-                'q' => $this->usedQuery->getKeywords(),
-                'limit' => $this->usedQuery->getResultsPerPage(),
-                'offset' => $this->usedSearch->getResultOffset(),
-                'totalResults' => $this->usedSearch->getNumberOfResults(),
-                'items' => $this->getUsedSearch()->getResultDocumentsEscaped()
-            ]
+        $result['search']['links']['next'] = $this->getNextUrl();
+        $result['search']['links']['prev'] = $this->getPrevUrl();
+        $result['facets'] = $this->facets->getArrayCopy();
+        $result['result'] = [
+            'q' => $this->usedQuery->getKeywords(),
+            'limit' => $this->usedQuery->getResultsPerPage(),
+            'offset' => $this->usedSearch->getResultOffset(),
+            'totalResults' => $this->usedSearch->getNumberOfResults(),
+            'items' => $this->usedSearch->getResultDocumentsEscaped()
         ];
+        return $result;
     }
 
     /**
