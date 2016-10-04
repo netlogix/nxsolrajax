@@ -1,11 +1,10 @@
 (function(angular) {
     'use strict';
 
-    var searchPrefix = '/ajaxsearch';
     var module = angular.module('netlogix.solrajax', []);
 
-    SearchController.$inject = ['$rootScope', '$http', '$location', 'searchResponse'];
-    function SearchController($rootScope, $http, $location, response) {
+    SearchController.$inject = ['SEARCH_PREFIX', '$rootScope', '$http', '$location', 'searchResponse'];
+    function SearchController(searchPrefix, $rootScope, $http, $location, response) {
         var self = this;
         self.q = $location.search().q || '';
         self.loading = false;
@@ -55,6 +54,7 @@
         preloadResults();
     }
 
+    module.value('SEARCH_PREFIX', '/ajaxsearch');
     module.controller('SearchController', SearchController);
 
 }(angular));
