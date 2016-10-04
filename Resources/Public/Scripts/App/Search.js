@@ -4,8 +4,8 @@
     var searchPrefix = '/ajaxsearch';
     var module = angular.module('netlogix.solrajax', []);
 
-    SearchController.$inject = ['searchResponse', '$http', '$location'];
-    function SearchController(response, $http, $location) {
+    SearchController.$inject = ['$rootScope', '$http', '$location', 'searchResponse'];
+    function SearchController($rootScope, $http, $location, response) {
         var self = this;
         self.q = $location.search().q || '';
         self.loading = false;
@@ -18,6 +18,7 @@
         };
 
         self.loadNext = function() {
+            $rootScope.$broadcast('$solrajaxLoadMoreStart');
             self.loading = true;
             $http.get(searchPrefix + self.search.links.next, {cache: true})
                 .success(function(data) {
@@ -25,11 +26,13 @@
                     angular.forEach(data.result.items, function(item) {
                         self.result.items.push(item);
                     });
+                    $rootScope.$broadcast('$solrajaxLoadMoreSuccess');
                     self.loading = false;
                     preloadResults();
                 })
                 .error(function() {
                     self.search.links.next = '';
+                    $rootScope.$broadcast('$solrajaxLoadMoreError');
                     self.loading = false;
                 });
         };
