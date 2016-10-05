@@ -156,7 +156,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\Result
             'limit' => $this->usedQuery->getResultsPerPage(),
             'offset' => $this->usedSearch->getResultOffset(),
             'totalResults' => $this->usedSearch->getNumberOfResults(),
-            'items' => $this->usedSearch->getResultDocumentsEscaped()
+            'items' => $this->searchResults
         ];
 
         if ($this->getPage() === 1) {
