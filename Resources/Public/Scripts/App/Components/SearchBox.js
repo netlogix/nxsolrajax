@@ -40,6 +40,8 @@
         var queryString = (self.loading && angular.isDefined($element)) ? $element.val() : self.q.name || self.q;
         if (self.resultUrl === $location.path()) {
           $location.search({q: queryString});
+        } else if (self.resultUrl.indexOf('?') !== -1) {
+          $window.location.href = self.resultUrl + '&q=' + queryString;
         } else {
           $window.location.href = self.resultUrl + '?q=' + queryString;
         }
