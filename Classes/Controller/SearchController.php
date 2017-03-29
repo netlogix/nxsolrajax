@@ -71,6 +71,10 @@ class SearchController extends \ApacheSolrForTypo3\Solrfluid\Controller\SearchCo
         $suggestQuery->setSiteHashFilter($allowedSites);
         $suggestQuery->setOmitHeader();
 
+        foreach ($this->typoScriptConfiguration->getSearchQueryFilterConfiguration() as $filter) {
+            $suggestQuery->addFilter($filter);
+        }
+
         return $suggestQuery;
     }
 
