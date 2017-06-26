@@ -103,6 +103,13 @@ class ImmediateRecordIndexer {
 					$recordUid = $record[$GLOBALS['TCA'][$recordTable]['ctrl']['transOrigPointerField']];
 				}
 
+				/** @var \TYPO3\CMS\Core\Page\PageRenderer $pageRenderer */
+				$pageRenderer = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance('TYPO3\\CMS\\Core\\Page\\PageRenderer');
+				$store = [];
+				foreach (['backPath', 'templateFile'] as $key) {
+					$store[$key] = \TYPO3\CMS\Extbase\Reflection\ObjectAccess::getProperty($pageRenderer, $key);
+				}
+
 				$items = $this->indexQueue->getItems($recordTable, $recordUid);
 				/** @var \Tx_Solr_IndexQueue_Item $item */
 				foreach ($items as $item) {
@@ -118,6 +125,9 @@ class ImmediateRecordIndexer {
 					} catch (\Exception $e) {
 						$this->indexQueue->markItemAsFailed($item, $e->getCode() . ': ' . $e->__toString());
 					}
+				}
+				foreach (array_keys($store) as $key) {
+					\TYPO3\CMS\Extbase\Reflection\ObjectAccess::setProperty($pageRenderer, $key, $store[$key]);
 				}
 			}
 		}
