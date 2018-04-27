@@ -1,11 +1,11 @@
 <?php
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange;
 
-use ApacheSolrForTypo3\Solrfluid\Domain\Search\Uri\SearchUriBuilder;
+use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class DateRangeFacet extends \ApacheSolrForTypo3\Solrfluid\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet implements \JsonSerializable
+class DateRangeFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet implements \JsonSerializable
 {
 
     /**
