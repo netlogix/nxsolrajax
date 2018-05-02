@@ -1,68 +1,67 @@
 plugin.tx_nxsolrajax {
+    mvc {
+        throwPageNotFoundExceptionIfActionCantBeResolved = 1
+    }
 
-	mvc {
-		throwPageNotFoundExceptionIfActionCantBeResolved = 1
-	}
+    features {
+        skipDefaultArguments = 1
+    }
 
-	features {
-		skipDefaultArguments = 1
-	}
+    view {
+        layoutRootPaths.10 = EXT:nxsolrajax/Resources/Private/Layouts/
+        partialRootPaths.10 = EXT:nxsolrajax/Resources/Private/Partials/
+        templateRootPaths.10 = EXT:nxsolrajax/Resources/Private/Templates/
+        pluginNamespace = tx_solr
+    }
 
-	view {
-		pluginNamespace = tx_solr
-	}
+    settings {
 
-	settings {
-
-	}
+    }
 }
 
-plugin.tx_nxsolrajax.settings < plugin.tx_solr
-plugin.tx_solr.settings < plugin.tx_solr
+tx_nxsolrajax_suggest_page = PAGE
+tx_nxsolrajax_suggest_page {
+    typeNum = 1471261352
+    config {
+        disableAllHeaderCode = 1
+        disablePrefixComment = 1
+        admPanel = 0
+        debug = 0
+        metaCharset = utf-8
+        additionalHeaders = Content-type:application/json
+    }
+
+    10 = USER
+    10 {
+        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+
+        vendorName = Netlogix
+        extensionName = Nxsolrajax
+        pluginName = suggest
+        controller = Search
+        action = suggest
+    }
+}
 
 [globalVar = GP:tx_solr|isAjax > 0] || [globalString = LIT: Comment = Search Pages]
+    page >
+    page = PAGE
+    page {
+        config {
+            disableAllHeaderCode = 1
+            disablePrefixComment = 1
+            additionalHeaders.10.header = Content-Type: application/json;charset=utf-8
+        }
 
-plugin.tx_solr {
-	settings {
-		search {
-			faceting = 1
-			results {
-				resultClassNameMapping {
-					defaultResult = Netlogix\Nxsolrajax\Domain\Model\Dto\Result
-				}
-			}
-		}
-	}
-}
+        10 = USER
+        10 {
+            userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
 
-## Clear existing JS and CSS because it's already loaded
-page {
-	includeJSlibs >
-	includeJS >
-	includeJSFooterlibs >
-	includeJSFooter >
-	includeCSS >
-	headerData >
-	meta >
-	bodyTag >
-
-	config {
-		disableAllHeaderCode = 1
-		disablePrefixComment = 1
-		additionalHeaders = Content-type:application/json
-	}
-
-	10 >
-	10 = USER
-	10 {
-		userFunc = \TYPO3\CMS\Extbase\Core\Bootstrap->run
-
-		vendorName = Netlogix
-		extensionName = Nxsolrajax
-		pluginName = AjaxSearch
-		controller = Search
-		action = search
-		settings < plugin.tx_solr
-	}
-}
+            vendorName = Netlogix
+            extensionName = Nxsolrajax
+            pluginName = results
+            controller = Search
+            action = results
+        }
+    }
 [GLOBAL]

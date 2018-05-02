@@ -1,206 +1,93 @@
 <?php
 namespace Netlogix\Nxsolrajax\Controller;
 
-/***************************************************************
- *  Copyright notice
- *
- *  (c) 2014 Sascha Nowak <sascha.nowak@netlogix.de>, netlogix GmbH & Co. KG
- *
- *  All rights reserved
- *
- *  This script is part of the TYPO3 project. The TYPO3 project is
- *  free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  The GNU General Public License can be found at
- *  http://www.gnu.org/copyleft/gpl.html.
- *
- *  This script is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+use ApacheSolrForTypo3\Solr\SuggestQuery;
+use ApacheSolrForTypo3\Solr\Util;
+use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Web\Response;
 
-/**
- * @license http://www.gnu.org/licenses/lgpl.html GNU Lesser General Public License, version 3 or later
- */
-class SearchController extends \Netlogix\Nxcrudextbase\Controller\AbstractRestController {
+class SearchController extends \ApacheSolrForTypo3\Solrfluid\Controller\SearchController
+{
 
-	/**
-	 * @var \Netlogix\Nxsolrajax\Service\QueryFactory
-	 */
-	protected $queryFactory;
+    /**
+     * @return string
+     */
+    public function indexAction()
+    {
+    }
 
-	/**
-	 * @var \Tx_Solr_Query
-	 */
-	protected $query;
+    /**
+     * @return string
+     */
+    public function resultsAction()
+    {
+        if (!$this->searchService->getIsSolrAvailable()) {
+            $this->forward('solrNotAvailable');
+        }
 
-	/**
-	 * @var \Tx_Solr_Search
-	 */
-	protected $search;
+        // perform the current search.
+        $this->searchService->setUsePluginAwareComponents(false);
+        $searchRequest = $this->buildSearchRequest();
+        $searchResultSet = $this->searchService->search($searchRequest);
 
-	/**
-	 * @param \Netlogix\Nxsolrajax\Service\QueryFactory $queryFactory
-	 */
-	public function injectQueryFactory(\Netlogix\Nxsolrajax\Service\QueryFactory $queryFactory) {
-		$this->queryFactory = $queryFactory;
-	}
+        // we pass the search result set to the controller context, to have the possibility
+        // to access it without passing it from partial to partial
+        $this->controllerContext->setSearchResultSet($searchResultSet);
 
-	public function initializeAction() {
-		$this->query = $this->queryFactory->getQuery();
-		$this->search = $this->queryFactory->getSearch();
-	}
+        return json_encode($searchResultSet);
+    }
 
-	/**
-	 * @param integer $page
-	 *
-	 * @return void
-	 */
-	public function searchAction($page = 0) {
-		if ($this->query !== NULL) {
+    /**
+     * @return string
+     */
+    public function suggestAction()
+    {
+        if (!$this->searchService->getIsSolrAvailable()) {
+            $this->forward('solrNotAvailable');
+        }
+        $search = $this->searchService->getSearch();
+        $suggestQuery = $this->buildSuggestQuery();
+        $response = $search->search($suggestQuery);
+        $suggestField = $this->typoScriptConfiguration->getValueByPath('plugin.tx_solr.suggest.suggestField');
+        $facetSuggestions = get_object_vars($response->facet_counts->facet_fields->{$suggestField});
+        $result = GeneralUtility::makeInstance(SuggestResultSet::class, $facetSuggestions, $suggestQuery->getKeywords());
+        return json_encode($result);
+    }
 
-			$offSet = $page * $this->query->getResultsPerPage();
+    /**
+     * @return SuggestQuery
+     */
+    protected function buildSuggestQuery()
+    {
+        $q = $this->request->getArgument('q');
+        $allowedSites = Util::resolveSiteHashAllowedSites(
+            $GLOBALS['TSFE']->id,
+            $this->typoScriptConfiguration->getValueByPath('plugin.tx_solr.search.query.allowedSites')
+        );
 
-			// performing the actual search, sending the query to the Solr server
-			$this->search->search($this->query, $offSet, NULL);
+        $suggestQuery = GeneralUtility::makeInstance(SuggestQuery::class, $q);
+        $suggestQuery->setUserAccessGroups(explode(',', $GLOBALS['TSFE']->gr_list));
+        $suggestQuery->setSiteHashFilter($allowedSites);
+        $suggestQuery->setOmitHeader();
 
-			$result = $this->getMoreLinks($page);
+        foreach ($this->typoScriptConfiguration->getSearchQueryFilterConfiguration() as $filter) {
+            $suggestQuery->addFilter($filter);
+        }
 
-			$result = array('facets' => $this->processFacets(), 'result' => $this->processResult($result), 'search' => $this->processSearch());
-		} else {
-			$result = array('facets' => array(), 'result' => array(), 'search' => $this->processSearch(array('empty' => TRUE)));
-		}
-		$this->view->assign('object', $result);
-	}
+        return $suggestQuery;
+    }
 
-	/**
-	 * @param integer $page
-	 *
-	 * @return void
-	 */
-	public function moreResultsAction($page) {
-		if ($this->query !== NULL) {
+    /**
+     * Rendered when no search is available.
+     * @return string
+     */
+    public function solrNotAvailableAction()
+    {
+        if ($this->response instanceof Response) {
+            $this->response->setStatus(503);
+        }
+        return json_encode(['status' => 503, 'message' => '']);
+    }
 
-			$offSet = $page * $this->query->getResultsPerPage();
-
-			// performing the actual search, sending the query to the Solr server
-			$this->search->search($this->query, $offSet, NULL);
-
-			$result = $this->getMoreLinks($page);
-
-			$result = array('result' => $this->processResult($result), 'search' => $this->processSearch());
-			$this->view->assign('object', $result);
-		}
-	}
-
-	/**
-	 * @param integer $page
-	 *
-	 * @return array
-	 */
-	protected function getMoreLinks($page) {
-		$links = array();
-
-		if ($page > 0) {
-			$links['prevLink'] = $this->uriBuilder->reset()->setUseCacheHash(FALSE)->setAddQueryString(TRUE)->uriFor('moreResults', array('page' => $page - 1, 'isAjax' => 1));
-		}
-
-		$resultsPerPage = $this->query->getResultsPerPage();
-		$resultOffset = $this->search->getResultOffset();
-		$numberOfResults = $this->search->getNumberOfResults();
-
-		if ($numberOfResults - $resultsPerPage > $resultOffset) {
-			$links['nextLink'] = $this->uriBuilder->reset()->setUseCacheHash(FALSE)->setAddQueryString(TRUE)->uriFor('moreResults', array('page' => $page + 1, 'isAjax' => 1));
-		}
-
-		return $links;
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function processFacets() {
-
-		/** @var \Netlogix\Nxsolrajax\Service\Processor\FacetProcessor $facetProcessor */
-		$facetProcessor = $this->objectManager->get('Netlogix\\Nxsolrajax\\Service\\Processor\\FacetProcessor');
-
-		return $facetProcessor->processResult();
-	}
-
-	/**
-	 * @param array $result
-	 *
-	 * @return array
-	 */
-	protected function processResult($result = array()) {
-
-		/** @var \Netlogix\Nxsolrajax\Service\Processor\ResultProcessor $resultProcessor */
-		$resultProcessor = $this->objectManager->get('Netlogix\\Nxsolrajax\\Service\\Processor\\ResultProcessor');
-
-		return $resultProcessor->processResult($result);
-	}
-
-	/**
-	 * @param array $result
-	 *
-	 * @return array
-	 */
-	protected function processSearch($result = array()) {
-
-		/** @var \Netlogix\Nxsolrajax\Service\Processor\SearchProcessor $resultProcessor */
-		$resultProcessor = $this->objectManager->get('Netlogix\\Nxsolrajax\\Service\\Processor\\SearchProcessor');
-
-		$params = array(
-			'isAjax' => 1
-		);
-
-		$getParams = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('tx_solr');
-		if ($this->settings['suggest']['siteSelector'] && isset($getParams['site'])) {
-			$params['site'] = $getParams['site'];
-		}
-
-		if (is_array($this->settings['suggest']['filter']) && isset($getParams['filter'])) {
-			foreach($getParams['filter'] as $filter) {
-				$filter = urldecode($filter);
-				list($filterName) = explode(':', $filter);
-				if (array_key_exists($filterName, $this->settings['suggest']['filter'])) {
-					$params['filter'][] = $filter;
-				}
-			}
-		}
-		$result['url'] = $this->uriBuilder->reset()->setUseCacheHash(FALSE)->setArguments(array('q' => 'QUERY_STRING'))->uriFor('search', $params);
-		$result['site'] = $this->getSiteSelector();
-		return $resultProcessor->processResult($result);
-	}
-
-	/**
-	 * @return array
-	 */
-	protected function getSiteSelector() {
-		$result = array();
-		if ($this->settings['search']['query']['siteSelector']) {
-			$getParams = \TYPO3\CMS\Core\Utility\GeneralUtility::_GET('tx_solr');
-			$selectedSite = 'current';
-			if (is_string($getParams['site']) && isset($this->settings['search']['query']['siteSelector'][$getParams['site']])) {
-				$selectedSite = $getParams['site'];
-			}
-
-			$result['selected'] = $selectedSite;
-
-			foreach ($this->settings['search']['query']['siteSelector'] as $parameter => $value) {
-				if ($parameter === '_typoScriptNodeValue') {
-					continue;
-				}
-				$result[$parameter] = $this->uriBuilder->reset()->setAddQueryString(TRUE)->setUseCacheHash(FALSE)->uriFor('search', array('isAjax' => 1, 'site' => $parameter));
-			}
-		}
-
-		return $result;
-	}
-} 
+}
