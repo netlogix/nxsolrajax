@@ -1,0 +1,67 @@
+plugin.tx_nxsolrajax {
+    mvc {
+        throwPageNotFoundExceptionIfActionCantBeResolved = 1
+    }
+
+    features {
+        skipDefaultArguments = 1
+    }
+
+    view {
+        layoutRootPaths.10 = EXT:nxsolrajax/Resources/Private/Layouts/
+        partialRootPaths.10 = EXT:nxsolrajax/Resources/Private/Partials/
+        templateRootPaths.10 = EXT:nxsolrajax/Resources/Private/Templates/
+        pluginNamespace = tx_solr
+    }
+
+    settings {
+
+    }
+}
+
+tx_nxsolrajax_suggest_page = PAGE
+tx_nxsolrajax_suggest_page {
+    typeNum = 1471261352
+    config {
+        disableAllHeaderCode = 1
+        disablePrefixComment = 1
+        admPanel = 0
+        debug = 0
+        metaCharset = utf-8
+        additionalHeaders = Content-type:application/json
+    }
+
+    10 = USER
+    10 {
+        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+
+        vendorName = Netlogix
+        extensionName = Nxsolrajax
+        pluginName = suggest
+        controller = Search
+        action = suggest
+    }
+}
+
+[globalVar = GP:tx_solr|isAjax > 0] || [globalString = LIT: Comment = Search Pages]
+    page >
+    page = PAGE
+    page {
+        config {
+            disableAllHeaderCode = 1
+            disablePrefixComment = 1
+            additionalHeaders.10.header = Content-Type: application/json;charset=utf-8
+        }
+
+        10 = USER
+        10 {
+            userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
+
+            vendorName = Netlogix
+            extensionName = Nxsolrajax
+            pluginName = results
+            controller = Search
+            action = results
+        }
+    }
+[GLOBAL]
