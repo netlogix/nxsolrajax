@@ -171,7 +171,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
      */
     protected function getPage()
     {
-        return $this->getUsedSearchRequest()->getPage() + 1;
+        return $this->getUsedSearchRequest()->getPage() ?: 1;
     }
 
 
