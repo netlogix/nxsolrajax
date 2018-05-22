@@ -16,13 +16,12 @@ $EM_CONF[$_EXTKEY] = [
     'modify_tables' => '',
     'clearCacheOnLoad' => 1,
     'lockType' => '',
-    'version' => '2.0.0',
+    'version' => '8.0.0',
     'state' => 'stable',
     'constraints' => [
         'depends' => [
-            'typo3' => '7.6.0-7.99.99',
-            'solr' => '5.0.*',
-            'solrfluid' => '1.0.*',
+            'typo3' => '8.7.0-9.1.99',
+            'solr' => '8.0.*',
         ],
         'conflicts' => [],
         'suggests' => [],

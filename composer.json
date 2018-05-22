@@ -2,8 +2,9 @@
   "name": "netlogix/nxsolrajax",
   "type": "typo3-cms-extension",
   "require": {
-    "typo3/cms-core": ">=7.6.0,<8.0",
-    "apache-solr-for-typo3/solr": ">=5.0.0"
+    "php": ">=7.0.0",
+    "typo3/cms-core": "^8.7.0 || ^9.1",
+    "apache-solr-for-typo3/solr": ">=8.0.0"
   },
   "autoload": {
     "psr-4": {

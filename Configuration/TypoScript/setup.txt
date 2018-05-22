@@ -4,7 +4,7 @@ plugin.tx_nxsolrajax {
     }
 
     features {
-        skipDefaultArguments = 1
+        requireCHashArgumentForActionArguments = 0
     }
 
     view {

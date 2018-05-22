@@ -1,0 +1,82 @@
+diff --git a/Classes/Domain/Search/ResultSet/Facets/AbstractFacet.php b/Classes/Domain/Search/ResultSet/Facets/AbstractFacet.php
+index 98d5e7c6..376ea773 100644
+--- a/Classes/Domain/Search/ResultSet/Facets/AbstractFacet.php
++++ b/Classes/Domain/Search/ResultSet/Facets/AbstractFacet.php
+@@ -74,6 +74,11 @@ abstract class AbstractFacet
+      */
+     protected $allRequirementsMet = true;
+ 
++    /**
++     * @var \TYPO3\CMS\Extbase\Object\ObjectManagerInterface
++     */
++    protected $objectManager;
++
+     /**
+      * AbstractFacet constructor.
+      *
+@@ -92,6 +97,16 @@ abstract class AbstractFacet
+         $this->configuration = $configuration;
+     }
+ 
++    /**
++     * Injects the object manager
++     *
++     * @param \TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager
++     */
++    public function injectObjectManager(\TYPO3\CMS\Extbase\Object\ObjectManagerInterface $objectManager)
++    {
++        $this->objectManager = $objectManager;
++    }
++
+     /**
+      * Get name
+      *
+diff --git a/Classes/Domain/Search/ResultSet/Facets/OptionBased/Hierarchy/HierarchyFacet.php b/Classes/Domain/Search/ResultSet/Facets/OptionBased/Hierarchy/HierarchyFacet.php
+index 71d3df26..fb823ed8 100644
+--- a/Classes/Domain/Search/ResultSet/Facets/OptionBased/Hierarchy/HierarchyFacet.php
++++ b/Classes/Domain/Search/ResultSet/Facets/OptionBased/Hierarchy/HierarchyFacet.php
+@@ -96,7 +96,8 @@ class HierarchyFacet extends AbstractFacet
+     {
+         /** @var $parentNode Node|null */
+         $parentNode = isset($this->nodesByKey[$parentKey]) ? $this->nodesByKey[$parentKey] : null;
+-        $node = new Node($this, $parentNode, $key, $label, $value, $count, $selected);
++        /** @var Node $node */
++        $node = $this->objectManager->get(Node::class, $this, $parentNode, $key, $label, $value, $count, $selected);
+         $this->nodesByKey[$key] = $node;
+ 
+         if ($parentNode === null) {
+diff --git a/Classes/Domain/Search/ResultSet/Facets/OptionBased/Options/OptionsFacetParser.php b/Classes/Domain/Search/ResultSet/Facets/OptionBased/Options/OptionsFacetParser.php
+index 65ad7729..d8e1f456 100644
+--- a/Classes/Domain/Search/ResultSet/Facets/OptionBased/Options/OptionsFacetParser.php
++++ b/Classes/Domain/Search/ResultSet/Facets/OptionBased/Options/OptionsFacetParser.php
+@@ -67,7 +67,7 @@ class OptionsFacetParser extends AbstractFacetParser
+ 
+             $isOptionsActive = in_array($optionsValue, $optionsFromRequest);
+             $label = $this->getLabelFromRenderingInstructions($optionsValue, $count, $facetName, $facetConfiguration);
+-            $facet->addOption(new Option($facet, $label, $optionsValue, $count, $isOptionsActive, $metricsFromSolrResponse[$optionsValue]));
++            $facet->addOption($this->objectManager->get(Option::class, $facet, $label, $optionsValue, $count, $isOptionsActive, $metricsFromSolrResponse[$optionsValue]));
+         }
+ 
+         // after all options have been created we apply a manualSortOrder if configured
+diff --git a/Classes/Domain/Search/ResultSet/Facets/RangeBased/AbstractRangeFacetParser.php b/Classes/Domain/Search/ResultSet/Facets/RangeBased/AbstractRangeFacetParser.php
+index d0266841..7ec30b0d 100644
+--- a/Classes/Domain/Search/ResultSet/Facets/RangeBased/AbstractRangeFacetParser.php
++++ b/Classes/Domain/Search/ResultSet/Facets/RangeBased/AbstractRangeFacetParser.php
+@@ -62,7 +62,7 @@ abstract class AbstractRangeFacetParser extends AbstractFacetParser
+             $countsFromResponse = isset($valuesFromResponse['counts']) ? get_object_vars($valuesFromResponse['counts']) : [];
+             foreach ($countsFromResponse as $rangeCountValue => $count) {
+                 $rangeCountValue = $this->parseResponseValue($rangeCountValue);
+-                $rangeCount = new $facetRangeCountClass($rangeCountValue, $count);
++                $rangeCount = $this->objectManager->get($facetRangeCountClass, $rangeCountValue, $count);
+                 $rangeCounts[] = $rangeCount;
+                 $allCount += $count;
+             }
+@@ -84,7 +84,7 @@ abstract class AbstractRangeFacetParser extends AbstractFacetParser
+             $type = isset($facetConfiguration['type']) ? $facetConfiguration['type'] : 'numericRange';
+             $gap = isset($facetConfiguration[$type . '.']['gap']) ? $facetConfiguration[$type . '.']['gap'] : 1;
+ 
+-            $range = new $facetItemClass($facet, $from, $to, $fromInResponse, $toInResponse, $gap, $allCount, $rangeCounts, true);
++            $range = $this->objectManager->get($facetItemClass, $facet, $from, $to, $fromInResponse, $toInResponse, $gap, $allCount, $rangeCounts, true);
+             $facet->setRange($range);
+         }
+ 
