@@ -6,6 +6,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
 use ApacheSolrForTypo3\Solr\System\Solr\SolrUnavailableException;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
 
 class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchController
 {
@@ -16,6 +17,17 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     public function indexAction()
     {
         if (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+            $contentObject = $this->getContentObjectRenderer();
+            if ($contentObject->getUserObjectType() === ContentObjectRenderer::OBJECTTYPE_USER) {
+                /*
+                 * The contentObject starts with being USER. Forwarding to 'resultsAction' doesn't
+                 * change that, so even if resultsAction is configured to be uncached, the very
+                 * result of indexAction forwarding to resultsAction will be cached if we don't
+                 * convert this object to USER_INT.
+                 */
+                $contentObject->convertToUserIntObject();
+                return '';
+            }
             $this->forward('results');
         }
     }
