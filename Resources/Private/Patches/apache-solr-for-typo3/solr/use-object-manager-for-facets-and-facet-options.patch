@@ -80,3 +80,16 @@ index d0266841..7ec30b0d 100644
              $facet->setRange($range);
          }
  
+diff --git a/Classes/Domain/Search/ResultSet/ResultSetReconstitutionProcessor.php b/Classes/Domain/Search/ResultSet/ResultSetReconstitutionProcessor.php
+index 0a207a5b..5536c2e9 100644
+--- a/Classes/Domain/Search/ResultSet/ResultSetReconstitutionProcessor.php
++++ b/Classes/Domain/Search/ResultSet/ResultSetReconstitutionProcessor.php
+@@ -141,7 +141,7 @@ class ResultSetReconstitutionProcessor implements SearchResultSetProcessor
+ 
+             $isResetOption = $field === 'relevance';
+             // @todo allow stdWrap on label
+-            $sorting = new Sorting($resultSet, $sortingName, $field, $direction, $label, $selected, $isResetOption);
++            $sorting = $this->getObjectManager()->get(Sorting::class, $resultSet, $sortingName, $field, $direction, $label, $selected, $isResetOption);
+             $resultSet->addSorting($sorting);
+         }
+ 

@@ -160,7 +160,13 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         ];
 
         if ($this->getPage() === 1) {
-            $result['facets'] = $this->facets->getAvailable()->getArrayCopy();
+            $result['facets'] = $this->getFacets()->getAvailable()->getArrayCopy();
+        }
+
+
+        $result['sortings'] = $this->getSortings()->getArrayCopy();
+        if (!$result['sortings']) {
+            unset($result['sortings']);
         }
 
         return $result;
