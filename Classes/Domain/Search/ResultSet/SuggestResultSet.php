@@ -30,9 +30,8 @@ class SuggestResultSet implements \JsonSerializable
     public function jsonSerialize()
     {
         $suggestions = [];
-        foreach ((array)$this->suggestions as $partialKeyword => $value) {
-            $suggestionKey = trim($this->keyword . ' ' . $partialKeyword);
-            $suggestions[] = ['name' => $suggestionKey, 'count' => $value];
+        foreach ((array)$this->suggestions as $keywords => $value) {
+            $suggestions[] = ['name' => $keywords, 'count' => $value];
         }
 
         return $suggestions;
