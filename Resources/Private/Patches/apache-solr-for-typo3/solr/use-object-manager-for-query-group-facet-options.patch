@@ -1,0 +1,13 @@
+diff --git a/Classes/Domain/Search/ResultSet/Facets/OptionBased/QueryGroup/QueryGroupFacetParser.php b/Classes/Domain/Search/ResultSet/Facets/OptionBased/QueryGroup/QueryGroupFacetParser.php
+index b4b723b8..dff33c73 100644
+--- a/Classes/Domain/Search/ResultSet/Facets/OptionBased/QueryGroup/QueryGroupFacetParser.php
++++ b/Classes/Domain/Search/ResultSet/Facets/OptionBased/QueryGroup/QueryGroupFacetParser.php
+@@ -80,7 +80,7 @@ class QueryGroupFacetParser extends AbstractFacetParser
+                     $facetName,
+                     $facetConfiguration
+                 );
+-                $facet->addOption(new Option($facet, $label, $value, $count, $isOptionsActive));
++                $facet->addOption($this->objectManager->get(Option::class, $facet, $label, $value, $count, $isOptionsActive));
+             }
+         }
+ 

@@ -10,6 +10,8 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['searchResultClassName '] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResult::class;
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['searchResultSetClassName '] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet::class;
 
+    \ApacheSolrForTypo3\Solr\Search\SearchComponentManager::registerSearchComponent('defaultFacetSelection', \Netlogix\Nxsolrajax\Search\DefaultFacetSelectionComponent::class);
+
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet::class;
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options\Option::class;
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet::class;
