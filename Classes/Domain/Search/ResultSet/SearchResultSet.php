@@ -156,7 +156,8 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             'limit' => $this->getResultsPerPage(),
             'offset' => $this->usedSearch->getResultOffset(),
             'totalResults' => $this->usedSearch->getNumberOfResults(),
-            'items' => $this->getSearchResults()->getArrayCopy(),
+            'items' => [],
+            'groups' => [],
         ];
 
         if ($this->getPage() === 1) {
@@ -167,6 +168,12 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $result['sortings'] = $this->getSortings()->getArrayCopy();
         if (!$result['sortings']) {
             unset($result['sortings']);
+        }
+
+        if ($this->getSearchResults()->getHasGroups()) {
+            $result['result']['groups'] = $this->getSearchResults()->getGroups()->getArrayCopy();
+        } else {
+            $result['result']['items'] = $this->getSearchResults()->getArrayCopy();
         }
 
         return $result;

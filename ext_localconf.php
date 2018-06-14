@@ -21,5 +21,7 @@ call_user_func(function () {
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet::class;
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRange::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRange::class;
     $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\Sorting::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Sorting\Sorting::class;
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\Group::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group::class;
+    $GLOBALS['TYPO3_CONF_VARS']['SYS']['Objects'][\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\GroupItem::class]['className'] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem::class;
 
 });
