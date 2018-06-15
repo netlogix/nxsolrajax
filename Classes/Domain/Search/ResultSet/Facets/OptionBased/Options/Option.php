@@ -42,6 +42,7 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
     {
         return [
             'label' => $this->getLabel(),
+            'name' => $this->getValue(),
             'count' => $this->getDocumentCount(),
             'selected' => $this->getSelected(),
             'links' => [

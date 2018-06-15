@@ -59,6 +59,7 @@ class Node extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Optio
         return [
             'id' => $this->getKey(),
             'label' => $this->getLabel(),
+            'name' => $this->getValue(),
             'count' => $this->getDocumentCount(),
             'selected' => $this->getSelected(),
             'active' => $this->isActive(),
