@@ -67,8 +67,9 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
                 $defaultFacetSelectionQuery->getFilters()->add($this->getFacetQueryFilter($facetName, (array)$selection));
 
                 $result = $this->search->search($defaultFacetSelectionQuery);
-                $count = (int)ObjectAccess::getPropertyPath($result, 'parsedData.response.numFound');
-                if ($count > 0) {
+                $rawCount = (int)ObjectAccess::getPropertyPath($result, 'parsedData.response.numFound');
+                $groupedCount = (int)ObjectAccess::getPropertyPath($result, 'parsedData.facets.count');
+                if ($rawCount > 0 || $groupedCount) {
 
                     $query->setFilters($defaultFacetSelectionQuery->getFilters());
                     $this->searchRequest->addFacetValue($facetName, $selection);
