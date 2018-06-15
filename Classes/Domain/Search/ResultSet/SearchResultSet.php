@@ -3,6 +3,7 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
+use ApacheSolrForTypo3\Solrfluidgrouping\Query\Modifier\Grouping;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -170,7 +171,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             unset($result['sortings']);
         }
 
-        if ($this->getSearchResults()->getHasGroups()) {
+        if ($this->isGroupingEnabled()) {
             $result['result']['groups'] = $this->getSearchResults()->getGroups()->getArrayCopy();
         } else {
             $result['result']['items'] = $this->getSearchResults()->getArrayCopy();
@@ -185,6 +186,11 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     protected function getPage()
     {
         return $this->getUsedSearchRequest()->getPage() ?: 1;
+    }
+
+    protected function isGroupingEnabled()
+    {
+        return $this->searchResults->getHasGroups() && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['fluid_grouping'] = Grouping::class;
     }
 
 
