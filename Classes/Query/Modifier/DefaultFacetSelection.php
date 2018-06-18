@@ -95,7 +95,10 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
             return [];
         }
 
-        $defaultFacetSelections = array_filter($facets, function ($facetConfiguration) {
+        $activeFacets = array_filter($facets, function ($facetConfiguration) {
+            return (bool)$facetConfiguration['includeInAvailableFacets'];
+        });
+        $defaultFacetSelections = array_filter($activeFacets, function ($facetConfiguration) {
             return isset($facetConfiguration['defaultValue']);
         });
 
