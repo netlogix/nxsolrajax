@@ -6,29 +6,33 @@ use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
 use ApacheSolrForTypo3\Solr\System\Solr\SolrUnavailableException;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Frontend\ContentObject\ContentObjectRenderer;
+use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchController
 {
     /**
      * @return string
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\StopActionException
      */
     public function indexAction()
     {
+        try {
+            $searchResultSet = $this->getSearchResultSet();
+
+            // Allow to cache the uncached plugin and manuell send cache Headers
+            $tsfe = $this->getTypoScriptFrontendController();
+            $tsfe->config['config']['sendCacheHeaders'] = false;
+            $this->response->setHeader('Expires', gmdate('D, d M Y H:i:s T', $tsfe->cacheExpires), true);
+            $this->response->setHeader('Cache-Control', 'max-age=' . ($tsfe->cacheExpires - $GLOBALS['EXEC_TIME']), true);
+            $this->response->setHeader('Pragma', 'public', true);
+        } catch (SolrUnavailableException $e) {
+            $this->handleSolrUnavailable();
+        }
+
         if (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
-            $contentObject = $this->getContentObjectRenderer();
-            if ($contentObject->getUserObjectType() === ContentObjectRenderer::OBJECTTYPE_USER) {
-                /*
-                 * The contentObject starts with being USER. Forwarding to 'resultsAction' doesn't
-                 * change that, so even if resultsAction is configured to be uncached, the very
-                 * result of indexAction forwarding to resultsAction will be cached if we don't
-                 * convert this object to USER_INT.
-                 */
-                $contentObject->convertToUserIntObject();
-                return '';
-            }
-            $this->forward('results');
+            return json_encode($searchResultSet);
+        } else {
+            $this->view->assign('resultSet', $searchResultSet);
+            $this->view->assign('resultSetJson', json_encode($searchResultSet));
         }
     }
 
@@ -38,22 +42,30 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     public function resultsAction()
     {
         try {
-            $arguments = (array)$this->request->getArguments();
-            $pageId = $this->typoScriptFrontendController->getRequestedId();
-            $languageId = $this->typoScriptFrontendController->sys_language_uid;
-            $searchRequest = $this->getSearchRequestBuilder()->buildForSearch($arguments, $pageId, $languageId);
-
-            $searchResultSet = $this->searchService->search($searchRequest);
-
-            // we pass the search result set to the controller context, to have the possibility
-            // to access it without passing it from partial to partial
-            $this->controllerContext->setSearchResultSet($searchResultSet);
-
+            $searchResultSet = $this->getSearchResultSet();
             return json_encode($searchResultSet);
-
         } catch (SolrUnavailableException $e) {
             $this->handleSolrUnavailable();
         }
+    }
+
+    /**
+     * @return \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet
+     */
+    private function getSearchResultSet()
+    {
+        $arguments = (array)$this->request->getArguments();
+        $pageId = $this->typoScriptFrontendController->getRequestedId();
+        $languageId = $this->typoScriptFrontendController->sys_language_uid;
+        $searchRequest = $this->getSearchRequestBuilder()->buildForSearch($arguments, $pageId, $languageId);
+
+        $searchResultSet = $this->searchService->search($searchRequest);
+
+        // we pass the search result set to the controller context, to have the possibility
+        // to access it without passing it from partial to partial
+        $this->controllerContext->setSearchResultSet($searchResultSet);
+
+        return $searchResultSet;
     }
 
     /**
@@ -98,6 +110,14 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     {
         parent::solrNotAvailableAction();
         return json_encode(['status' => 503, 'message' => '']);
+    }
+
+    /**
+     * @return TypoScriptFrontendController
+     */
+    protected function getTypoScriptFrontendController()
+    {
+        return $GLOBALS['TSFE'];
     }
 
 }
