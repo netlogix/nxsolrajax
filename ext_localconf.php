@@ -3,7 +3,7 @@ defined('TYPO3_MODE') or die();
 
 call_user_func(function () {
 
-    \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin('Netlogix.Nxsolrajax', 'index', ['Search' => 'index'], ['Search' => '']);
+    \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin('Netlogix.Nxsolrajax', 'index', ['Search' => 'index'], ['Search' => 'index']);
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin('Netlogix.Nxsolrajax', 'results', ['Search' => 'results'], ['Search' => 'results']);
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin('Netlogix.Nxsolrajax', 'suggest', ['Search' => 'suggest'], ['Search' => 'suggest']);
 
