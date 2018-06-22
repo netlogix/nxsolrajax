@@ -1,4 +1,5 @@
 <?php
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
@@ -76,6 +77,37 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     /**
      * @return string
      */
+    public function getFirstUrl()
+    {
+        $uri = '';
+        $previousRequest = $this->getUsedSearchRequest();
+        $page = $this->getPage();
+        if ($page > 2) {
+            $uri = $this->searchUriBuilder->getCurrentSearchUri($previousRequest);
+        }
+        return $uri;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLastUrl()
+    {
+        $uri = '';
+        $previousRequest = $this->getUsedSearchRequest();
+        $resultsPerPage = $this->getResultsPerPage();
+        $resultOffset = $this->getUsedSearch()->getResultOffset();
+        $numberOfResults = $this->getUsedSearch()->getNumberOfResults();
+
+        if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
+            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, ceil($numberOfResults / $resultsPerPage));
+        }
+        return $uri;
+    }
+
+    /**
+     * @return string
+     */
     public function getSearchUrl()
     {
         $previousRequest = $this->getUsedSearchRequest();
@@ -126,8 +158,10 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
                 'suggestion' => $this->getSuggestion(),
                 'links' => [
                     'reset' => $this->getResetUrl(),
-                    'next' => '',
+                    'first' => '',
                     'prev' => '',
+                    'next' => '',
+                    'last' => '',
                     'search' => $this->getSearchUrl(),
                     'suggest' => $this->getSuggestUrl(),
                     'suggestion' => $this->getSuggestionUrl()
@@ -150,8 +184,10 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             }
         }
 
-        $result['search']['links']['next'] = $this->getNextUrl();
+        $result['search']['links']['first'] = $this->getFirstUrl();
         $result['search']['links']['prev'] = $this->getPrevUrl();
+        $result['search']['links']['next'] = $this->getNextUrl();
+        $result['search']['links']['last'] = $this->getLastUrl();
         $result['result'] = [
             'q' => $this->usedQuery ? $this->usedQuery->getQueryStringContainer()->getKeywords() : '',
             'limit' => $this->getResultsPerPage(),
