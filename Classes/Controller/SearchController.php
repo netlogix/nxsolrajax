@@ -4,6 +4,7 @@ namespace Netlogix\Nxsolrajax\Controller;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
 use ApacheSolrForTypo3\Solr\System\Solr\SolrUnavailableException;
+use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -33,6 +34,9 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         if (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
             return json_encode($searchResultSet);
         } else {
+            if ($searchResultSet instanceof SearchResultSet) {
+                $searchResultSet->forceAddFacetData(true);
+            }
             $this->view->assign('resultSet', $searchResultSet);
             $this->view->assign('resultSetJson', json_encode($searchResultSet));
         }

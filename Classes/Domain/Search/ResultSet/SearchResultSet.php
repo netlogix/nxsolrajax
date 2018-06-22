@@ -23,6 +23,11 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     protected $uriBuilder;
 
     /**
+     * @var bool
+     */
+    protected $forceAddFacetData = false;
+
+    /**
      * @inheritdoc
      */
     public function __construct()
@@ -197,7 +202,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             'groups' => [],
         ];
 
-        if ($this->getPage() === 1) {
+        if ($result['facetsDataValid'] = $this->shouldAddFacetData()) {
             $result['facets'] = $this->getFacets()->getAvailable()->getArrayCopy();
         }
 
@@ -217,6 +222,14 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     }
 
     /**
+     * @param bool $forceAddFacetData
+     */
+    public function forceAddFacetData($forceAddFacetData = true)
+    {
+        $this->forceAddFacetData = $forceAddFacetData;
+    }
+
+    /**
      * @return int
      */
     protected function getPage()
@@ -224,10 +237,20 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         return $this->getUsedSearchRequest()->getPage() ?: 1;
     }
 
+    /**
+     * @return bool
+     */
     protected function isGroupingEnabled()
     {
         return $this->searchResults->getHasGroups() && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['fluid_grouping'] = Grouping::class;
     }
 
+    /**
+     * @return bool
+     */
+    protected function shouldAddFacetData()
+    {
+        return $this->forceAddFacetData || $this->getPage() === 1;
+    }
 
 }
