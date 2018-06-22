@@ -21,9 +21,11 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             // Allow to cache the uncached plugin and manuell send cache Headers
             $tsfe = $this->getTypoScriptFrontendController();
             $tsfe->config['config']['sendCacheHeaders'] = false;
-            $this->response->setHeader('Expires', gmdate('D, d M Y H:i:s T', $tsfe->cacheExpires), true);
-            $this->response->setHeader('Cache-Control', 'max-age=' . ($tsfe->cacheExpires - $GLOBALS['EXEC_TIME']), true);
-            $this->response->setHeader('Pragma', 'public', true);
+            if (!empty($tsfe->config['config']['sendCacheHeaders']) && !$tsfe->beUserLogin) {
+                $this->response->setHeader('Expires', gmdate('D, d M Y H:i:s T', $tsfe->cacheExpires), true);
+                $this->response->setHeader('Cache-Control', 'max-age=' . ($tsfe->cacheExpires - $GLOBALS['EXEC_TIME']), true);
+                $this->response->setHeader('Pragma', 'public', true);
+            }
         } catch (SolrUnavailableException $e) {
             $this->handleSolrUnavailable();
         }
