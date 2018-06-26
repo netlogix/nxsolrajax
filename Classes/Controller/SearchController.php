@@ -37,8 +37,9 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             if ($searchResultSet instanceof SearchResultSet) {
                 $searchResultSet->forceAddFacetData(true);
             }
-            $this->view->assign('resultSet', $searchResultSet);
-            $this->view->assign('resultSetJson', json_encode($searchResultSet));
+            $jsonData = json_encode($searchResultSet);
+            $this->view->assign('resultSet', json_decode($jsonData, true));
+            $this->view->assign('resultSetJson', $jsonData);
         }
     }
 
