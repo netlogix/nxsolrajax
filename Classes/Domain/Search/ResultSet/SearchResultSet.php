@@ -5,6 +5,7 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use ApacheSolrForTypo3\Solrfluidgrouping\Query\Modifier\Grouping;
+use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
@@ -88,7 +89,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $previousRequest = $this->getUsedSearchRequest();
         $page = $this->getPage();
         if ($page > 2) {
-            $uri = $this->searchUriBuilder->getCurrentSearchUri($previousRequest);
+            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, 1);
         }
         return $uri;
     }
@@ -193,6 +194,19 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $result['search']['links']['prev'] = $this->getPrevUrl();
         $result['search']['links']['next'] = $this->getNextUrl();
         $result['search']['links']['last'] = $this->getLastUrl();
+
+        $result['search']['links'] = array_map(function($uri) {
+            if (!$uri) {
+                return $uri;
+            }
+            $uri = new Uri($uri);
+            $query = GeneralUtility::explodeUrl2Array($uri->getQuery());
+            if (isset($query['tx_solr[page]']) && (string)$query['tx_solr[page]'] === '1') {
+                unset($query['tx_solr[page]']);
+            }
+            return (string)$uri->withQuery(GeneralUtility::implodeArrayForUrl('', $query));
+        }, $result['search']['links']);
+
         $result['result'] = [
             'q' => $this->usedQuery ? $this->usedQuery->getQueryStringContainer()->getKeywords() : '',
             'limit' => $this->getResultsPerPage(),
