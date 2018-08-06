@@ -7,6 +7,8 @@ call_user_func(function () {
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin('Netlogix.Nxsolrajax', 'results', ['Search' => 'results'], ['Search' => 'results']);
     \TYPO3\CMS\Extbase\Utility\ExtensionUtility::configurePlugin('Netlogix.Nxsolrajax', 'suggest', ['Search' => 'suggest'], ['Search' => 'suggest']);
 
+    $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'] = [];
+
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['searchResultClassName '] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResult::class;
     $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['searchResultSetClassName '] = \Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet::class;
 

@@ -6,6 +6,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
 use ApacheSolrForTypo3\Solr\System\Solr\SolrUnavailableException;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
+use Netlogix\Nxsolrajax\SugesstionResultModifier;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -100,6 +101,16 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             $arguments = (array)$this->request->getArguments();
             $searchRequest = $this->getSearchRequestBuilder()->buildForSuggest($arguments, $rawQuery, $pageId, $languageId);
             $result = $suggestService->getSuggestions($searchRequest, $additionalFilters);
+
+            if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'])) {
+                foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'] as $key => $classRef) {
+                    $hookObject = GeneralUtility::makeInstance($classRef);
+                    if (!$hookObject instanceof SugesstionResultModifier) {
+                        throw new \Exception(sprintf('modifySuggestions hook expects SuggestionResultModifier, got %s', get_class($hookObject)), 1533224243);
+                    }
+                    $result['suggestions'] = $hookObject->modifySuggestions($queryString, is_array($result['suggestions']) ? $result['suggestions'] : [], $this->typoScriptConfiguration);
+                }
+            }
 
             $suggestResult = GeneralUtility::makeInstance(SuggestResultSet::class, $result['suggestions'], $result['suggestion']);
             return json_encode($suggestResult);
