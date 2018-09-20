@@ -87,6 +87,8 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         $queryString = $this->request->getArgument('q');
         $rawQuery = htmlspecialchars(mb_strtolower(trim($queryString)));
 
+        $additionalFilters = $this->request->hasArgument('filters') ? $this->request->getArgument('filters') : [];
+
         try {
             /** @var SuggestService $suggestService */
             $suggestService = GeneralUtility::makeInstance(
@@ -94,7 +96,6 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
                 $this->typoScriptFrontendController,
                 $this->searchService, $this->typoScriptConfiguration
             );
-            $additionalFilters = htmlspecialchars(GeneralUtility::_GET('filters'));
 
             $pageId = $this->typoScriptFrontendController->getRequestedId();
             $languageId = $this->typoScriptFrontendController->sys_language_uid;
@@ -113,6 +114,8 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             }
 
             $suggestResult = GeneralUtility::makeInstance(SuggestResultSet::class, $result['suggestions'], $result['suggestion']);
+
+            $this->response->setHeader('Content-Type', 'application/json; charset=utf-8', true);
             return json_encode($suggestResult);
 
         } catch (SolrUnavailableException $e) {
