@@ -5,12 +5,13 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use ApacheSolrForTypo3\Solrfluidgrouping\Query\Modifier\Grouping;
+use JsonSerializable;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet implements \JsonSerializable
+class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet implements JsonSerializable
 {
 
     /**
@@ -56,9 +57,9 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
         $page = $this->getPage();
-        $resultsPerPage = $this->getResultsPerPage();
+        $resultsPerPage = $this->getUsedResultsPerPage();
         $resultOffset = $this->getUsedSearch()->getResultOffset();
-        $numberOfResults = $this->getUsedSearch()->getNumberOfResults();
+        $numberOfResults = $this->getAllResultCount();
 
         if ($numberOfResults - $resultsPerPage > $resultOffset) {
             $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page + 1);
@@ -101,9 +102,9 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
-        $resultsPerPage = $this->getResultsPerPage();
+        $resultsPerPage = $this->getUsedResultsPerPage();
         $resultOffset = $this->getUsedSearch()->getResultOffset();
-        $numberOfResults = $this->getUsedSearch()->getNumberOfResults();
+        $numberOfResults = $this->getAllResultCount();
 
         if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
             $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, ceil($numberOfResults / $resultsPerPage));
@@ -160,7 +161,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         $result = [
             'search' => [
-                'q' => $this->usedQuery ? $this->usedQuery->getQueryStringContainer()->getKeywords() : '',
+                'q' => $this->usedQuery ? $this->usedQuery->getQuery() : '',
                 'suggestion' => $this->getSuggestion(),
                 'links' => [
                     'reset' => $this->getResetUrl(),
@@ -195,7 +196,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $result['search']['links']['next'] = $this->getNextUrl();
         $result['search']['links']['last'] = $this->getLastUrl();
 
-        $result['search']['links'] = array_map(function($uri) {
+        $result['search']['links'] = array_map(function ($uri) {
             if (!$uri) {
                 return $uri;
             }
@@ -208,10 +209,10 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         }, $result['search']['links']);
 
         $result['result'] = [
-            'q' => $this->usedQuery ? $this->usedQuery->getQueryStringContainer()->getKeywords() : '',
-            'limit' => $this->getResultsPerPage(),
+            'q' => $this->usedQuery ? $this->usedQuery->getQuery() : '',
+            'limit' => $this->getUsedResultsPerPage(),
             'offset' => $this->usedSearch->getResultOffset(),
-            'totalResults' => $this->usedSearch->getNumberOfResults(),
+            'totalResults' => $this->getAllResultCount(),
             'items' => [],
             'groups' => [],
         ];

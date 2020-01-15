@@ -12,7 +12,15 @@ class SearchResult extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Resu
      */
     public function getContent()
     {
-        return $this->_fields['highlightedContent'] ?: $this->_fields['abstract'];
+        return $this->fields['highlightedContent'] ?? $this->fields['abstract'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getImage()
+    {
+        return $this->fields['image'] ?? '';
     }
 
     /**
@@ -25,6 +33,7 @@ class SearchResult extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Resu
             'type' => $this->getType(),
             'title' => $this->getTitle(),
             'content' => $this->getContent(),
+            'image' => $this->getImage(),
             'url' => $this->getUrl(),
         ];
     }

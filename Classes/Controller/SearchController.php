@@ -4,9 +4,11 @@ namespace Netlogix\Nxsolrajax\Controller;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
 use ApacheSolrForTypo3\Solr\System\Solr\SolrUnavailableException;
+use ApacheSolrForTypo3\Solr\Util;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use Netlogix\Nxsolrajax\SugesstionResultModifier;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
@@ -19,21 +21,14 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     {
         try {
             $searchResultSet = $this->getSearchResultSet();
-
-            // Allow to cache the uncached plugin and manuell send cache Headers
-            $tsfe = $this->getTypoScriptFrontendController();
-            $tsfe->config['config']['sendCacheHeaders'] = false;
-            if (!empty($tsfe->config['config']['sendCacheHeaders']) && !$tsfe->beUserLogin) {
-                $this->response->setHeader('Expires', gmdate('D, d M Y H:i:s T', $tsfe->cacheExpires), true);
-                $this->response->setHeader('Cache-Control', 'max-age=' . ($tsfe->cacheExpires - $GLOBALS['EXEC_TIME']), true);
-                $this->response->setHeader('Pragma', 'public', true);
-            }
+            $this->applyHttpHeadersToResponse();
         } catch (SolrUnavailableException $e) {
             $this->handleSolrUnavailable();
         }
 
         if (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
-            return json_encode($searchResultSet);
+            $this->response->setHeader('Content-Type', 'application/json; charset=utf-8', true);
+            return json_encode($searchResultSet, JSON_PRETTY_PRINT);
         } else {
             if ($searchResultSet instanceof SearchResultSet) {
                 $searchResultSet->forceAddFacetData(true);
@@ -51,7 +46,8 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     {
         try {
             $searchResultSet = $this->getSearchResultSet();
-            return json_encode($searchResultSet);
+            $this->applyHttpHeadersToResponse();
+            return json_encode($searchResultSet, JSON_PRETTY_PRINT);
         } catch (SolrUnavailableException $e) {
             $this->handleSolrUnavailable();
         }
@@ -64,7 +60,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     {
         $arguments = (array)$this->request->getArguments();
         $pageId = $this->typoScriptFrontendController->getRequestedId();
-        $languageId = $this->typoScriptFrontendController->sys_language_uid;
+        $languageId = Util::getLanguageUid();
         $searchRequest = $this->getSearchRequestBuilder()->buildForSearch($arguments, $pageId, $languageId);
 
         $searchResultSet = $this->searchService->search($searchRequest);
@@ -98,7 +94,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             );
 
             $pageId = $this->typoScriptFrontendController->getRequestedId();
-            $languageId = $this->typoScriptFrontendController->sys_language_uid;
+            $languageId = Util::getLanguageUid();
             $arguments = (array)$this->request->getArguments();
             $searchRequest = $this->getSearchRequestBuilder()->buildForSuggest($arguments, $rawQuery, $pageId, $languageId);
             $result = $suggestService->getSuggestions($searchRequest, $additionalFilters);
@@ -139,6 +135,29 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     protected function getTypoScriptFrontendController()
     {
         return $GLOBALS['TSFE'];
+    }
+
+    private function applyHttpHeadersToResponse()
+    {
+        // Allow to cache the uncached plugin and manuel send cache Headers
+        $tsfe = $this->getTypoScriptFrontendController();
+
+        // Backup TSFE state
+        $noCache = $tsfe->no_cache;
+        $intincscript = $tsfe->config['INTincScript'];
+
+        $tsfe->no_cache = false;
+        $tsfe->config['config']['sendCacheHeaders'] = true;
+        unset($tsfe->config['INTincScript']);
+
+        foreach ($tsfe->applyHttpHeadersToResponse(new Response())->getHeaders() as $name => $values) {
+            $this->response->setHeader($name, implode(', ', $values), true);
+        }
+
+        // Restore TSFE
+        $tsfe->no_cache = $noCache;
+        $tsfe->config['INTincScript'] = $intincscript;
+        $tsfe->config['config']['sendCacheHeaders'] = false;
     }
 
 }
