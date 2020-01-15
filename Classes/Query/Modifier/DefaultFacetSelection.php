@@ -11,6 +11,7 @@ use ApacheSolrForTypo3\Solr\Search;
 use ApacheSolrForTypo3\Solr\Search\SearchAware;
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use ApacheSolrForTypo3\Solr\Util;
+use Exception;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
@@ -46,7 +47,7 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
     /**
      * @param Query $query
      * @return Query
-     * @throws \Exception
+     * @throws Exception
      */
     public function modifyQuery(Query $query)
     {

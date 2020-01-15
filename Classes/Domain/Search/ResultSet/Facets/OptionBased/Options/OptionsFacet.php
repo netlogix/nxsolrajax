@@ -3,10 +3,10 @@
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
+use JsonSerializable;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\ResetLinkHelperInterface;
-use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\SelfLinkHelperInterface;
 
-class OptionsFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet implements \JsonSerializable
+class OptionsFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet implements JsonSerializable
 {
     /**
      * @return string

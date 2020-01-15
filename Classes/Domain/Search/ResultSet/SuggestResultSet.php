@@ -1,7 +1,10 @@
 <?php
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
-class SuggestResultSet implements \JsonSerializable
+use JsonSerializable;
+
+class SuggestResultSet implements JsonSerializable
 {
 
     /**

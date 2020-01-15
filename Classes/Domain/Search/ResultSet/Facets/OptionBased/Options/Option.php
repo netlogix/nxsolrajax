@@ -3,11 +3,12 @@
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
+use JsonSerializable;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\SelfLinkHelperInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option implements \JsonSerializable
+class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option implements JsonSerializable
 {
 
     /**
