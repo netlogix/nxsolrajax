@@ -11,9 +11,9 @@ class GroupItem extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Groupin
         return [
             'label' => $this->getGroupValue(),
             'name' => $this->getGroupValue(),
-            'totalResults' => $this->getNumFound(),
+            'totalResults' => $this->getAllResultCount(),
             'start' => $this->getStart(),
-            'maxScore' => $this->getMaxScore(),
+            'maxScore' => $this->getMaximumScore(),
             'items' => $this->getSearchResults()->getArrayCopy(),
         ];
     }
