@@ -6,9 +6,27 @@ use JsonSerializable;
 
 class GroupItem extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\GroupItem implements JsonSerializable
 {
-    protected function getGroupLabel()
+    private $groupLabel;
+    private $groupUrl;
+
+    protected function getGroupLabel(): string
     {
-        return $this->getGroupValue();
+        return $this->groupLabel ?? $this->getGroupValue();
+    }
+
+    public function setGroupLabel($groupLabel): void
+    {
+        $this->groupLabel = $groupLabel;
+    }
+
+    public function getGroupUrl(): string
+    {
+        return $this->groupUrl ?? '';
+    }
+
+    public function setGroupUrl($groupUrl): void
+    {
+        $this->groupUrl = $groupUrl;
     }
 
     public function jsonSerialize()
@@ -19,6 +37,7 @@ class GroupItem extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Groupin
             'totalResults' => $this->getAllResultCount(),
             'start' => $this->getStart(),
             'maxScore' => $this->getMaximumScore(),
+            'url' => $this->getGroupUrl(),
             'items' => $this->getSearchResults()->getArrayCopy(),
         ];
     }
