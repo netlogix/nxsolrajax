@@ -29,9 +29,9 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
     protected $search;
 
     /**
-     * @inheritdoc
+     * @param FacetRegistry $facetRegistry
      */
-    public function __construct(FacetRegistry $facetRegistry = null)
+    public function __construct(FacetRegistry $facetRegistry)
     {
         parent::__construct($facetRegistry);
         $this->configuration = Util::getSolrConfiguration();

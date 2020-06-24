@@ -8,9 +8,18 @@ plugin.tx_nxsolrajax {
     }
 
     view {
-        layoutRootPaths.10 = EXT:nxsolrajax/Resources/Private/Layouts/
-        partialRootPaths.10 = EXT:nxsolrajax/Resources/Private/Partials/
-        templateRootPaths.10 = EXT:nxsolrajax/Resources/Private/Templates/
+        templateRootPaths {
+            0 = EXT:nxsolrajax/Resources/Private/Templates/
+            1 = {$plugin.tx_solr.view.templateRootPath}
+        }
+        partialRootPaths {
+            0 = EXT:nxsolrajax/Resources/Private/Partials/
+            1 = {$plugin.tx_solr.view.partialRootPath}
+        }
+        layoutRootPaths {
+            0 = EXT:nxsolrajax/Resources/Private/Layouts/
+            1 = {$plugin.tx_solr.view.layoutRootPath}
+        }
         pluginNamespace = tx_solr
     }
 

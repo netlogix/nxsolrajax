@@ -21,7 +21,7 @@ $EM_CONF[$_EXTKEY] = [
     'constraints' => [
         'depends' => [
             'typo3' => '9.5.0-10.99.99',
-            'solr' => '10.0.*',
+            'solr' => '10.0.0-11.99.99',
         ],
         'conflicts' => [],
         'suggests' => [],
