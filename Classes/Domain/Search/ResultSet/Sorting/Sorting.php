@@ -4,11 +4,12 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Sorting;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
+use JsonSerializable;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
-class Sorting extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\Sorting implements \JsonSerializable
+class Sorting extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\Sorting implements JsonSerializable
 {
     /**
      * @var ObjectManagerInterface

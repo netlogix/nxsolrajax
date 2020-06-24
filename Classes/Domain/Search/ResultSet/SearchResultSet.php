@@ -2,15 +2,20 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\AbstractOptionFacetItem;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use ApacheSolrForTypo3\Solrfluidgrouping\Query\Modifier\Grouping;
+use JsonSerializable;
+use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option;
+use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
+use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet implements \JsonSerializable
+class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet implements JsonSerializable
 {
 
     /**
@@ -56,7 +61,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
         $page = $this->getPage();
-        $resultsPerPage = $this->getUsedSearch()->getResultsPerPage();
+        $resultsPerPage = $this->getUsedResultsPerPage();
         $resultOffset = $this->getUsedSearch()->getResultOffset();
         $numberOfResults = $this->getAllResultCount();
 
@@ -101,7 +106,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
-        $resultsPerPage = $this->getUsedSearch()->getResultsPerPage();
+        $resultsPerPage = $this->getUsedResultsPerPage();
         $resultOffset = $this->getUsedSearch()->getResultOffset();
         $numberOfResults = $this->getAllResultCount();
 
@@ -195,7 +200,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $result['search']['links']['next'] = $this->getNextUrl();
         $result['search']['links']['last'] = $this->getLastUrl();
 
-        $result['search']['links'] = array_map(function($uri) {
+        $result['search']['links'] = array_map(function ($uri) {
             if (!$uri) {
                 return $uri;
             }
@@ -204,12 +209,13 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             if (isset($query['tx_solr[page]']) && (string)$query['tx_solr[page]'] === '1') {
                 unset($query['tx_solr[page]']);
             }
-            return (string)$uri->withQuery(GeneralUtility::implodeArrayForUrl('', $query));
+            $queryString = trim(GeneralUtility::implodeArrayForUrl('', $query), '&');
+            return (string)$uri->withQuery($queryString);
         }, $result['search']['links']);
 
         $result['result'] = [
             'q' => $this->usedQuery ? $this->usedQuery->getQuery() : '',
-            'limit' => $this->getUsedSearch()->getResultsPerPage(),
+            'limit' => $this->getUsedResultsPerPage(),
             'offset' => $this->usedSearch->getResultOffset(),
             'totalResults' => $this->getAllResultCount(),
             'items' => [],
@@ -227,7 +233,22 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         }
 
         if ($this->isGroupingEnabled()) {
-            $result['result']['groups'] = $this->getSearchResults()->getGroups()->getArrayCopy();
+            $groups = $this->getSearchResults()->getGroups()->getArrayCopy();
+            foreach ($groups as $group) {
+                assert($group instanceof Group);
+                foreach ($group->getGroupItems() as &$groupItem) {
+                    if ($facet = $this->getFacets()->getByName($group->getGroupName())->getByPosition(0)) {
+                        assert($groupItem instanceof GroupItem);
+                        $option = $facet->getOptions()->getByValue($groupItem->getGroupValue());
+                        assert($option instanceof AbstractOptionFacetItem);
+                        if ($option instanceof Option) {
+                            $groupItem->setGroupUrl($option->getUrl());
+                            $groupItem->setGroupLabel($option->getLabel());
+                        }
+                    }
+                }
+            }
+            $result['result']['groups'] = $groups;
         } else {
             $result['result']['items'] = $this->getSearchResults()->getArrayCopy();
         }

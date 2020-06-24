@@ -37,7 +37,10 @@ tx_nxsolrajax_suggest_page {
         admPanel = 0
         debug = 0
         metaCharset = utf-8
-        additionalHeaders = Content-type:application/json
+        additionalHeaders {
+            1579085000.header = Content-Type: application/json;charset=utf-8
+            1579086000.header = Vary: Accept
+        }
     }
 
     10 = USER
@@ -52,15 +55,20 @@ tx_nxsolrajax_suggest_page {
     }
 }
 
-[request.getQueryParams()['tx_solr']['isAjax'] == 1]
+[request.getHeaders()['accept'][0] matches '/^application\\/json/']
     page >
     page = PAGE
     page {
         config {
             disableAllHeaderCode = 1
             disablePrefixComment = 1
+            admPanel = 0
             debug = 0
-            additionalHeaders.10.header = Content-Type: application/json;charset=utf-8
+            metaCharset = utf-8
+            additionalHeaders {
+                1579085000.header = Content-Type: application/json;charset=utf-8
+                1579086000.header = Vary: Accept
+            }
         }
 
         10 = USER
