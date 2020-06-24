@@ -56,9 +56,9 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
         $page = $this->getPage();
-        $resultsPerPage = $this->getResultsPerPage();
+        $resultsPerPage = $this->getUsedSearch()->getResultsPerPage();
         $resultOffset = $this->getUsedSearch()->getResultOffset();
-        $numberOfResults = $this->getUsedSearch()->getNumberOfResults();
+        $numberOfResults = $this->getAllResultCount();
 
         if ($numberOfResults - $resultsPerPage > $resultOffset) {
             $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page + 1);
@@ -101,9 +101,9 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
-        $resultsPerPage = $this->getResultsPerPage();
+        $resultsPerPage = $this->getUsedSearch()->getResultsPerPage();
         $resultOffset = $this->getUsedSearch()->getResultOffset();
-        $numberOfResults = $this->getUsedSearch()->getNumberOfResults();
+        $numberOfResults = $this->getAllResultCount();
 
         if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
             $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, ceil($numberOfResults / $resultsPerPage));
@@ -160,7 +160,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         $result = [
             'search' => [
-                'q' => $this->usedQuery ? $this->usedQuery->getQueryStringContainer()->getKeywords() : '',
+                'q' => $this->usedQuery ? $this->usedQuery->getQuery() : '',
                 'suggestion' => $this->getSuggestion(),
                 'links' => [
                     'reset' => $this->getResetUrl(),
@@ -208,10 +208,10 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         }, $result['search']['links']);
 
         $result['result'] = [
-            'q' => $this->usedQuery ? $this->usedQuery->getQueryStringContainer()->getKeywords() : '',
-            'limit' => $this->getResultsPerPage(),
+            'q' => $this->usedQuery ? $this->usedQuery->getQuery() : '',
+            'limit' => $this->getUsedSearch()->getResultsPerPage(),
             'offset' => $this->usedSearch->getResultOffset(),
-            'totalResults' => $this->usedSearch->getNumberOfResults(),
+            'totalResults' => $this->getAllResultCount(),
             'items' => [],
             'groups' => [],
         ];
