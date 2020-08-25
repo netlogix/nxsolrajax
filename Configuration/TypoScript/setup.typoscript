@@ -55,7 +55,7 @@ tx_nxsolrajax_suggest_page {
     }
 }
 
-[request.getHeaders()['accept'][0] matches '/^application\\/json/']
+[traverse(request.getHeaders(), 'accept/0') matches '/^application\\/json/']
     page >
     page = PAGE
     page {
