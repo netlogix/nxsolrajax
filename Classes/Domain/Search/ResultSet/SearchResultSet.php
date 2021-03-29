@@ -204,7 +204,8 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             if (isset($query['tx_solr[page]']) && (string)$query['tx_solr[page]'] === '1') {
                 unset($query['tx_solr[page]']);
             }
-            return (string)$uri->withQuery(GeneralUtility::implodeArrayForUrl('', $query));
+            $queryString = trim(GeneralUtility::implodeArrayForUrl('', $query), '&');
+            return (string)$uri->withQuery($queryString);
         }, $result['search']['links']);
 
         $result['result'] = [
