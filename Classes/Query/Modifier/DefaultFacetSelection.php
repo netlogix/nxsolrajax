@@ -51,7 +51,7 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
      * @return Query
      * @throws Exception
      */
-    public function modifyQuery(Query $query)
+    public function modifyQuery(Query $query): Query
     {
         $activeFacetNames = $this->searchRequest->getActiveFacetNames();
 
@@ -61,26 +61,25 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
         }, ARRAY_FILTER_USE_KEY);
 
         foreach ($defaultValuesOfFacets as $facetName => $defaultSelection) {
-
             $defaultSelections = GeneralUtility::trimExplode(',', $defaultSelection);
             foreach ($defaultSelections as $selection) {
-
+                $filterQuery = new FilterQuery([
+                    'key' => 'type',
+                    'query' => $this->getFacetQueryFilter($facetName, (array)$selection),
+                ]);
                 $defaultFacetSelectionQuery = clone $query;
-                $defaultFacetSelectionQuery->setFilters(clone $defaultFacetSelectionQuery->getFilters());
-                $defaultFacetSelectionQuery->getFilters()->add($this->getFacetQueryFilter($facetName, (array)$selection));
+                $defaultFacetSelectionQuery->addFilterQuery($filterQuery);
 
                 $result = $this->search->search($defaultFacetSelectionQuery);
                 $rawCount = (int)ObjectAccess::getPropertyPath($result, 'parsedData.response.numFound');
                 $groupedCount = (int)ObjectAccess::getPropertyPath($result, 'parsedData.facets.count');
                 if ($rawCount > 0 || $groupedCount) {
-
-                    $query->setFilters($defaultFacetSelectionQuery->getFilters());
+                    $query->addFilterQuery($filterQuery);
                     $this->searchRequest->addFacetValue($facetName, $selection);
 
                     break;
                 }
             }
-
         }
 
         return $query;
@@ -121,11 +120,9 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
      */
     protected function getFacetQueryFilter(string $facetName, array $filterValues)
     {
-        $typoScriptConfiguration = $this->searchRequest->getContextTypoScriptConfiguration();
-        $allFacets = $typoScriptConfiguration->getSearchFacetingFacets();
-        $keepAllFacetsOnSelection = $typoScriptConfiguration->getSearchFacetingKeepAllFacetsOnSelection();
+        $keepAllFacetsOnSelection = $this->configuration->getSearchFacetingKeepAllFacetsOnSelection();
+        $facetConfiguration = $this->configuration->getSearchFacetingFacetByName($facetName);
 
-        $facetConfiguration = $allFacets[$facetName . '.'];
         $tag = $this->getFilterTag($facetConfiguration, $keepAllFacetsOnSelection);
         $filterParts = $this->getFilterParts($facetConfiguration, $facetName, $filterValues);
         $operator = ($facetConfiguration['operator'] === 'OR') ? ' OR ' : ' AND ';
