@@ -15,5 +15,8 @@
     "nxsolrajax": "self.version"
   },
   "extra": {
+    "typo3/cms": {
+      "extension-key": "nxsolrajax"
+    }
   }
 }
