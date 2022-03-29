@@ -29,11 +29,20 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
 
         $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
-        return $searchUriBuilder->getSetFacetValueUri(
-            $previousRequest,
-            $this->getFacet()->getName(),
-            $this->getUriValue()
-        );
+
+        if ($settings['keepAllOptionsOnSelection'] == 1) {
+            return $searchUriBuilder->getAddFacetValueUri(
+                $previousRequest,
+                $this->getFacet()->getName(),
+                $this->getUriValue()
+            );
+        } else {
+            return $searchUriBuilder->getSetFacetValueUri(
+                $previousRequest,
+                $this->getFacet()->getName(),
+                $this->getUriValue()
+            );
+        }
     }
 
     /**
