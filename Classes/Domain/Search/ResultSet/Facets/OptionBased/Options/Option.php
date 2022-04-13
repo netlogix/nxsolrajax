@@ -30,18 +30,22 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
-        if ($settings['keepAllOptionsOnSelection'] == 1) {
-            return $searchUriBuilder->getAddFacetValueUri(
-                $previousRequest,
-                $this->getFacet()->getName(),
-                $this->getUriValue()
-            );
-        } else {
-            return $searchUriBuilder->getSetFacetValueUri(
-                $previousRequest,
-                $this->getFacet()->getName(),
-                $this->getUriValue()
-            );
+        $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
+        $operator = \strtolower($settings['operator']) ?: 'and';
+        switch (true) {
+            case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
+            case ($keepAllOptionsOnSelection == 0):
+                return $searchUriBuilder->getAddFacetValueUri(
+                    $previousRequest,
+                    $this->getFacet()->getName(),
+                    $this->getUriValue()
+                );
+            case ($keepAllOptionsOnSelection == 1 && $operator == 'and'):
+                return $searchUriBuilder->getSetFacetValueUri(
+                    $previousRequest,
+                    $this->getFacet()->getName(),
+                    $this->getUriValue()
+                );
         }
     }
 
@@ -64,17 +68,21 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
-        if ($settings['keepAllOptionsOnSelection'] == 1) {
-            return $searchUriBuilder->getRemoveFacetValueUri(
-                $previousRequest,
-                $this->getFacet()->getName(),
-                $this->getUriValue()
-            );
-        } else {
-            return $searchUriBuilder->getRemoveFacetUri(
-                $previousRequest,
-                $this->getFacet()->getName()
-            );
+        $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
+        $operator = \strtolower($settings['operator']) ?: 'and';
+        switch (true) {
+            case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
+            case ($keepAllOptionsOnSelection == 0):
+                return $searchUriBuilder->getRemoveFacetValueUri(
+                    $previousRequest,
+                    $this->getFacet()->getName(),
+                    $this->getUriValue()
+                );
+            case ($keepAllOptionsOnSelection == 1 && $operator == 'and'):
+                return $searchUriBuilder->getRemoveFacetUri(
+                    $previousRequest,
+                    $this->getFacet()->getName()
+                );
         }
     }
 
