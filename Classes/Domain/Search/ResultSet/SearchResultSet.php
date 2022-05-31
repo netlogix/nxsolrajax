@@ -205,11 +205,10 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
                 return $uri;
             }
             $uri = new Uri($uri);
-            $query = GeneralUtility::explodeUrl2Array($uri->getQuery());
-            if (isset($query['tx_solr[page]']) && (string)$query['tx_solr[page]'] === '1') {
-                unset($query['tx_solr[page]']);
-            }
-            $queryString = trim(GeneralUtility::implodeArrayForUrl('', $query), '&');
+            $query = $uri->getQuery();
+            $query = explode('&', $query);
+            $query = array_filter($query, function($query) {return $query !== 'tx_solr[page]=1';});
+            $queryString = trim(implode('&', $query), '&');
             return (string)$uri->withQuery($queryString);
         }, $result['search']['links']);
 
