@@ -9,9 +9,20 @@
     "typo3/cms-core": "^10.4",
     "ext-json": "*"
   },
+  "require-dev": {
+    "ext-sqlite3": "*",
+    "nimut/testing-framework": "^6.0",
+    "nimut/phpunit-merger": "^1.1",
+    "phpunit/phpcov": "^8.2"
+  },
   "autoload": {
     "psr-4": {
       "Netlogix\\Nxsolrajax\\": "Classes"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Netlogix\\Nxsolrajax\\Tests\\": "Tests/"
     }
   },
   "extra": {
