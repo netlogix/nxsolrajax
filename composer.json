@@ -1,22 +1,32 @@
 {
   "name": "netlogix/nxsolrajax",
   "type": "typo3-cms-extension",
+  "description": "TYPO3 Extension \"nxsolrajax\"",
+  "license": "MIT",
   "require": {
     "php": "^7.2",
     "apache-solr-for-typo3/solr": "^11.1",
-    "typo3/cms-core": "^10.4"
+    "typo3/cms-core": "^10.4",
+    "ext-json": "*"
   },
   "autoload": {
     "psr-4": {
       "Netlogix\\Nxsolrajax\\": "Classes"
     }
   },
-  "replace": {
-    "nxsolrajax": "self.version"
-  },
   "extra": {
     "typo3/cms": {
-      "extension-key": "nxsolrajax"
+      "extension-key": "nxsolrajax",
+      "web-dir": ".Build/Web",
+      "cms-package-dir": "{$vendor-dir}/typo3/cms"
+    }
+  },
+  "config": {
+    "vendor-dir": ".Build/vendor",
+    "bin-dir": ".Build/bin",
+    "allow-plugins": {
+      "typo3/cms-composer-installers": true,
+      "typo3/class-alias-loader": true
     }
   }
 }
