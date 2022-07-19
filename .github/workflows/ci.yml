@@ -105,7 +105,7 @@ jobs:
           filename: .Build/logs/cobertura.xml
           badge: true
           # there are not enough tests yet
-          fail_below_min: false
+          fail_below_min: true
           format: markdown
           hide_branch_rate: true
           hide_complexity: false
