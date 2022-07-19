@@ -56,7 +56,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     /**
      * @return \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet
      */
-    private function getSearchResultSet()
+    protected function getSearchResultSet()
     {
         $arguments = (array)$this->request->getArguments();
         $pageId = $this->typoScriptFrontendController->getRequestedId();
@@ -137,7 +137,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         return $GLOBALS['TSFE'];
     }
 
-    private function applyHttpHeadersToResponse()
+    protected function applyHttpHeadersToResponse()
     {
         // Allow to cache the uncached plugin and manuel send cache Headers
         $tsfe = $this->getTypoScriptFrontendController();
