@@ -6,6 +6,7 @@ services:
 
   Netlogix\Nxsolrajax\:
     resource: '../Classes/*'
+    exclude: '../Classes/Event/*'
 
   Netlogix\Nxsolrajax\Compatibility\LinkHelperReplacement:
     tags:
@@ -17,3 +18,9 @@ services:
         identifier: 'legacy-linkHelper'
         method: 'generateFacetItemUrl'
         event: Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent
+
+  Netlogix\Nxsolrajax\Compatibility\ModifySuggestionsHookReplacement:
+    tags:
+      - name: event.listener
+        identifier: 'legacy-modifySuggestions'
+        event: Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent
