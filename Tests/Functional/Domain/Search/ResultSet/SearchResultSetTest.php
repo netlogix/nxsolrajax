@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Tests\Functional\Domain\Search\ResultSet;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\Query\Query;
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use ApacheSolrForTypo3\Solr\Search;
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
@@ -13,18 +15,18 @@ use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\EnvironmentService;
 
-use function ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
-
 class SearchResultSetTest extends FunctionalTestCase
 {
     protected $testExtensionsToLoad = ['typo3conf/ext/solr'];
+
+    protected int $pageUid = 1;
 
     public function setUp(): void
     {
         parent::setUp();
 
         $this->importDataSet('ntf://Database/pages.xml');
-        $this->setUpFrontendRootPage(1);
+        $this->setUpFrontendRootPage($this->pageUid);
 
         $GLOBALS['TYPO3_REQUEST'] = new ServerRequest(uniqid('https://www.example.com/'), 'GET');
 
@@ -63,7 +65,7 @@ class SearchResultSetTest extends FunctionalTestCase
     {
         $currentPage = rand(1, 9999);
 
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $searchRequest->setPage($currentPage);
         $subject = new SearchResultSet();
         $subject->setUsedResultsPerPage(10);
@@ -91,7 +93,7 @@ class SearchResultSetTest extends FunctionalTestCase
     {
         $currentPage = rand(5, 9999);
 
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $searchRequest->setPage($currentPage);
         $subject = new SearchResultSet();
         $subject->setUsedSearchRequest($searchRequest);
@@ -115,7 +117,7 @@ class SearchResultSetTest extends FunctionalTestCase
     {
         $currentPage = rand(5, 9999);
 
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $searchRequest->setPage($currentPage);
         $subject = new SearchResultSet();
         $subject->setUsedSearchRequest($searchRequest);
@@ -139,7 +141,7 @@ class SearchResultSetTest extends FunctionalTestCase
     {
         $currentPage = rand(5, 9999);
 
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $searchRequest->setPage($currentPage);
         $subject = new SearchResultSet();
         $subject->setUsedResultsPerPage(10);
@@ -165,7 +167,7 @@ class SearchResultSetTest extends FunctionalTestCase
      */
     public function itCanGenerateSearchUrl()
     {
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $subject = new SearchResultSet();
         $subject->setUsedSearchRequest($searchRequest);
 
@@ -186,7 +188,7 @@ class SearchResultSetTest extends FunctionalTestCase
      */
     public function itCanGenerateSuggestUrl()
     {
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $subject = new SearchResultSet();
         $subject->setUsedSearchRequest($searchRequest);
 
@@ -209,10 +211,10 @@ class SearchResultSetTest extends FunctionalTestCase
     {
         $suggestion = uniqid('suggestion_');
 
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $subject = new SearchResultSet();
         $subject->addSpellCheckingSuggestion(
-            new \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion($suggestion)
+            new Suggestion($suggestion)
         );
         $subject->setUsedSearchRequest($searchRequest);
 
@@ -233,7 +235,7 @@ class SearchResultSetTest extends FunctionalTestCase
      */
     public function itGeneratesEmptySuggestionUrlIfItHasNoSuggestions()
     {
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $subject = new SearchResultSet();
         // do not add any suggester results here
         $subject->setUsedSearchRequest($searchRequest);
@@ -258,10 +260,10 @@ class SearchResultSetTest extends FunctionalTestCase
     {
         $suggestion = uniqid('suggestion_');
 
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $subject = new SearchResultSet();
         $subject->addSpellCheckingSuggestion(
-            new \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion($suggestion)
+            new Suggestion($suggestion)
         );
         $subject->setUsedSearchRequest($searchRequest);
 
@@ -282,7 +284,7 @@ class SearchResultSetTest extends FunctionalTestCase
      */
     public function itReturnsEmptyForNoSuggestionsFound()
     {
-        $searchRequest = new SearchRequest([], 1, 0, new TypoScriptConfiguration([], 1));
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
         $subject = new SearchResultSet();
         $subject->setUsedSearchRequest($searchRequest);
 
@@ -295,5 +297,59 @@ class SearchResultSetTest extends FunctionalTestCase
 
         $res = $subject->getSuggestion();
         self::assertEquals('', $res);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function itCanBeSerializedToJSON() {
+        $currentPage = rand(5, 9999);
+        $query = uniqid('foo:');
+        $suggestion = uniqid('suggestion_');
+
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
+        $searchRequest->setPage($currentPage);
+        $subject = new SearchResultSet();
+        $subject->setUsedResultsPerPage(10);
+        $subject->setUsedSearchRequest($searchRequest);
+
+        $usedSearch = $this->getMockBuilder(Search::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getResultOffset'])
+            ->getMock();
+        $usedSearch->method('getResultOffset')->willReturn(0);
+        $subject->setUsedSearch($usedSearch);
+
+        // add two pages worth of results
+        $subject->setAllResultCount(($currentPage * 10) + (2 * 10));
+
+        $subject->addSpellCheckingSuggestion(
+            new Suggestion($suggestion)
+        );
+
+        $subject->setUsedQuery((new Query())->setQuery($query));
+
+        $jsonString = json_encode($subject);
+        self::assertEquals(JSON_ERROR_NONE, json_last_error());
+
+        $jsonData = json_decode($jsonString, true);
+        self::assertEquals(JSON_ERROR_NONE, json_last_error());
+
+        self::assertIsString($jsonData['search']['q']);
+        self::assertEquals($query, $jsonData['search']['q']);
+
+        self::assertIsString($jsonData['search']['suggestion']);
+        self::assertEquals($suggestion, $jsonData['search']['suggestion']);
+
+        self::assertIsString($jsonData['search']['links']['search']);
+        self::assertNotEmpty($jsonData['search']['links']['search']);
+
+        self::assertIsString($jsonData['search']['links']['suggest']);
+        self::assertNotEmpty($jsonData['search']['links']['suggest']);
+
+        self::assertIsString($jsonData['search']['links']['suggestion']);
+        self::assertNotEmpty($jsonData['search']['links']['suggestion']);
+
     }
 }
