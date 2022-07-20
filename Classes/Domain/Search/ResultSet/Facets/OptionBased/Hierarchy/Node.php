@@ -25,11 +25,8 @@ class Node extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Optio
             }
         }
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
-        $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
-        return $searchUriBuilder->getSetFacetValueUri(
+        return GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getSetFacetValueUri(
             $previousRequest,
             $this->getFacet()->getName(),
             $this->getUriValue()

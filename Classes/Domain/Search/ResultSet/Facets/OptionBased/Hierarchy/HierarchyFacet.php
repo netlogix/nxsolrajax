@@ -5,6 +5,8 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarc
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\ResetLinkHelperInterface;
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class HierarchyFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet implements JsonSerializable
 {
@@ -17,15 +19,14 @@ class HierarchyFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Fa
         $settings = $this->getConfiguration();
         if (isset($settings['linkHelper']) && is_a($settings['linkHelper'], ResetLinkHelperInterface::class, true)) {
             /** @var ResetLinkHelperInterface $linkHelper */
-            $linkHelper = $this->objectManager->get($settings['linkHelper']);
+            $linkHelper = GeneralUtility::makeInstance($settings['linkHelper']);
             if ($linkHelper->canHandleResetLink($this)) {
                 return $linkHelper->renderResetLink($this);
             }
         }
 
-        $searchUriBuilder = $this->objectManager->get(SearchUriBuilder::class);
         $previousRequest = $this->getResultSet()->getUsedSearchRequest();
-        return $searchUriBuilder->getRemoveFacetUri($previousRequest, $this->getName());
+        return $this->objectManager->get(SearchUriBuilder::class)->getRemoveFacetUri($previousRequest, $this->getName());
     }
 
     /**

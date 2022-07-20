@@ -16,18 +16,16 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
      */
     public function getUrl()
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
         $settings = $this->getFacet()->getConfiguration();
         if (isset($settings['linkHelper']) && is_a($settings['linkHelper'], SelfLinkHelperInterface::class, true)) {
             /** @var SelfLinkHelperInterface $linkHelper */
-            $linkHelper = $objectManager->get($settings['linkHelper']);
+            $linkHelper = GeneralUtility::makeInstance($settings['linkHelper']);
             if ($linkHelper->canHandleSelfLink($this)) {
                 return $linkHelper->renderSelfLink($this);
             }
         }
 
-        $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
+        $searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
@@ -54,18 +52,16 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
      */
     public function getResetUrl()
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
         $settings = $this->getFacet()->getConfiguration();
         if (isset($settings['linkHelper']) && is_a($settings['linkHelper'], SelfLinkHelperInterface::class, true)) {
             /** @var SelfLinkHelperInterface $linkHelper */
-            $linkHelper = $objectManager->get($settings['linkHelper']);
+            $linkHelper = GeneralUtility::makeInstance($settings['linkHelper']);
             if ($linkHelper->canHandleSelfLink($this)) {
                 return $linkHelper->renderSelfLink($this);
             }
         }
 
-        $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
+        $searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];

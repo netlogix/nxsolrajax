@@ -18,7 +18,7 @@ use TYPO3\CMS\Extbase\Service\EnvironmentService;
 class HierarchyFacetTest extends FunctionalTestCase
 {
 
-    protected $testExtensionsToLoad = ['typo3conf/ext/solr'];
+    protected $testExtensionsToLoad = ['typo3conf/ext/solr','typo3conf/ext/nxsolrajax'];
 
     protected function tearDown(): void
     {
