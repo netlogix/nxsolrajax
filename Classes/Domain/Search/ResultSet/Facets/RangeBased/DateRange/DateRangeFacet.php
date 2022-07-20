@@ -2,21 +2,19 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange;
 
-use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
 class DateRangeFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet implements JsonSerializable
 {
+    use FacetUrlTrait;
 
     /**
      * @return string
      */
     public function getResetUrl()
     {
-        $previousRequest = $this->getResultSet()->getUsedSearchRequest();
-        return GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getRemoveFacetUri($previousRequest, $this->getName());
+        return $this->getFacetResetUrl($this);
     }
 
     /**
