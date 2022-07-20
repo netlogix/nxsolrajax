@@ -17,7 +17,7 @@ use TYPO3\CMS\Extbase\Service\EnvironmentService;
 
 class NodeTest extends FunctionalTestCase
 {
-    protected $testExtensionsToLoad = ['typo3conf/ext/solr'];
+    protected $testExtensionsToLoad = ['typo3conf/ext/solr', 'typo3conf/ext/nxsolrajax'];
 
     public function setUp(): void
     {
