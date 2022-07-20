@@ -15,10 +15,8 @@ class DateRangeFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Fa
      */
     public function getResetUrl()
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
         $previousRequest = $this->getResultSet()->getUsedSearchRequest();
-        return $searchUriBuilder->getRemoveFacetUri($previousRequest, $this->getName());
+        return GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getRemoveFacetUri($previousRequest, $this->getName());
     }
 
     /**

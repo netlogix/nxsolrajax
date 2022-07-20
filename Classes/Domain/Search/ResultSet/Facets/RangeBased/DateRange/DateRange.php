@@ -17,10 +17,7 @@ class DateRange extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\
     {
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
-
-        return $searchUriBuilder->getSetFacetValueUri(
+        return GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getSetFacetValueUri(
             $previousRequest,
             $this->getFacet()->getName(),
             '{dateRange}'
