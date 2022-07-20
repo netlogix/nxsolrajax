@@ -7,8 +7,9 @@ namespace Netlogix\Nxsolrajax\Traits;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacetItem;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
-use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\ResetLinkHelperInterface;
-use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\SelfLinkHelperInterface;
+use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
+use Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -25,21 +26,23 @@ trait FacetUrlTrait
      */
     protected function getFacetResetUrl(AbstractFacet $facet): string
     {
-        $settings = $facet->getConfiguration();
+        $url = '';
+        $event = new GenerateFacetResetUrlEvent($facet, $url);
 
-        if (isset($settings['linkHelper']) && is_a($settings['linkHelper'], ResetLinkHelperInterface::class, true)) {
-            /** @var ResetLinkHelperInterface $linkHelper */
-            $linkHelper = GeneralUtility::makeInstance($settings['linkHelper']);
-            if ($linkHelper->canHandleResetLink($facet)) {
-                return $linkHelper->renderResetLink($facet);
-            }
+        /** @var GenerateFacetResetUrlEvent $event */
+        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
+
+        $url = $event->getUrl();
+
+        if ($url == '') {
+            $previousRequest = $facet->getResultSet()->getUsedSearchRequest();
+            $url = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getRemoveFacetUri(
+                $previousRequest,
+                $facet->getName()
+            );
         }
 
-        $previousRequest = $facet->getResultSet()->getUsedSearchRequest();
-        return GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getRemoveFacetUri(
-            $previousRequest,
-            $facet->getName()
-        );
+        return $url;
     }
 
     /**
@@ -53,21 +56,24 @@ trait FacetUrlTrait
      */
     protected function getFacetItemUrl(AbstractFacetItem $facetItem, string $overrideUriValue = ''): string
     {
-        $settings = $facetItem->getFacet()->getConfiguration();
-        if (isset($settings['linkHelper']) && is_a($settings['linkHelper'], SelfLinkHelperInterface::class, true)) {
-            /** @var SelfLinkHelperInterface $linkHelper */
-            $linkHelper = GeneralUtility::makeInstance($settings['linkHelper']);
-            if ($linkHelper->canHandleSelfLink($facetItem)) {
-                return $linkHelper->renderSelfLink($facetItem);
-            }
+        $url = '';
+        $event = new GenerateFacetItemUrlEvent($facetItem, $url, $overrideUriValue);
+
+        /** @var GenerateFacetItemUrlEvent $event */
+        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
+
+        $url = $event->getUrl();
+
+        if ($url == '') {
+            $previousRequest = $facetItem->getFacet()->getResultSet()->getUsedSearchRequest();
+
+            $url = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getSetFacetValueUri(
+                $previousRequest,
+                $facetItem->getFacet()->getName(),
+                $overrideUriValue ?: $facetItem->getUriValue()
+            );
         }
 
-        $previousRequest = $facetItem->getFacet()->getResultSet()->getUsedSearchRequest();
-
-        return GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getSetFacetValueUri(
-            $previousRequest,
-            $facetItem->getFacet()->getName(),
-            $overrideUriValue ?: $facetItem->getUriValue()
-        );
+        return $url;
     }
 }

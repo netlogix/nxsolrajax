@@ -6,3 +6,14 @@ services:
 
   Netlogix\Nxsolrajax\:
     resource: '../Classes/*'
+
+  Netlogix\Nxsolrajax\Compatibility\LinkHelperReplacement:
+    tags:
+      - name: event.listener
+        identifier: 'legacy-linkHelper'
+        method: 'generateFacetResetUrl'
+        event: Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent
+      - name: event.listener
+        identifier: 'legacy-linkHelper'
+        method: 'generateFacetItemUrl'
+        event: Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent
