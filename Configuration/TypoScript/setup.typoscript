@@ -54,32 +54,3 @@ tx_nxsolrajax_suggest_page {
         action = suggest
     }
 }
-
-[traverse(request.getHeaders(), 'accept/0') matches '/^application\\/json/']
-    page >
-    page = PAGE
-    page {
-        config {
-            disableAllHeaderCode = 1
-            disablePrefixComment = 1
-            admPanel = 0
-            debug = 0
-            metaCharset = utf-8
-            additionalHeaders {
-                1579085000.header = Content-Type: application/json;charset=utf-8
-                1579086000.header = Vary: Accept
-            }
-        }
-
-        10 = USER
-        10 {
-            userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-
-            vendorName = Netlogix
-            extensionName = Nxsolrajax
-            pluginName = results
-            controller = Search
-            action = results
-        }
-    }
-[GLOBAL]

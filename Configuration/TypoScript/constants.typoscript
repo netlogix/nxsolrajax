@@ -1,3 +1,5 @@
 plugin.tx_nxsolrajax {
 
 }
+
+plugin.txnxsolrpluginpage.list_type.json := addToList(nxsolrajax_index)
