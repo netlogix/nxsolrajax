@@ -5,11 +5,14 @@ declare(strict_types=1);
 namespace Netlogix\Nxsolrajax\Tests\Unit\Controller;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSetService;
+use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
+use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequestBuilder;
 use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
+use ApacheSolrForTypo3\Solr\Mvc\Controller\SolrControllerContext;
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use ApacheSolrForTypo3\Solr\System\Solr\SolrUnavailableException;
 use Netlogix\Nxsolrajax\Controller\SearchController;
-use Netlogix\Nxsolrajax\SugesstionResultModifier;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Exception\StopActionException;
@@ -24,7 +27,7 @@ class SearchControllerTest extends UnitTestCase
     {
         parent::tearDown();
 
-        unset($_SERVER['HTTP_ACCEPT'], $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions']);
+        unset($_SERVER['HTTP_ACCEPT'], $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'], $GLOBALS['TSFE']);
 
         GeneralUtility::purgeInstances();
     }
@@ -244,4 +247,68 @@ class SearchControllerTest extends UnitTestCase
     }
 
 
+    /**
+     * @test
+     * @return void
+     */
+    public function isSetsSearchResultsInControllerContext() {
+        $subject = $this->getAccessibleMock(SearchController::class, ['dummy']);
+
+        $controllerContext = $this->getMockBuilder(SolrControllerContext::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['setSearchResultSet'])
+            ->getMock();
+        $controllerContext->expects(self::once())->method('setSearchResultSet');
+        $this->inject($subject, 'controllerContext', $controllerContext);
+
+        $request  = new Request();
+        $this->inject($subject, 'request', $request);
+
+        $mockTSFE = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getRequestedId'])
+            ->getMock();
+        $mockTSFE->method('getRequestedId')->willReturn(rand(1,9999));
+        $this->inject($subject, 'typoScriptFrontendController', $mockTSFE);
+
+        $searchRequest = new SearchRequest();
+
+        $searchRequestBuilderMock = $this->getMockBuilder(SearchRequestBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['buildForSearch'])
+            ->getMock();
+        $searchRequestBuilderMock->method('buildForSearch')->willReturn($searchRequest);
+        $this->inject($subject, 'searchRequestBuilder', $searchRequestBuilderMock);
+
+        $searchResultSet = new SearchResultSet();
+
+        $searchServiceMock = $this->getMockBuilder(SearchResultSetService::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['search'])
+            ->getMock();
+        $searchServiceMock->expects(self::once())->method('search')->with($searchRequest)->willReturn($searchResultSet);
+        $this->inject($subject, 'searchService', $searchServiceMock);
+
+        $res = $subject->_call('getSearchResultSet');
+
+        self::assertSame($searchResultSet, $res);
+    }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function itCanGetTSFE()
+    {
+        $subject = $this->getAccessibleMock(SearchController::class, ['dummy']);
+
+        $GLOBALS['TSFE'] = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $res = $subject->_call('getTypoScriptFrontendController');
+
+        self::assertSame($GLOBALS['TSFE'], $res);
+
+    }
 }
