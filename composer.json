@@ -6,6 +6,7 @@
   "require": {
     "php": "^7.4",
     "apache-solr-for-typo3/solr": "^11.2",
+    "netlogix/nxajaxpluginpage": "^2.0",
     "typo3/cms-core": "^10.4",
     "ext-json": "*"
   },
