@@ -8,10 +8,14 @@ namespace Netlogix\Nxsolrajax;
 
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 
+/**
+ * @deprecated this is deprecated in favour of AfterGetSuggestionsEvent
+ */
 interface SugesstionResultModifier
 {
 
     /**
+     * @deprecated this is deprecated in favour of AfterGetSuggestionsEvent
      * @param string $query
      * @param array $suggestions
      * @param TypoScriptConfiguration $typoScriptConfiguration

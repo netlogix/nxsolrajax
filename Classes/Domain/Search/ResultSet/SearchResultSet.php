@@ -40,9 +40,8 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         parent::__construct();
 
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
-        $this->uriBuilder = $objectManager->get(UriBuilder::class);
+        $this->searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
+        $this->uriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(UriBuilder::class);
     }
 
     /**

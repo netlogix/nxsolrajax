@@ -4,7 +4,8 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options
 
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
-use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\SelfLinkHelperInterface;
+use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
@@ -16,18 +17,15 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
      */
     public function getUrl()
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
         $settings = $this->getFacet()->getConfiguration();
-        if (isset($settings['linkHelper']) && is_a($settings['linkHelper'], SelfLinkHelperInterface::class, true)) {
-            /** @var SelfLinkHelperInterface $linkHelper */
-            $linkHelper = $objectManager->get($settings['linkHelper']);
-            if ($linkHelper->canHandleSelfLink($this)) {
-                return $linkHelper->renderSelfLink($this);
-            }
+
+        // this uses the same event implementation as getResetUrl() due to historical reasons
+        $url = $this->sendLinkGenerationEvent();
+        if ($url) {
+            return $url;
         }
 
-        $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
+        $searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
@@ -49,23 +47,31 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         }
     }
 
+    private function sendLinkGenerationEvent(): string {
+        // link generation works slightly differently here compared to FacetUrlTrait
+        // the event is duplicated here to get a consistent external event interface
+        $event = new GenerateFacetItemUrlEvent($this, '');
+
+        /** @var GenerateFacetItemUrlEvent $event */
+        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
+
+        return $event->getUrl();
+    }
+
     /**
      * @return string
      */
     public function getResetUrl()
     {
-        $objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-
         $settings = $this->getFacet()->getConfiguration();
-        if (isset($settings['linkHelper']) && is_a($settings['linkHelper'], SelfLinkHelperInterface::class, true)) {
-            /** @var SelfLinkHelperInterface $linkHelper */
-            $linkHelper = $objectManager->get($settings['linkHelper']);
-            if ($linkHelper->canHandleSelfLink($this)) {
-                return $linkHelper->renderSelfLink($this);
-            }
+
+        // this uses the same event implementation as getUrl() due to historical reasons
+        $url = $this->sendLinkGenerationEvent();
+        if ($url) {
+            return $url;
         }
 
-        $searchUriBuilder = $objectManager->get(SearchUriBuilder::class);
+        $searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];

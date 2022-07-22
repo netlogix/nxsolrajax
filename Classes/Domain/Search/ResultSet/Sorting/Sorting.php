@@ -7,15 +7,9 @@ use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
-use TYPO3\CMS\Extbase\Object\ObjectManagerInterface;
 
 class Sorting extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\Sorting implements JsonSerializable
 {
-    /**
-     * @var ObjectManagerInterface
-     */
-    protected $objectManager;
-
     /**
      * @var SearchUriBuilder
      */
@@ -33,8 +27,7 @@ class Sorting extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\S
     {
         parent::__construct($resultSet, $name, $field, $direction, $label, $selected, $isResetOption);
         $this->resultSet = $resultSet;
-        $this->objectManager = GeneralUtility::makeInstance(ObjectManager::class);
-        $this->searchUriBuilder = $this->objectManager->get(SearchUriBuilder::class);
+        $this->searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
     }
 
     public function jsonSerialize()

@@ -9,10 +9,12 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use ApacheSolrForTypo3\Solr\Search;
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
+use ApacheSolrForTypo3\Solr\System\Solr\ResponseAdapter;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Core\Utility\HttpUtility;
 use TYPO3\CMS\Extbase\Service\EnvironmentService;
 
 class SearchResultSetTest extends FunctionalTestCase
@@ -303,7 +305,8 @@ class SearchResultSetTest extends FunctionalTestCase
      * @test
      * @return void
      */
-    public function itCanBeSerializedToJSON() {
+    public function itCanBeSerializedToJSONWithoutSearchResponse()
+    {
         $currentPage = rand(5, 9999);
         $query = uniqid('foo:');
         $suggestion = uniqid('suggestion_');
@@ -350,6 +353,54 @@ class SearchResultSetTest extends FunctionalTestCase
 
         self::assertIsString($jsonData['search']['links']['suggestion']);
         self::assertNotEmpty($jsonData['search']['links']['suggestion']);
+    }
 
+    /**
+     * @test
+     * @return void
+     */
+    public function itIncludesSearchDataInJSONIfSearchResultExists()
+    {
+        $currentPage = rand(5, 9999);
+        $limit = rand(1, 100);
+        $totalResults = ($currentPage * $limit) + (2 * $limit);
+
+        $subject = new SearchResultSet();
+        $subject->setUsedResultsPerPage($limit);
+        $subject->setAllResultCount($totalResults);
+
+        $searchRequest = new SearchRequest([], $this->pageUid, 0, new TypoScriptConfiguration([], $this->pageUid));
+        $searchRequest->setPage($currentPage);
+        $subject->setUsedSearchRequest($searchRequest);
+
+        // the controller does not care about the response but treats it as a sign of a successful search
+        $subject->setResponse(new ResponseAdapter('{}', 200, HttpUtility::HTTP_STATUS_200));
+
+        $usedSearchMock = $this->getMockBuilder(Search::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+        $subject->setUsedSearch($usedSearchMock);
+
+        $jsonString = json_encode($subject);
+        self::assertEquals(JSON_ERROR_NONE, json_last_error());
+
+        $jsonData = json_decode($jsonString, true);
+        self::assertEquals(JSON_ERROR_NONE, json_last_error());
+
+        self::assertArrayHasKey('result', $jsonData);
+        self::assertNotEmpty($jsonData['result']);
+
+        self::assertArrayHasKey('totalResults', $jsonData['result']);
+        self::assertEquals($totalResults, $jsonData['result']['totalResults']);
+
+        self::assertArrayHasKey('limit', $jsonData['result']);
+        self::assertEquals($limit, $jsonData['result']['limit']);
+
+        self::assertNotEmpty($jsonData['search']['links']['first']);
+        self::assertNotEmpty($jsonData['search']['links']['last']);
+        self::assertNotEmpty($jsonData['search']['links']['next']);
+        self::assertNotEmpty($jsonData['search']['links']['prev']);
+        self::assertNotEmpty($jsonData['search']['links']['search']);
+        self::assertNotEmpty($jsonData['search']['links']['suggest']);
     }
 }

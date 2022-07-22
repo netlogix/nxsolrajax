@@ -16,39 +16,6 @@ class NodeTest extends UnitTestCase
      * @test
      * @return void
      */
-    public function itCanBuildUrlFromLinkHelper()
-    {
-        $linkHelperMock = $this->getMockBuilder(SelfLinkHelperInterface::class)
-            ->onlyMethods(['canHandleSelfLink', 'renderSelfLink'])
-            ->getMock();
-
-        $linkHelperMock->method('canHandleSelfLink')->willReturn(true);
-
-        $link = sprintf('https://www.example.com/%s', uniqid());
-
-        $linkHelperMock->method('renderSelfLink')->willReturn($link);
-
-        GeneralUtility::addInstance(get_class($linkHelperMock), $linkHelperMock);
-
-        $facetMock = $this->getMockBuilder(HierarchyFacet::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getConfiguration'])
-            ->getMock();
-        $facetMock->method('getConfiguration')->willReturn(['linkHelper' => get_class($linkHelperMock)]);
-
-
-        $subject = new Node($facetMock, null, uniqid('key_'), '', uniqid('value_'), 0, true);
-
-        $res = $subject->getUrl();
-
-        self::assertEquals($link, $res);
-    }
-
-
-    /**
-     * @test
-     * @return void
-     */
     public function itCanDetermineOwnActiveStateIfSelected()
     {
         $facetMock = $this->getMockBuilder(HierarchyFacet::class)
