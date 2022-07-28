@@ -8,6 +8,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class DateRangeFacetTest extends UnitTestCase
 {
@@ -33,7 +34,8 @@ class DateRangeFacetTest extends UnitTestCase
                     $name,
                     $field,
                     $label,
-                    $options
+                    $options,
+                    $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
                 ]
             )
             ->onlyMethods(['getResetUrl'])

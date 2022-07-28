@@ -8,6 +8,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGrou
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class OptionTest extends UnitTestCase
 {
@@ -18,7 +19,14 @@ class OptionTest extends UnitTestCase
      */
     public function itCanBesSerializedToJSON()
     {
-        $queryGroupFacet = new QueryGroupFacet(new SearchResultSet(), uniqid('name_'), uniqid('field_'));
+        $queryGroupFacet = new QueryGroupFacet(
+            new SearchResultSet(),
+            uniqid('name_'),
+            uniqid('field_'),
+            '',
+            [],
+            $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
+        );
 
 
         $label = uniqid('label_');

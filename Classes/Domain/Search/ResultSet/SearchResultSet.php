@@ -110,7 +110,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $numberOfResults = $this->getAllResultCount();
 
         if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, ceil($numberOfResults / $resultsPerPage));
+            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, (int)ceil($numberOfResults / $resultsPerPage));
         }
         return $uri;
     }

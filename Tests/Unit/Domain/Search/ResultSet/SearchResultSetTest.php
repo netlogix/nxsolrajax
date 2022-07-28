@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet;
 
-use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Nimut\TestingFramework\MockObject\AccessibleMockObjectInterface;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
@@ -16,7 +15,8 @@ class SearchResultSetTest extends UnitTestCase
      * @test
      * @return void
      */
-    public function itCanForceAddingFacetData() {
+    public function itCanForceAddingFacetData()
+    {
         /** @var SearchResultSet|MockObject|AccessibleMockObjectInterface $subject */
         $subject = $this->getAccessibleMock(SearchResultSet::class, ['getPage'], [], '', false);
         $subject->method('getPage')->willReturn(0);
@@ -27,11 +27,13 @@ class SearchResultSetTest extends UnitTestCase
 
         self::assertTrue($subject->_call('shouldAddFacetData'));
     }
+
     /**
      * @test
      * @return void
      */
-    public function itWillAddFacetDataIfHasResults() {
+    public function itWillAddFacetDataIfHasResults()
+    {
         /** @var SearchResultSet|MockObject|AccessibleMockObjectInterface $subject */
         $subject = $this->getAccessibleMock(SearchResultSet::class, ['getPage'], [], '', false);
 

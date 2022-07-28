@@ -14,10 +14,10 @@ jobs:
     name: TYPO3 ${{ matrix.typo3}} on PHP ${{ matrix.php }}
 
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        php: [ 7.4 ]
-        typo3: [ 10.4 ]
+        php: [ 7.4, 8.0, 8.1 ]
+        typo3: [ 11.5 ]
 
     steps:
       - name: Checkout

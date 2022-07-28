@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Grouping;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
@@ -25,7 +26,12 @@ class GroupItemTest extends UnitTestCase
         $maxScore = rand(1, 99999) * .1;
 
         $group = new Group($groupName, $resultsPerPage);
-        $subject = new GroupItem($group, $groupValue, $numFound, $start, $maxScore);
+
+        $usedSearchRequestMock = $this->getMockBuilder(SearchRequest::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $subject = new GroupItem($group, $groupValue, $numFound, $start, $maxScore, $usedSearchRequestMock);
 
         $groupUrl = sprintf('https://www.example.de/%s', $groupName);
         $subject->setGroupUrl($groupUrl);

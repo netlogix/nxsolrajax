@@ -11,13 +11,6 @@ use Nimut\TestingFramework\TestCase\UnitTestCase;
 class DefaultFacetSelectionComponentTest extends UnitTestCase
 {
 
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection']);
-    }
-
     /**
      * @test
      * @return void
@@ -58,6 +51,13 @@ class DefaultFacetSelectionComponentTest extends UnitTestCase
             DefaultFacetSelection::class,
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection']
         );
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection']);
     }
 
 }

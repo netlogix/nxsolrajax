@@ -16,10 +16,11 @@ class SearchResultTest extends UnitTestCase
     public function itCanBeSerializedToJSON()
     {
         $data = [
-            'id' => rand(1,9999999),
+            'id' => (string)rand(1, 9999999),
             'type' => uniqid('type_'),
             'title' => uniqid('title_'),
             'content' => uniqid('content_'),
+            'abstract' => uniqid('abstract_'),
             'image' => uniqid('https://www.example.com/') . '.jpg',
             'url' => uniqid('https://www.example.com/')
 
@@ -53,8 +54,8 @@ class SearchResultTest extends UnitTestCase
      * @test
      * @return void
      */
-    public function itReturnsHighlightedContentForContent() {
-
+    public function itReturnsHighlightedContentForContent()
+    {
         $data = ['highlightedContent' => uniqid('highlightedContent_')];
 
         $subject = new SearchResult($data, [], []);
@@ -66,8 +67,8 @@ class SearchResultTest extends UnitTestCase
      * @test
      * @return void
      */
-    public function itReturnsAbstractForContent() {
-
+    public function itReturnsAbstractForContent()
+    {
         $data = ['abstract' => uniqid('abstract_')];
 
         $subject = new SearchResult($data, [], []);
@@ -79,8 +80,8 @@ class SearchResultTest extends UnitTestCase
      * @test
      * @return void
      */
-    public function itPrefersHighlightedContentForContent() {
-
+    public function itPrefersHighlightedContentForContent()
+    {
         $data = [
             'highlightedContent' => uniqid('highlightedContent_'),
             'abstract' => uniqid('abstract_')
