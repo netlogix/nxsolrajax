@@ -28,7 +28,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             return $this->handleSolrUnavailable();
         }
 
-        if (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+        if (strpos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false) {
             $response = $this->jsonResponse(json_encode($searchResultSet));
         } else {
             if ($searchResultSet instanceof SearchResultSet) {
