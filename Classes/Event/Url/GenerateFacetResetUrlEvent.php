@@ -18,25 +18,16 @@ final class GenerateFacetResetUrlEvent
         $this->url = $url;
     }
 
-    /**
-     * @return AbstractFacet
-     */
     public function getFacet(): AbstractFacet
     {
         return $this->facet;
     }
 
-    /**
-     * @return string
-     */
     public function getUrl(): string
     {
         return $this->url;
     }
 
-    /**
-     * @param string $url
-     */
     public function setUrl(string $url): self
     {
         $this->url = $url;

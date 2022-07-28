@@ -7,33 +7,20 @@ use JsonSerializable;
 class SuggestResultSet implements JsonSerializable
 {
 
-    /**
-     * @var array
-     */
-    protected $suggestions;
+    protected array $suggestions = [];
 
-    /**
-     * @var string
-     */
-    protected $keyword;
+    protected string $keyword = '';
 
-    /**
-     * @param array $suggestions
-     * @param string $keyword
-     */
-    public function __construct($suggestions, $keyword)
+    public function __construct(array $suggestions, string $keyword)
     {
         $this->suggestions = $suggestions;
         $this->keyword = $keyword;
     }
 
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $suggestions = [];
-        foreach ((array)$this->suggestions as $keywords => $value) {
+        foreach ($this->suggestions as $keywords => $value) {
             $suggestions[] = ['name' => $keywords, 'count' => $value];
         }
 

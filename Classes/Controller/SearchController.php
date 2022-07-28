@@ -10,16 +10,14 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
-use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 
 class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchController
 {
-    /**
-     * @return string
-     */
+
     public function indexAction(): ResponseInterface
     {
         try {
@@ -32,7 +30,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             $response = $this->jsonResponse(json_encode($searchResultSet));
         } else {
             if ($searchResultSet instanceof SearchResultSet) {
-                $searchResultSet->forceAddFacetData(true);
+                $searchResultSet->forceAddFacetData();
             }
             $jsonData = json_encode($searchResultSet);
             $this->view->assign('resultSet', json_decode($jsonData, true));
@@ -44,27 +42,9 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         return $this->applyHttpHeadersToResponse($response);
     }
 
-    /**
-     * @return string
-     */
-    public function resultsAction(): ResponseInterface
+    protected function getSearchResultSet(): \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet
     {
-        try {
-            $searchResultSet = $this->getSearchResultSet();
-            $response = $this->jsonResponse(json_encode($searchResultSet));
-
-            return $this->applyHttpHeadersToResponse($response);
-        } catch (SolrUnavailableException $e) {
-            return $this->handleSolrUnavailable();
-        }
-    }
-
-    /**
-     * @return \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet
-     */
-    protected function getSearchResultSet()
-    {
-        $arguments = (array)$this->request->getArguments();
+        $arguments = $this->request->getArguments();
         $pageId = $this->typoScriptFrontendController->getRequestedId();
         $languageId = Util::getLanguageUid();
         $searchRequest = $this->getSearchRequestBuilder()->buildForSearch($arguments, $pageId, $languageId);
@@ -76,68 +56,6 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         $this->controllerContext->setSearchResultSet($searchResultSet);
 
         return $searchResultSet;
-    }
-
-    /**
-     * This method creates a suggest json response that can be used in a suggest layer.
-     *
-     * @return string
-     * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
-     */
-    public function suggestAction(): ResponseInterface
-    {
-        $queryString = $this->request->getArgument('q');
-        $rawQuery = htmlspecialchars(mb_strtolower(trim($queryString)));
-
-        $additionalFilters = $this->request->hasArgument('filters') ? $this->request->getArgument('filters') : [];
-
-        try {
-            /** @var SuggestService $suggestService */
-            $suggestService = GeneralUtility::makeInstance(
-                SuggestService::class,
-                $this->typoScriptFrontendController,
-                $this->searchService, $this->typoScriptConfiguration
-            );
-
-            $pageId = $this->typoScriptFrontendController->getRequestedId();
-            $languageId = Util::getLanguageUid();
-            $arguments = (array)$this->request->getArguments();
-            $searchRequest = $this->getSearchRequestBuilder()->buildForSuggest($arguments, $rawQuery, $pageId, $languageId);
-            $result = $suggestService->getSuggestions($searchRequest, $additionalFilters);
-
-
-            $event = new AfterGetSuggestionsEvent($queryString, $result['suggestions'] ?? [], $this->typoScriptConfiguration);
-            /** @var AfterGetSuggestionsEvent $event */
-            $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
-            $result['suggestions'] = $event->getSuggestions();
-
-
-            $suggestResult = GeneralUtility::makeInstance(SuggestResultSet::class, $result['suggestions'], $result['suggestion']);
-
-            return $this->jsonResponse(json_encode($suggestResult));
-
-        } catch (SolrUnavailableException $e) {
-            return $this->handleSolrUnavailable();
-        }
-    }
-
-    /**
-     * Rendered when no search is available.
-     * @return ResponseInterface
-     */
-    public function solrNotAvailableAction(): ResponseInterface
-    {
-        return $this->responseFactory->createResponse(503, self::STATUS_503_MESSAGE)
-            ->withHeader('Content-Type', 'application/json; charset=utf-8')
-            ->withBody($this->streamFactory->createStream(json_encode(['status' => 503, 'message' => ''])));
-    }
-
-    /**
-     * @return TypoScriptFrontendController
-     */
-    protected function getTypoScriptFrontendController()
-    {
-        return $GLOBALS['TSFE'];
     }
 
     protected function applyHttpHeadersToResponse(ResponseInterface $response): ResponseInterface
@@ -166,6 +84,90 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         $tsfe->config['config']['sendCacheHeaders'] = false;
 
         return $response;
+    }
+
+    protected function getTypoScriptFrontendController(): TypoScriptFrontendController
+    {
+        return $GLOBALS['TSFE'];
+    }
+
+    public function resultsAction(): ResponseInterface
+    {
+        try {
+            $searchResultSet = $this->getSearchResultSet();
+            $response = $this->jsonResponse(json_encode($searchResultSet));
+
+            return $this->applyHttpHeadersToResponse($response);
+        } catch (SolrUnavailableException $e) {
+            return $this->handleSolrUnavailable();
+        }
+    }
+
+    /**
+     * This method creates a suggest json response that can be used in a suggest layer.
+     *
+     * @return ResponseInterface
+     * @throws NoSuchArgumentException
+     */
+    public function suggestAction(): ResponseInterface
+    {
+        $queryString = $this->request->getArgument('q');
+        $rawQuery = htmlspecialchars(mb_strtolower(trim($queryString)));
+
+        $additionalFilters = $this->request->hasArgument('filters') ? $this->request->getArgument('filters') : [];
+
+        try {
+            /** @var SuggestService $suggestService */
+            $suggestService = GeneralUtility::makeInstance(
+                SuggestService::class,
+                $this->typoScriptFrontendController,
+                $this->searchService,
+                $this->typoScriptConfiguration
+            );
+
+            $pageId = $this->typoScriptFrontendController->getRequestedId();
+            $languageId = Util::getLanguageUid();
+            $arguments = $this->request->getArguments();
+            $searchRequest = $this->getSearchRequestBuilder()->buildForSuggest(
+                $arguments,
+                $rawQuery,
+                $pageId,
+                $languageId
+            );
+            $result = $suggestService->getSuggestions($searchRequest, $additionalFilters);
+
+
+            $event = new AfterGetSuggestionsEvent(
+                $queryString,
+                $result['suggestions'] ?? [],
+                $this->typoScriptConfiguration
+            );
+            /** @var AfterGetSuggestionsEvent $event */
+            $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
+            $result['suggestions'] = $event->getSuggestions();
+
+
+            $suggestResult = GeneralUtility::makeInstance(
+                SuggestResultSet::class,
+                $result['suggestions'] ?? [],
+                $result['suggestion'] ?? ''
+            );
+
+            return $this->jsonResponse(json_encode($suggestResult));
+        } catch (SolrUnavailableException $e) {
+            return $this->handleSolrUnavailable();
+        }
+    }
+
+    /**
+     * Rendered when no search is available.
+     * @return ResponseInterface
+     */
+    public function solrNotAvailableAction(): ResponseInterface
+    {
+        return $this->responseFactory->createResponse(503, self::STATUS_503_MESSAGE)
+            ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            ->withBody($this->streamFactory->createStream(json_encode(['status' => 503, 'message' => ''])));
     }
 
 }

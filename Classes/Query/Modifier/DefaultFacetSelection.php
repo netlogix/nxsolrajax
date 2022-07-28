@@ -18,28 +18,17 @@ use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
 class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestAware, SearchAware
 {
-    /**
-     * @var TypoScriptConfiguration
-     */
-    protected $configuration;
 
-    /**
-     * @var Search
-     */
-    protected $search;
+    protected TypoScriptConfiguration $configuration;
 
-    /**
-     * @param FacetRegistry $facetRegistry
-     */
+    protected Search $search;
+
     public function __construct(FacetRegistry $facetRegistry)
     {
         parent::__construct($facetRegistry);
         $this->configuration = Util::getSolrConfiguration();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function setSearch(Search $search)
     {
         $this->search = $search;
@@ -90,7 +79,7 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
      *
      * @return array Array with all facets and default values
      */
-    protected function getDefaultFacetSelections()
+    protected function getDefaultFacetSelections(): array
     {
         $facets = $this->configuration->getSearchFacetingFacets();
         if (empty($facets)) {
@@ -115,10 +104,10 @@ class DefaultFacetSelection extends Faceting implements Modifier, SearchRequestA
      * Build filter for facet selection
      *
      * @param string $facetName Name of the facet
-     * @param string $filterValues Value to filter for
+     * @param array $filterValues Value to filter for
      * @return string The filter ready to add to the query
      */
-    protected function getFacetQueryFilter(string $facetName, array $filterValues)
+    protected function getFacetQueryFilter(string $facetName, array $filterValues): string
     {
         $keepAllFacetsOnSelection = $this->configuration->getSearchFacetingKeepAllFacetsOnSelection();
         $facetConfiguration = $this->configuration->getSearchFacetingFacetByName($facetName);

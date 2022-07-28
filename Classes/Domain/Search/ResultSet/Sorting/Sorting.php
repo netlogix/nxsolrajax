@@ -10,40 +10,40 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class Sorting extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\Sorting implements JsonSerializable
 {
-    /**
-     * @var SearchUriBuilder
-     */
-    protected $searchUriBuilder;
 
-    /**
-     * @var SearchResultSet
-     */
-    protected $resultSet;
+    protected SearchUriBuilder $searchUriBuilder;
+
+    protected SearchResultSet $resultSet;
 
     /**
      * @inheritdoc
      */
-    public function __construct(SearchResultSet $resultSet, $name, $field, $direction, $label, $selected, $isResetOption)
-    {
+    public function __construct(
+        SearchResultSet $resultSet,
+        $name,
+        $field,
+        $direction,
+        $label,
+        $selected,
+        $isResetOption
+    ) {
         parent::__construct($resultSet, $name, $field, $direction, $label, $selected, $isResetOption);
         $this->resultSet = $resultSet;
         $this->searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
     }
 
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
-        $result = [
+        return [
             'label' => $this->getLabel(),
             'url' => $this->getUrl(),
             'direction' => $this->getDirection(),
             'resetOption' => !!$this->getIsResetOption(),
             'selected' => !!$this->getSelected(),
         ];
-
-        return $result;
     }
 
-    public function getUrl()
+    public function getUrl(): string
     {
         $previousRequest = $this->resultSet->getUsedSearchRequest();
 
@@ -54,9 +54,15 @@ class Sorting extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\S
         if ($reset) {
             return $this->searchUriBuilder->getRemoveSortingUri($previousRequest);
         } elseif (!$reset && $selected) {
-            return $this->searchUriBuilder->getSetSortingUri($previousRequest, $this->getName(), $this->getOppositeDirection());
+            return $this->searchUriBuilder->getSetSortingUri(
+                $previousRequest,
+                $this->getName(),
+                $this->getOppositeDirection()
+            );
         } elseif (!$reset && !$selected) {
             return $this->searchUriBuilder->getSetSortingUri($previousRequest, $this->getName(), $this->getDirection());
         }
+
+        return '';
     }
 }

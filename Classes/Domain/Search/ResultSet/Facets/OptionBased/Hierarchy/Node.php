@@ -5,39 +5,12 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarc
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class Node extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\Node implements JsonSerializable
+class Node extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\Node implements
+    JsonSerializable
 {
     use FacetUrlTrait;
 
-    /**
-     * @return string
-     */
-    public function getUrl()
-    {
-        return $this->getFacetItemUrl($this);
-    }
-
-    /**
-     * @return bool
-     */
-    public function isActive()
-    {
-        if ($this->getSelected()) {
-            return true;
-        }
-        /** @var Node $childNode */
-        foreach ($this->childNodes as $childNode) {
-            if ($childNode->isActive()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * @return array
-     */
-    function jsonSerialize()
+    function jsonSerialize(): array
     {
         return [
             'id' => $this->getKey(),
@@ -51,6 +24,25 @@ class Node extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Optio
                 'self' => $this->getUrl(),
             ]
         ];
+    }
+
+    public function isActive(): bool
+    {
+        if ($this->getSelected()) {
+            return true;
+        }
+        /** @var Node $childNode */
+        foreach ($this->childNodes as $childNode) {
+            if ($childNode->isActive()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function getUrl(): string
+    {
+        return $this->getFacetItemUrl($this);
     }
 
 }

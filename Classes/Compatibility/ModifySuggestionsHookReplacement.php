@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Compatibility;
 
+use Exception;
 use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use Netlogix\Nxsolrajax\SugesstionResultModifier;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
@@ -14,7 +15,7 @@ class ModifySuggestionsHookReplacement
     public function __invoke(AfterGetSuggestionsEvent $event): void
     {
         if (is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'])) {
-            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'] as $key => $classRef) {
+            foreach ($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'] as $classRef) {
                 trigger_error(
                     'Using the `modifySuggestions` hook in SearchController is deprecated. Replace "' . $classRef . '" with AfterGetSuggestionsEvent.',
                     E_USER_DEPRECATED
@@ -22,7 +23,7 @@ class ModifySuggestionsHookReplacement
 
                 $hookObject = GeneralUtility::makeInstance($classRef);
                 if (!$hookObject instanceof SugesstionResultModifier) {
-                    throw new \Exception(
+                    throw new Exception(
                         sprintf(
                             'modifySuggestions hook expects SuggestionResultModifier, got %s',
                             get_class($hookObject)
