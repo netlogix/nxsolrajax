@@ -9,7 +9,7 @@ class DefaultFacetSelectionComponent extends AbstractComponent
 {
     public function initializeSearchComponent()
     {
-        if ($this->searchConfiguration['faceting']) {
+        if (isset($this->searchConfiguration['faceting']) && !empty($this->searchConfiguration['faceting'])) {
             $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection'] = DefaultFacetSelection::class;
         }
     }
