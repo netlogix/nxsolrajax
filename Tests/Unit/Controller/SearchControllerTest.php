@@ -36,6 +36,12 @@ class SearchControllerTest extends UnitTestCase
         parent::setUp();
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['interceptors'] = [];
+
+        $GLOBALS['TSFE'] = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'] = [];
     }
 
     public function tearDown(): void
