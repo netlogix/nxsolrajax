@@ -12,6 +12,7 @@ use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use ApacheSolrForTypo3\Solr\System\Solr\ResponseAdapter;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Core\Utility\HttpUtility;
@@ -31,20 +32,16 @@ class SearchResultSetTest extends FunctionalTestCase
         $this->setUpFrontendRootPage($this->pageUid);
 
         $GLOBALS['TYPO3_REQUEST'] = new ServerRequest(uniqid('https://www.example.com/'), 'GET');
+        $GLOBALS['TYPO3_REQUEST'] = $GLOBALS['TYPO3_REQUEST']->withAttribute(
+            'applicationType',
+            SystemEnvironmentBuilder::REQUESTTYPE_FE
+        );
 
         $mockEnvService = $this->getMockBuilder(EnvironmentService::class)
             ->onlyMethods(['isEnvironmentInFrontendMode'])
             ->getMock();
         $mockEnvService->method('isEnvironmentInFrontendMode')->willReturn(true);
         GeneralUtility::setSingletonInstance(EnvironmentService::class, $mockEnvService);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        GeneralUtility::purgeInstances();
-        unset($GLOBALS['TYPO3_REQUEST']);
     }
 
     /**
@@ -253,7 +250,6 @@ class SearchResultSetTest extends FunctionalTestCase
         self::assertEquals('', $res);
     }
 
-
     /**
      * @test
      * @return void
@@ -402,5 +398,13 @@ class SearchResultSetTest extends FunctionalTestCase
         self::assertNotEmpty($jsonData['search']['links']['prev']);
         self::assertNotEmpty($jsonData['search']['links']['search']);
         self::assertNotEmpty($jsonData['search']['links']['suggest']);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        GeneralUtility::purgeInstances();
+        unset($GLOBALS['TYPO3_REQUEST']);
     }
 }

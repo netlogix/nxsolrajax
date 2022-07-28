@@ -18,9 +18,9 @@ class SuggestResultSetTest extends UnitTestCase
         $keyword = uniqid('keyword_');
 
         $suggestions = [
-            'keyword_0' => rand(1,999),
-            'keyword_1' => rand(1,999),
-            'keyword_2' => rand(1,999)
+            'keyword_0' => rand(1, 999),
+            'keyword_1' => rand(1, 999),
+            'keyword_2' => rand(1, 999)
         ];
 
         $subject = new SuggestResultSet($suggestions, $keyword);
@@ -34,8 +34,11 @@ class SuggestResultSetTest extends UnitTestCase
         self::assertNotEmpty($jsonData);
         self::assertCount(3, $jsonData);
 
-        foreach ([0,1,2] as $itemPos) {
-            self::assertEquals($jsonData[$itemPos], ['count' => $suggestions['keyword_' . $itemPos], 'name' => 'keyword_' . $itemPos]);
+        foreach ([0, 1, 2] as $itemPos) {
+            self::assertEquals(
+                $jsonData[$itemPos],
+                ['count' => $suggestions['keyword_' . $itemPos], 'name' => 'keyword_' . $itemPos]
+            );
         }
     }
 }

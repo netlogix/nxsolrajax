@@ -9,6 +9,8 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Http\JsonResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
@@ -18,18 +20,16 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     /**
      * @return string
      */
-    public function indexAction()
+    public function indexAction(): ResponseInterface
     {
         try {
             $searchResultSet = $this->getSearchResultSet();
-            $this->applyHttpHeadersToResponse();
         } catch (SolrUnavailableException $e) {
-            $this->handleSolrUnavailable();
+            return $this->handleSolrUnavailable();
         }
 
         if (strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
-            $this->response->setHeader('Content-Type', 'application/json; charset=utf-8', true);
-            return json_encode($searchResultSet, JSON_PRETTY_PRINT);
+            $response = $this->jsonResponse(json_encode($searchResultSet));
         } else {
             if ($searchResultSet instanceof SearchResultSet) {
                 $searchResultSet->forceAddFacetData(true);
@@ -37,20 +37,25 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             $jsonData = json_encode($searchResultSet);
             $this->view->assign('resultSet', json_decode($jsonData, true));
             $this->view->assign('resultSetJson', $jsonData);
+
+            $response = $this->htmlResponse();
         }
+
+        return $this->applyHttpHeadersToResponse($response);
     }
 
     /**
      * @return string
      */
-    public function resultsAction()
+    public function resultsAction(): ResponseInterface
     {
         try {
             $searchResultSet = $this->getSearchResultSet();
-            $this->applyHttpHeadersToResponse();
-            return json_encode($searchResultSet, JSON_PRETTY_PRINT);
+            $response = $this->jsonResponse(json_encode($searchResultSet));
+
+            return $this->applyHttpHeadersToResponse($response);
         } catch (SolrUnavailableException $e) {
-            $this->handleSolrUnavailable();
+            return $this->handleSolrUnavailable();
         }
     }
 
@@ -79,7 +84,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
      * @return string
      * @throws \TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException
      */
-    public function suggestAction()
+    public function suggestAction(): ResponseInterface
     {
         $queryString = $this->request->getArgument('q');
         $rawQuery = htmlspecialchars(mb_strtolower(trim($queryString)));
@@ -109,22 +114,22 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
 
             $suggestResult = GeneralUtility::makeInstance(SuggestResultSet::class, $result['suggestions'], $result['suggestion']);
 
-            $this->response->setHeader('Content-Type', 'application/json; charset=utf-8', true);
-            return json_encode($suggestResult);
+            return $this->jsonResponse(json_encode($suggestResult));
 
         } catch (SolrUnavailableException $e) {
-            $this->handleSolrUnavailable();
+            return $this->handleSolrUnavailable();
         }
     }
 
     /**
      * Rendered when no search is available.
-     * @return string
+     * @return ResponseInterface
      */
-    public function solrNotAvailableAction()
+    public function solrNotAvailableAction(): ResponseInterface
     {
-        parent::solrNotAvailableAction();
-        return json_encode(['status' => 503, 'message' => '']);
+        return $this->responseFactory->createResponse(503, self::STATUS_503_MESSAGE)
+            ->withHeader('Content-Type', 'application/json; charset=utf-8')
+            ->withBody($this->streamFactory->createStream(json_encode(['status' => 503, 'message' => ''])));
     }
 
     /**
@@ -135,8 +140,11 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         return $GLOBALS['TSFE'];
     }
 
-    protected function applyHttpHeadersToResponse()
+    protected function applyHttpHeadersToResponse(ResponseInterface $response): ResponseInterface
     {
+        // todo all headers should be applied automatically
+        return $response;
+
         // Allow to cache the uncached plugin and manuel send cache Headers
         $tsfe = $this->getTypoScriptFrontendController();
 
@@ -149,13 +157,15 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         unset($tsfe->config['INTincScript']);
 
         foreach ($tsfe->applyHttpHeadersToResponse(new Response())->getHeaders() as $name => $values) {
-            $this->response->setHeader($name, implode(', ', $values), true);
+            $response->withHeader($name, implode(', ', $values));
         }
 
         // Restore TSFE
         $tsfe->no_cache = $noCache;
         $tsfe->config['INTincScript'] = $intincscript;
         $tsfe->config['config']['sendCacheHeaders'] = false;
+
+        return $response;
     }
 
 }

@@ -7,6 +7,7 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\OptionBa
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class OptionsFacetTest extends UnitTestCase
 {
@@ -32,8 +33,8 @@ class OptionsFacetTest extends UnitTestCase
                 $name,
                 $field,
                 $label,
-                $configuration
-
+                $configuration,
+                $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
             ])
             ->onlyMethods(['getResetUrl'])
             ->getMock();

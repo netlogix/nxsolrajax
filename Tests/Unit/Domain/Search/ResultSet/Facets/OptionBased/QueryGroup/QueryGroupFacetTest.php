@@ -7,6 +7,7 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\OptionBa
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class QueryGroupFacetTest extends UnitTestCase
 {
@@ -28,7 +29,8 @@ class QueryGroupFacetTest extends UnitTestCase
                 $name,
                 $field,
                 $label,
-                []
+                [],
+                $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
             ])
             ->onlyMethods(['getResetUrl'])
             ->getMock();

@@ -11,6 +11,7 @@ use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\LinkHelper\SelfLinkHelperInterface;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options\Option;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use TYPO3\CMS\Core\Core\SystemEnvironmentBuilder;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Service\EnvironmentService;
@@ -24,20 +25,16 @@ class OptionTest extends FunctionalTestCase
         parent::setUp();
 
         $GLOBALS['TYPO3_REQUEST'] = new ServerRequest(uniqid('https://www.example.com/'), 'GET');
+        $GLOBALS['TYPO3_REQUEST'] = $GLOBALS['TYPO3_REQUEST']->withAttribute(
+            'applicationType',
+            SystemEnvironmentBuilder::REQUESTTYPE_FE
+        );
 
         $mockEnvService = $this->getMockBuilder(EnvironmentService::class)
             ->onlyMethods(['isEnvironmentInFrontendMode'])
             ->getMock();
         $mockEnvService->method('isEnvironmentInFrontendMode')->willReturn(true);
         GeneralUtility::setSingletonInstance(EnvironmentService::class, $mockEnvService);
-    }
-
-    protected function tearDown(): void
-    {
-        parent::tearDown();
-
-        GeneralUtility::purgeInstances();
-        unset($GLOBALS['TYPO3_REQUEST']);
     }
 
     /**
@@ -132,7 +129,6 @@ class OptionTest extends FunctionalTestCase
         self::assertEquals($link, $res);
     }
 
-
     /**
      * @test
      * @return void
@@ -161,5 +157,13 @@ class OptionTest extends FunctionalTestCase
         self::assertNotEmpty($res);
 
         self::assertEquals('/', $res);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        GeneralUtility::purgeInstances();
+        unset($GLOBALS['TYPO3_REQUEST']);
     }
 }

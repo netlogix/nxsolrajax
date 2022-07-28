@@ -9,6 +9,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\FacetRegistry;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use ApacheSolrForTypo3\Solr\Search;
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
+use ApacheSolrForTypo3\Solr\System\Solr\ResponseAdapter;
 use Netlogix\Nxsolrajax\Query\Modifier\DefaultFacetSelection;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
 use Solarium\QueryType\Select\Query\FilterQuery;
@@ -90,17 +91,19 @@ class DefaultFacetSelectionTest extends FunctionalTestCase
             ->getMock();
         // method performs a search for each possible filter query and includes the first one that returns results
         $searchMock->expects(self::once())->method('search')->willReturn(
-            [
-                'parsedData' => [
-                    'facets' => [
-                        'count' => 10
-                    ],
-                    'response' => [
-                        'numFound' => 100
-                    ]
+            new ResponseAdapter(
+                json_encode(
+                    [
+                        'facets' => [
+                            'count' => 10
+                        ],
+                        'response' => [
+                            'numFound' => 100
+                        ]
 
-                ]
-            ]
+                    ]
+                )
+            )
         );
 
         $subject->setSearch($searchMock);

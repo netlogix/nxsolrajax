@@ -8,6 +8,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\O
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options\Option;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 class OptionTest extends UnitTestCase
 {
@@ -25,7 +26,14 @@ class OptionTest extends UnitTestCase
         $isSelected = $documentCount % 2 == 0;
         $configuration = ['foo' => uniqid('bar_')];
 
-        $facet = new OptionsFacet(new SearchResultSet(), $name, $field, $label, $configuration);
+        $facet = new OptionsFacet(
+            new SearchResultSet(),
+            $name,
+            $field,
+            $label,
+            $configuration,
+            $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
+        );
 
 
         $subject = $this->getMockBuilder(Option::class)

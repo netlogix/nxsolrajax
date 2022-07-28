@@ -8,7 +8,7 @@ class SearchResult extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Resu
     /**
      * @return string
      */
-    public function getContent()
+    public function getContent(): string
     {
         return $this->fields['highlightedContent'] ?? $this->fields['abstract'];
     }

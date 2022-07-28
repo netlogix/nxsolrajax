@@ -9,6 +9,9 @@ use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use Netlogix\Nxsolrajax\Controller\SearchController;
 use Netlogix\Nxsolrajax\SugesstionResultModifier;
 use Nimut\TestingFramework\TestCase\FunctionalTestCase;
+use stdClass;
+use TYPO3\CMS\Core\Http\ResponseFactory;
+use TYPO3\CMS\Core\Http\StreamFactory;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Extbase\Mvc\Response;
@@ -27,7 +30,7 @@ class SearchControllerTest extends FunctionalTestCase
     {
         $this->expectExceptionCode(1533224243);
 
-        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'][] = \stdClass::class;
+        $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'][] = stdClass::class;
 
         $subject = new SearchController();
 
@@ -92,11 +95,9 @@ class SearchControllerTest extends FunctionalTestCase
 
 
         $this->inject($subject, 'typoScriptFrontendController', $mockTSFE);
-
-
         $this->inject($subject, 'typoScriptConfiguration', $typoscriptConfiguration);
-
-        $this->inject($subject, 'response', new Response());
+        $this->inject($subject, 'responseFactory', new ResponseFactory());
+        $this->inject($subject, 'streamFactory', new StreamFactory());
 
         $subject->suggestAction();
     }
@@ -116,16 +117,6 @@ class SearchControllerTest extends FunctionalTestCase
         $request = new Request();
         $request->setArgument('q', uniqid('query_'));
         $this->inject($subject, 'request', $request);
-
-        $response = $this->getMockBuilder(Response::class)
-            ->onlyMethods(['setHeader'])
-            ->getMock();
-        $response->expects(self::once())->method('setHeader')->with(
-            'Content-Type',
-            'application/json; charset=utf-8',
-            true
-        );
-        $this->inject($subject, 'response', $response);
 
         $mockTSFE = $this->getMockBuilder(TypoScriptFrontendController::class)
             ->disableOriginalConstructor()
@@ -147,15 +138,12 @@ class SearchControllerTest extends FunctionalTestCase
 
         GeneralUtility::addInstance(SuggestService::class, $mockSuggestService);
 
+        $this->inject($subject, 'responseFactory', new ResponseFactory());
+        $this->inject($subject, 'streamFactory', new StreamFactory());
+
         $res = $subject->suggestAction();
 
-        self::assertIsString($res);
-
-        $json = json_decode($res, true);
-        self::assertEquals(JSON_ERROR_NONE, json_last_error());
-        self::assertIsArray($json);
-
-        self::assertEquals($expectedResult, $json);
+        self::assertEquals('application/json; charset=utf-8', $res->getHeaderLine('Content-Type'));
     }
 
     public function suggestServiceDataProvider(): array
