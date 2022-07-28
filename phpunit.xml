@@ -20,7 +20,7 @@
         </testsuite>
     </testsuites>
 
-    <coverage>
+    <coverage cacheDirectory=".Build/Cache">
         <include>
             <directory suffix=".php">Classes</directory>
         </include>
