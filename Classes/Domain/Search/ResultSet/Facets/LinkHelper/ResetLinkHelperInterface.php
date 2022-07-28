@@ -10,16 +10,16 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacet;
 interface ResetLinkHelperInterface
 {
     /**
-     * @deprecated replace this with GenerateFacetResetUrlEvent
      * @param AbstractFacet $facet
      * @return bool
+     * @deprecated replace this with GenerateFacetResetUrlEvent
      */
     public function canHandleResetLink(AbstractFacet $facet): bool;
 
     /**
-     * @deprecated replace this with GenerateFacetResetUrlEvent
      * @param AbstractFacet $facet
      * @return string
+     * @deprecated replace this with GenerateFacetResetUrlEvent
      */
     public function renderResetLink(AbstractFacet $facet): string;
 }

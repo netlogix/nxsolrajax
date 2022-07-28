@@ -9,13 +9,27 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option implements JsonSerializable
+use function strtolower;
+
+class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option implements
+    JsonSerializable
 {
 
-    /**
-     * @return string
-     */
-    public function getUrl()
+    function jsonSerialize(): array
+    {
+        return [
+            'label' => $this->getLabel(),
+            'name' => $this->getValue(),
+            'count' => $this->getDocumentCount(),
+            'selected' => $this->getSelected(),
+            'links' => [
+                'self' => $this->getUrl(),
+                'reset' => $this->getResetUrl(),
+            ],
+        ];
+    }
+
+    public function getUrl(): string
     {
         $settings = $this->getFacet()->getConfiguration();
 
@@ -29,7 +43,7 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
-        $operator = \strtolower($settings['operator']) ?: 'and';
+        $operator = strtolower($settings['operator']) ?: 'and';
         switch (true) {
             case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
             case ($keepAllOptionsOnSelection == 0):
@@ -45,9 +59,12 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
                     $this->getUriValue()
                 );
         }
+
+        return '';
     }
 
-    private function sendLinkGenerationEvent(): string {
+    private function sendLinkGenerationEvent(): string
+    {
         // link generation works slightly differently here compared to FacetUrlTrait
         // the event is duplicated here to get a consistent external event interface
         $event = new GenerateFacetItemUrlEvent($this, '');
@@ -58,10 +75,7 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         return $event->getUrl();
     }
 
-    /**
-     * @return string
-     */
-    public function getResetUrl()
+    public function getResetUrl(): string
     {
         $settings = $this->getFacet()->getConfiguration();
 
@@ -75,7 +89,7 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
-        $operator = \strtolower($settings['operator']) ?: 'and';
+        $operator = strtolower($settings['operator']) ?: 'and';
         switch (true) {
             case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
             case ($keepAllOptionsOnSelection == 0):
@@ -90,22 +104,7 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
                     $this->getFacet()->getName()
                 );
         }
-    }
 
-    /**
-     * @return array
-     */
-    function jsonSerialize()
-    {
-        return [
-            'label' => $this->getLabel(),
-            'name' => $this->getValue(),
-            'count' => $this->getDocumentCount(),
-            'selected' => $this->getSelected(),
-            'links' => [
-                'self' => $this->getUrl(),
-                'reset' => $this->getResetUrl(),
-            ],
-        ];
+        return '';
     }
 }

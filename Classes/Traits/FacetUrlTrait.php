@@ -67,7 +67,9 @@ trait FacetUrlTrait
         if ($url == '') {
             $previousRequest = $facetItem->getFacet()->getResultSet()->getUsedSearchRequest();
 
-            $url = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getSetFacetValueUri(
+            $url = GeneralUtility::makeInstance(ObjectManager::class)->get(
+                SearchUriBuilder::class
+            )->getSetFacetValueUri(
                 $previousRequest,
                 $facetItem->getFacet()->getName(),
                 $overrideUriValue ?: $facetItem->getUriValue()

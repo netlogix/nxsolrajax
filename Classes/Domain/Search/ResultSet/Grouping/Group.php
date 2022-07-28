@@ -6,7 +6,7 @@ use JsonSerializable;
 
 class Group extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\Group implements JsonSerializable
 {
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'groupName' => $this->getGroupName(),

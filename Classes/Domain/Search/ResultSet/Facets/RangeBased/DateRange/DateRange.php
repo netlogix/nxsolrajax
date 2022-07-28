@@ -5,22 +5,12 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRang
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class DateRange extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRange implements JsonSerializable
+class DateRange extends
+    \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRange implements JsonSerializable
 {
     use FacetUrlTrait;
 
-    /**
-     * @return string
-     */
-    public function getUrl()
-    {
-        return $this->getFacetItemUrl($this, '{dateRange}');
-    }
-
-    /**
-     * @return array
-     */
-    function jsonSerialize()
+    function jsonSerialize(): array
     {
         return [
             'selected' => $this->getLabel() !== '',
@@ -32,6 +22,11 @@ class DateRange extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\
                 'self' => $this->getUrl(),
             ]
         ];
+    }
+
+    public function getUrl(): string
+    {
+        return $this->getFacetItemUrl($this, '{dateRange}');
     }
 
 }

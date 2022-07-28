@@ -5,22 +5,13 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarc
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class HierarchyFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet implements JsonSerializable
+class HierarchyFacet extends
+    \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet implements
+    JsonSerializable
 {
     use FacetUrlTrait;
 
-    /**
-     * @return string
-     */
-    public function getResetUrl()
-    {
-        return $this->getFacetResetUrl($this);
-    }
-
-    /**
-     * @return array
-     */
-    function jsonSerialize()
+    function jsonSerialize(): array
     {
         return [
             'name' => $this->getName(),
@@ -32,6 +23,11 @@ class HierarchyFacet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Fa
                 'reset' => $this->getResetUrl(),
             ]
         ];
+    }
+
+    public function getResetUrl(): string
+    {
+        return $this->getFacetResetUrl($this);
     }
 
 }

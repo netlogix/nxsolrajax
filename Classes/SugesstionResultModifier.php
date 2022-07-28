@@ -15,11 +15,15 @@ interface SugesstionResultModifier
 {
 
     /**
-     * @deprecated this is deprecated in favour of AfterGetSuggestionsEvent
      * @param string $query
      * @param array $suggestions
      * @param TypoScriptConfiguration $typoScriptConfiguration
      * @return array
+     * @deprecated this is deprecated in favour of AfterGetSuggestionsEvent
      */
-    public function modifySuggestions($query, array $suggestions, TypoScriptConfiguration $typoScriptConfiguration);
+    public function modifySuggestions(
+        string $query,
+        array $suggestions,
+        TypoScriptConfiguration $typoScriptConfiguration
+    ): array;
 }

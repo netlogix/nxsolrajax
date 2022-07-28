@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpUndefinedVariableInspection */
 
 $EM_CONF[$_EXTKEY] = [
     'title' => 'netlogix Solr Ajax',

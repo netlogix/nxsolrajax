@@ -319,7 +319,8 @@ class SearchControllerTest extends UnitTestCase
      * @test
      * @return void
      */
-    public function solrNotAvailableActionReturnsJsonResponse() {
+    public function solrNotAvailableActionReturnsJsonResponse()
+    {
         $subject = new SearchController();
 
         $subject->injectResponseFactory(new ResponseFactory());
@@ -333,14 +334,14 @@ class SearchControllerTest extends UnitTestCase
 
         json_decode($res->getBody()->getContents());
         self::assertEquals(JSON_ERROR_NONE, json_last_error(), 'failed decoding content to JSON');
-
     }
 
     /**
      * @test
      * @return void
      */
-    public function solrNotAvailableActionReturnsErrorsInResponse() {
+    public function solrNotAvailableActionReturnsErrorsInResponse()
+    {
         $subject = new SearchController();
 
         $subject->injectResponseFactory(new ResponseFactory());

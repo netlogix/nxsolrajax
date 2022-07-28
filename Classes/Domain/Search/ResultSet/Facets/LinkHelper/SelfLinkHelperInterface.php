@@ -10,16 +10,16 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacetItem;
 interface SelfLinkHelperInterface
 {
     /**
-     * @deprecated replace this with GenerateFacetItemUrlEvent
      * @param AbstractFacetItem $facetItem
      * @return bool
+     * @deprecated replace this with GenerateFacetItemUrlEvent
      */
     public function canHandleSelfLink(AbstractFacetItem $facetItem): bool;
 
     /**
-     * @deprecated replace this with GenerateFacetItemUrlEvent
      * @param AbstractFacetItem $facetItem
      * @return string
+     * @deprecated replace this with GenerateFacetItemUrlEvent
      */
     public function renderSelfLink(AbstractFacetItem $facetItem): string;
 }

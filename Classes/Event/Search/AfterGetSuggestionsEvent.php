@@ -20,34 +20,21 @@ final class AfterGetSuggestionsEvent
         $this->typoScriptConfiguration = $typoScriptConfiguration;
     }
 
-    /**
-     * @return TypoScriptConfiguration
-     */
     public function getTypoScriptConfiguration(): TypoScriptConfiguration
     {
         return $this->typoScriptConfiguration;
     }
 
-    /**
-     * @return string
-     */
     public function getQuery(): string
     {
         return $this->query;
     }
 
-    /**
-     * @return array
-     */
     public function getSuggestions(): array
     {
         return $this->suggestions;
     }
 
-    /**
-     * @param array $suggestions
-     * @return AfterGetSuggestionsEvent
-     */
     public function setSuggestions(array $suggestions): AfterGetSuggestionsEvent
     {
         $this->suggestions = $suggestions;

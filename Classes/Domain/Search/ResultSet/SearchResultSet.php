@@ -5,7 +5,6 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\AbstractOptionFacetItem;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
-use ApacheSolrForTypo3\Solrfluidgrouping\Query\Modifier\Grouping;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
@@ -15,23 +14,18 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet implements JsonSerializable
+class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet implements
+    JsonSerializable
 {
 
-    /**
-     * @var SearchUriBuilder
-     */
-    protected $searchUriBuilder;
+    protected SearchUriBuilder $searchUriBuilder;
 
-    /**
-     * @var UriBuilder
-     */
-    protected $uriBuilder;
+    protected UriBuilder $uriBuilder;
 
     /**
      * @var bool
      */
-    protected $forceAddFacetData = false;
+    protected bool $forceAddFacetData = false;
 
     /**
      * @inheritdoc
@@ -44,123 +38,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         $this->uriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(UriBuilder::class);
     }
 
-    /**
-     * @return string
-     */
-    public function getResetUrl()
-    {
-        return $this->uriBuilder->reset()->build();
-    }
-
-    /**
-     * @return string
-     */
-    public function getNextUrl()
-    {
-        $uri = '';
-        $previousRequest = $this->getUsedSearchRequest();
-        $page = $this->getPage();
-        $resultsPerPage = $this->getUsedResultsPerPage();
-        $resultOffset = $this->getUsedSearch()->getResultOffset();
-        $numberOfResults = $this->getAllResultCount();
-
-        if ($numberOfResults - $resultsPerPage > $resultOffset) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page + 1);
-        }
-        return $uri;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrevUrl()
-    {
-        $uri = '';
-        $previousRequest = $this->getUsedSearchRequest();
-        $page = $this->getPage();
-        if ($page > 1) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page - 1);
-        }
-        return $uri;
-    }
-
-    /**
-     * @return string
-     */
-    public function getFirstUrl()
-    {
-        $uri = '';
-        $previousRequest = $this->getUsedSearchRequest();
-        $page = $this->getPage();
-        if ($page > 2) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, 1);
-        }
-        return $uri;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLastUrl()
-    {
-        $uri = '';
-        $previousRequest = $this->getUsedSearchRequest();
-        $resultsPerPage = $this->getUsedResultsPerPage();
-        $resultOffset = $this->getUsedSearch()->getResultOffset();
-        $numberOfResults = $this->getAllResultCount();
-
-        if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, (int)ceil($numberOfResults / $resultsPerPage));
-        }
-        return $uri;
-    }
-
-    /**
-     * @return string
-     */
-    public function getSearchUrl()
-    {
-        $previousRequest = $this->getUsedSearchRequest();
-        return $this->searchUriBuilder->getNewSearchUri($previousRequest, '{query}');
-    }
-
-    /**
-     * @return string
-     */
-    public function getSuggestUrl()
-    {
-        return $this->uriBuilder->reset()->setTargetPageType('1471261352')->build();
-    }
-
-    /**
-     * @return string
-     */
-    public function getSuggestionUrl()
-    {
-        if (!$this->getHasSpellCheckingSuggestions()) {
-            return '';
-        }
-        /** @var Suggestion $suggestion */
-        $suggestion = current($this->spellCheckingSuggestions)->getSuggestion();
-        $previousRequest = $this->getUsedSearchRequest();
-        return $this->searchUriBuilder->getNewSearchUri($previousRequest, $suggestion);
-    }
-
-    /**
-     * @return string
-     */
-    public function getSuggestion()
-    {
-        if (!$this->getHasSpellCheckingSuggestions()) {
-            return '';
-        }
-        return current($this->spellCheckingSuggestions)->getSuggestion();
-    }
-
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         $result = [
             'search' => [
@@ -206,7 +84,9 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             $uri = new Uri($uri);
             $query = $uri->getQuery();
             $query = explode('&', $query);
-            $query = array_filter($query, function($query) {return $query !== 'tx_solr[page]=1';});
+            $query = array_filter($query, function ($query) {
+                return $query !== 'tx_solr[page]=1';
+            });
             $queryString = trim(implode('&', $query), '&');
             return (string)$uri->withQuery($queryString);
         }, $result['search']['links']);
@@ -234,7 +114,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
             $groups = $this->getSearchResults()->getGroups()->getArrayCopy();
             foreach ($groups as $group) {
                 assert($group instanceof Group);
-                foreach ($group->getGroupItems() as &$groupItem) {
+                foreach ($group->getGroupItems() as $groupItem) {
                     if ($facet = $this->getFacets()->getByName($group->getGroupName())->getByPosition(0)) {
                         assert($groupItem instanceof GroupItem);
                         $option = $facet->getOptions()->getByValue($groupItem->getGroupValue());
@@ -254,36 +134,113 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         return $result;
     }
 
-    /**
-     * @param bool $forceAddFacetData
-     */
-    public function forceAddFacetData($forceAddFacetData = true)
+    public function getSuggestion(): string
     {
-        $this->forceAddFacetData = $forceAddFacetData;
+        if (!$this->getHasSpellCheckingSuggestions()) {
+            return '';
+        }
+        return current($this->spellCheckingSuggestions)->getSuggestion();
     }
 
-    /**
-     * @return int
-     */
-    protected function getPage()
+    public function getResetUrl(): string
+    {
+        return $this->uriBuilder->reset()->build();
+    }
+
+    public function getSearchUrl(): string
+    {
+        $previousRequest = $this->getUsedSearchRequest();
+        return $this->searchUriBuilder->getNewSearchUri($previousRequest, '{query}');
+    }
+
+    public function getSuggestUrl(): string
+    {
+        return $this->uriBuilder->reset()->setTargetPageType('1471261352')->build();
+    }
+
+    public function getSuggestionUrl(): string
+    {
+        if (!$this->getHasSpellCheckingSuggestions()) {
+            return '';
+        }
+        /** @var Suggestion $suggestion */
+        $suggestion = current($this->spellCheckingSuggestions)->getSuggestion();
+        $previousRequest = $this->getUsedSearchRequest();
+        return $this->searchUriBuilder->getNewSearchUri($previousRequest, $suggestion);
+    }
+
+    public function getFirstUrl(): string
+    {
+        $uri = '';
+        $previousRequest = $this->getUsedSearchRequest();
+        $page = $this->getPage();
+        if ($page > 2) {
+            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, 1);
+        }
+        return $uri;
+    }
+
+    protected function getPage(): int
     {
         return $this->getUsedSearchRequest()->getPage() ?: 1;
     }
 
-    /**
-     * @return bool
-     */
-    protected function isGroupingEnabled()
+    public function getPrevUrl(): string
     {
-        return $this->searchResults->getHasGroups() && $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['fluid_grouping'] = Grouping::class;
+        $uri = '';
+        $previousRequest = $this->getUsedSearchRequest();
+        $page = $this->getPage();
+        if ($page > 1) {
+            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page - 1);
+        }
+        return $uri;
     }
 
-    /**
-     * @return bool
-     */
-    protected function shouldAddFacetData()
+    public function getNextUrl(): string
+    {
+        $uri = '';
+        $previousRequest = $this->getUsedSearchRequest();
+        $page = $this->getPage();
+        $resultsPerPage = $this->getUsedResultsPerPage();
+        $resultOffset = $this->getUsedSearch()->getResultOffset();
+        $numberOfResults = $this->getAllResultCount();
+
+        if ($numberOfResults - $resultsPerPage > $resultOffset) {
+            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page + 1);
+        }
+        return $uri;
+    }
+
+    public function getLastUrl(): string
+    {
+        $uri = '';
+        $previousRequest = $this->getUsedSearchRequest();
+        $resultsPerPage = $this->getUsedResultsPerPage();
+        $resultOffset = $this->getUsedSearch()->getResultOffset();
+        $numberOfResults = $this->getAllResultCount();
+
+        if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
+            $uri = $this->searchUriBuilder->getResultPageUri(
+                $previousRequest,
+                (int)ceil($numberOfResults / $resultsPerPage)
+            );
+        }
+        return $uri;
+    }
+
+    protected function shouldAddFacetData(): bool
     {
         return $this->forceAddFacetData || $this->getPage() === 1;
+    }
+
+    protected function isGroupingEnabled(): bool
+    {
+        return $this->searchResults->getHasGroups();
+    }
+
+    public function forceAddFacetData(bool $forceAddFacetData = true)
+    {
+        $this->forceAddFacetData = $forceAddFacetData;
     }
 
 }

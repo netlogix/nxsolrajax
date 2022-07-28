@@ -6,30 +6,10 @@ use JsonSerializable;
 
 class GroupItem extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\GroupItem implements JsonSerializable
 {
-    private $groupLabel;
-    private $groupUrl;
+    private string $groupLabel = '';
+    private string $groupUrl = '';
 
-    protected function getGroupLabel(): string
-    {
-        return $this->groupLabel ?? $this->getGroupValue();
-    }
-
-    public function setGroupLabel($groupLabel): void
-    {
-        $this->groupLabel = $groupLabel;
-    }
-
-    public function getGroupUrl(): string
-    {
-        return $this->groupUrl ?? '';
-    }
-
-    public function setGroupUrl($groupUrl): void
-    {
-        $this->groupUrl = $groupUrl;
-    }
-
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'label' => $this->getGroupLabel(),
@@ -40,5 +20,25 @@ class GroupItem extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Groupin
             'url' => $this->getGroupUrl(),
             'items' => $this->getSearchResults()->getArrayCopy(),
         ];
+    }
+
+    protected function getGroupLabel(): string
+    {
+        return $this->groupLabel ?: $this->getGroupValue();
+    }
+
+    public function setGroupLabel($groupLabel): void
+    {
+        $this->groupLabel = $groupLabel;
+    }
+
+    public function getGroupUrl(): string
+    {
+        return $this->groupUrl;
+    }
+
+    public function setGroupUrl($groupUrl): void
+    {
+        $this->groupUrl = $groupUrl;
     }
 }

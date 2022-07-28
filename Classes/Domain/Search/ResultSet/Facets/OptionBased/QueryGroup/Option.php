@@ -5,22 +5,12 @@ namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGr
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option implements JsonSerializable
+class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option implements
+    JsonSerializable
 {
     use FacetUrlTrait;
 
-    /**
-     * @return string
-     */
-    public function getUrl()
-    {
-        return $this->getFacetItemUrl($this);
-    }
-
-    /**
-     * @return array
-     */
-    function jsonSerialize()
+    function jsonSerialize(): array
     {
         return [
             'label' => $this->getLabel(),
@@ -31,5 +21,10 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
                 'self' => $this->getUrl(),
             ]
         ];
+    }
+
+    public function getUrl(): string
+    {
+        return $this->getFacetItemUrl($this);
     }
 }

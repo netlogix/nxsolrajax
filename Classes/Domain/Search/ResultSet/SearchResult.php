@@ -2,29 +2,13 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
-class SearchResult extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Result\SearchResult implements \JsonSerializable
+use JsonSerializable;
+
+class SearchResult extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Result\SearchResult implements
+    JsonSerializable
 {
 
-    /**
-     * @return string
-     */
-    public function getContent(): string
-    {
-        return $this->fields['highlightedContent'] ?? $this->fields['abstract'];
-    }
-
-    /**
-     * @return string
-     */
-    public function getImage()
-    {
-        return $this->fields['image'] ?? '';
-    }
-
-    /**
-     * @return array
-     */
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->getId(),
@@ -34,6 +18,16 @@ class SearchResult extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Resu
             'image' => $this->getImage(),
             'url' => $this->getUrl(),
         ];
+    }
+
+    public function getContent(): string
+    {
+        return $this->fields['highlightedContent'] ?? $this->fields['abstract'];
+    }
+
+    public function getImage(): string
+    {
+        return $this->fields['image'] ?? '';
     }
 
 }

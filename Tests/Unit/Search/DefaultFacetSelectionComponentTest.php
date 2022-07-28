@@ -8,8 +8,6 @@ use Netlogix\Nxsolrajax\Query\Modifier\DefaultFacetSelection;
 use Netlogix\Nxsolrajax\Search\DefaultFacetSelectionComponent;
 use Nimut\TestingFramework\TestCase\UnitTestCase;
 
-use function PHPUnit\Framework\assertFalse;
-
 class DefaultFacetSelectionComponentTest extends UnitTestCase
 {
 
@@ -19,13 +17,17 @@ class DefaultFacetSelectionComponentTest extends UnitTestCase
      */
     public function itDoesNotAddHookIfFacetingIsNotEnabled()
     {
-        self::assertFalse(isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection']));
+        self::assertFalse(
+            isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection'])
+        );
 
         $subject = new DefaultFacetSelectionComponent();
 
         $subject->initializeSearchComponent();
 
-        self::assertFalse(isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection']));
+        self::assertFalse(
+            isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection'])
+        );
     }
 
     /**
@@ -34,7 +36,9 @@ class DefaultFacetSelectionComponentTest extends UnitTestCase
      */
     public function itAddsHookIfFacetingIsEnabled()
     {
-        self::assertFalse(isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection']));
+        self::assertFalse(
+            isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['solr']['modifySearchQuery']['defaultFacetSelection'])
+        );
 
         $subject = new DefaultFacetSelectionComponent();
 
