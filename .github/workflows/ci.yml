@@ -50,7 +50,7 @@ jobs:
         run: .Build/bin/phpunit -c phpunit.xml
 
       - name: Functional Tests
-        run: .Build/bin/phpunit -c phpunit_functional.xml
+        run: .Build/bin/paratest -c phpunit_functional.xml
 
       # upload results for later use
       - uses: actions/upload-artifact@master

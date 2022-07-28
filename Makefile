@@ -12,7 +12,7 @@ update:
 
 test:
 	XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit.xml
-	XDEBUG_MODE=coverage .Build/bin/phpunit -c phpunit_functional.xml
+	XDEBUG_MODE=coverage .Build/bin/paratest -c phpunit_functional.xml
 	# merge and generate clover and html report
 	XDEBUG_MODE=coverage .Build/bin/phpunit-merger coverage .Build/logs/coverage/ --html=.Build/logs/html/ .Build/logs/clover.xml
 	# merge into php coverage
