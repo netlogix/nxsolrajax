@@ -361,4 +361,24 @@ class SearchControllerTest extends UnitTestCase
         self::assertArrayHasKey('message', $resData);
         self::assertEmpty($resData['message']);
     }
+
+    /**
+     * @test
+     * @return void
+     */
+    public function itStartsErrorHandlingIfSolrIsUnavailable() {
+        $expectedResponse = new \TYPO3\CMS\Core\Http\Response();
+
+        $subject = $this->getMockBuilder(SearchController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getSearchResultSet', 'handleSolrUnavailable'])
+            ->getMock();
+
+        $subject->method('getSearchResultSet')->willThrowException(new SolrUnavailableException());
+        $subject->expects(self::once())->method('handleSolrUnavailable')->willReturn($expectedResponse);
+
+        $res = $subject->resultsAction();
+
+        self::assertSame($expectedResponse, $res);
+    }
 }
