@@ -303,6 +303,8 @@ class SearchResultSetTest extends FunctionalTestCase
      */
     public function itCanBeSerializedToJSONWithoutSearchResponse()
     {
+        self::markTestSkipped('extracted to SearchResultSetConverterService test');
+
         $currentPage = rand(5, 9999);
         $query = uniqid('foo:');
         $suggestion = uniqid('suggestion_');
@@ -357,6 +359,8 @@ class SearchResultSetTest extends FunctionalTestCase
      */
     public function itIncludesSearchDataInJSONIfSearchResultExists()
     {
+        self::markTestSkipped('extracted to SearchResultSetConverterService test');
+
         $currentPage = rand(5, 9999);
         $limit = rand(1, 100);
         $totalResults = ($currentPage * $limit) + (2 * $limit);

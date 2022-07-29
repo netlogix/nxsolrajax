@@ -9,6 +9,7 @@ use JsonSerializable;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem;
+use Netlogix\Nxsolrajax\Service\SearchResultSetConverterService;
 use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
@@ -40,98 +41,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
 
     public function jsonSerialize(): array
     {
-        $result = [
-            'search' => [
-                'q' => $this->usedQuery ? $this->usedQuery->getQuery() : '',
-                'suggestion' => $this->getSuggestion(),
-                'links' => [
-                    'reset' => $this->getResetUrl(),
-                    'first' => '',
-                    'prev' => '',
-                    'next' => '',
-                    'last' => '',
-                    'search' => $this->getSearchUrl(),
-                    'suggest' => $this->getSuggestUrl(),
-                    'suggestion' => $this->getSuggestionUrl()
-                ]
-            ],
-            'facets' => [],
-            'result' => [],
-        ];
-        if ($this->response === null) {
-            return $result;
-        }
-
-        $highlightedContent = $this->getUsedSearch()->getHighlightedContent();
-
-        /** @var SearchResult $document */
-        foreach ($this->getSearchResults() as $document) {
-            if (!empty($highlightedContent->{$document->getId()}->content[0])) {
-                $content = implode(' [...] ', $highlightedContent->{$document->getId()}->content);
-                $document->setField('highlightedContent', $content);
-            }
-        }
-
-        $result['search']['links']['first'] = $this->getFirstUrl();
-        $result['search']['links']['prev'] = $this->getPrevUrl();
-        $result['search']['links']['next'] = $this->getNextUrl();
-        $result['search']['links']['last'] = $this->getLastUrl();
-
-        $result['search']['links'] = array_map(function ($uri) {
-            if (!$uri) {
-                return $uri;
-            }
-            $uri = new Uri($uri);
-            $query = $uri->getQuery();
-            $query = explode('&', $query);
-            $query = array_filter($query, function ($query) {
-                return $query !== 'tx_solr[page]=1';
-            });
-            $queryString = trim(implode('&', $query), '&');
-            return (string)$uri->withQuery($queryString);
-        }, $result['search']['links']);
-
-        $result['result'] = [
-            'q' => $this->usedQuery ? $this->usedQuery->getQuery() : '',
-            'limit' => $this->getUsedResultsPerPage(),
-            'offset' => $this->usedSearch->getResultOffset(),
-            'totalResults' => $this->getAllResultCount(),
-            'items' => [],
-            'groups' => [],
-        ];
-
-        if ($result['facetsDataValid'] = $this->shouldAddFacetData()) {
-            $result['facets'] = $this->getFacets()->getAvailable()->getArrayCopy();
-        }
-
-
-        $result['sortings'] = $this->getSortings()->getArrayCopy();
-        if (!$result['sortings']) {
-            unset($result['sortings']);
-        }
-
-        if ($this->isGroupingEnabled()) {
-            $groups = $this->getSearchResults()->getGroups()->getArrayCopy();
-            foreach ($groups as $group) {
-                assert($group instanceof Group);
-                foreach ($group->getGroupItems() as $groupItem) {
-                    if ($facet = $this->getFacets()->getByName($group->getGroupName())->getByPosition(0)) {
-                        assert($groupItem instanceof GroupItem);
-                        $option = $facet->getOptions()->getByValue($groupItem->getGroupValue());
-                        assert($option instanceof AbstractOptionFacetItem);
-                        if ($option instanceof Option) {
-                            $groupItem->setGroupUrl($option->getUrl());
-                            $groupItem->setGroupLabel($option->getLabel());
-                        }
-                    }
-                }
-            }
-            $result['result']['groups'] = $groups;
-        } else {
-            $result['result']['items'] = $this->getSearchResults()->getArrayCopy();
-        }
-
-        return $result;
+        return GeneralUtility::makeInstance(SearchResultSetConverterService::class)->toArray($this);
     }
 
     public function getSuggestion(): string
@@ -228,12 +138,12 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         return $uri;
     }
 
-    protected function shouldAddFacetData(): bool
+    public function shouldAddFacetData(): bool
     {
         return $this->forceAddFacetData || $this->getPage() === 1;
     }
 
-    protected function isGroupingEnabled(): bool
+    public function isGroupingEnabled(): bool
     {
         return $this->searchResults->getHasGroups();
     }
@@ -242,5 +152,15 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         $this->forceAddFacetData = $forceAddFacetData;
     }
+
+
+
+
+
+
+
+
+
+
 
 }
