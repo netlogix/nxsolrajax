@@ -2,6 +2,7 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option as SolrOption;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
@@ -11,8 +12,7 @@ use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 use function strtolower;
 
-class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option implements
-    JsonSerializable
+class Option extends SolrOption implements JsonSerializable
 {
 
     function jsonSerialize(): array
@@ -43,7 +43,7 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
-        $operator = strtolower($settings['operator']) ?: 'and';
+        $operator = strtolower($settings['operator'] ?? '') ?: 'and';
         switch (true) {
             case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
             case ($keepAllOptionsOnSelection == 0):
@@ -89,7 +89,7 @@ class Option extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\Opt
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
-        $operator = strtolower($settings['operator']) ?: 'and';
+        $operator = strtolower($settings['operator'] ?? '') ?: 'and';
         switch (true) {
             case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
             case ($keepAllOptionsOnSelection == 0):
