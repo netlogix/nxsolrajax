@@ -6,16 +6,13 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\OptionBa
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class QueryGroupFacetTest extends UnitTestCase
 {
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBesSerializedToJSON()
+    #[Test]
+    public function itCanBesSerializedToJSON(): void
     {
         $name = uniqid('name_');
         $field = uniqid('field_');
@@ -29,13 +26,12 @@ class QueryGroupFacetTest extends UnitTestCase
                 $name,
                 $field,
                 $label,
-                [],
-                $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
+                []
             ])
-            ->onlyMethods(['getResetUrl'])
+            ->onlyMethods(['getFacetResetUrl'])
             ->getMock();
 
-        $subject->method('getResetUrl')->willReturn($resetUrl);
+        $subject->method('getFacetResetUrl')->willReturn($resetUrl);
         $subject->setIsUsed($isUsed);
 
         $jsonString = json_encode($subject);

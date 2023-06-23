@@ -2,12 +2,11 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet as SolrQueryGroupFacet;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class QueryGroupFacet extends
-    \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet implements
-    JsonSerializable
+class QueryGroupFacet extends SolrQueryGroupFacet implements JsonSerializable
 {
     use FacetUrlTrait;
 

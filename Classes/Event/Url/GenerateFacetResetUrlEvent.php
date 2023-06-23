@@ -9,18 +9,10 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacet;
 final class GenerateFacetResetUrlEvent
 {
 
-    private AbstractFacet $facet;
-    private string $url;
-
-    public function __construct(AbstractFacet $facet, string $url)
-    {
-        $this->facet = $facet;
-        $this->url = $url;
-    }
-
-    public function getFacet(): AbstractFacet
-    {
-        return $this->facet;
+    public function __construct(
+        public readonly AbstractFacet $facet,
+        private string $url,
+    ) {
     }
 
     public function getUrl(): string
@@ -28,9 +20,8 @@ final class GenerateFacetResetUrlEvent
         return $this->url;
     }
 
-    public function setUrl(string $url): self
+    public function setUrl(string $url): void
     {
         $this->url = $url;
-        return $this;
     }
 }

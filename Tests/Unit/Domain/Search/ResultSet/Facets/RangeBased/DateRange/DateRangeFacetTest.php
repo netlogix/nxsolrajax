@@ -7,16 +7,13 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\RangeBas
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet as DateRangeFacetAlias;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class DateRangeFacetTest extends UnitTestCase
 {
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBeSerializedToJSON()
+    #[Test]
+    public function itCanBeSerializedToJSON(): void
     {
         $searchResultSet = new SearchResultSet();
 
@@ -34,14 +31,13 @@ class DateRangeFacetTest extends UnitTestCase
                     $name,
                     $field,
                     $label,
-                    $options,
-                    $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
+                    $options
                 ]
             )
-            ->onlyMethods(['getResetUrl'])
+            ->onlyMethods(['getFacetResetUrl'])
             ->getMock();
 
-        $subject->method('getResetUrl')->willReturn($resetUrl);
+        $subject->method('getFacetResetUrl')->willReturn($resetUrl);
         $subject->setIsUsed($isUsed);
 
         $jsonString = json_encode($subject);

@@ -8,16 +8,14 @@ use ApacheSolrForTypo3\Solr\System\Data\DateTime;
 use DateInterval;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRange;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class DateRangeTest extends UnitTestCase
 {
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBeSerializedToJSONWhenAllDataIsPresent()
+    #[Test]
+    public function itCanBeSerializedToJSONWhenAllDataIsPresent(): void
     {
         $facetMock = $this->getMockBuilder(DateRangeFacet::class)
             ->disableOriginalConstructor()
@@ -26,7 +24,6 @@ class DateRangeTest extends UnitTestCase
         $key = uniqid('key_');
 
         $documentCount = rand(0, 999);
-        $selected = $documentCount % 2 == 0;
         $url = sprintf('https://www.example.com/%s', $key);
 
         $startRequested = (new DateTime())->sub(new DateInterval('P1W'));
@@ -46,13 +43,13 @@ class DateRangeTest extends UnitTestCase
                     '',
                     $documentCount,
                     [],
-                    $selected
+                    true
                 ]
             )
-            ->onlyMethods(['getUrl'])
+            ->onlyMethods(['getFacetItemUrl'])
             ->getMock();
 
-        $subject->method('getUrl')->willReturn($url);
+        $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
         self::assertIsString($jsonString);
@@ -60,9 +57,8 @@ class DateRangeTest extends UnitTestCase
         $jsonData = json_decode($jsonString, true);
         self::assertIsArray($jsonData);
 
-        // fixme there is another strange part in the implementation. it does not use the 'selected' property but checks the label
         self::assertArrayHasKey('selected', $jsonData);
-//        self::assertEquals($selected, $jsonData['selected']);
+        self::assertTrue($jsonData['selected']);
         self::assertEquals(true, $jsonData['selected']);
 
         self::assertArrayHasKey('start', $jsonData);
@@ -74,25 +70,17 @@ class DateRangeTest extends UnitTestCase
         self::assertArrayHasKey('min', $jsonData);
         self::assertEquals($startInResponse->getTimestamp(), $jsonData['min'], 'min time in response not correct');
 
-        // fixme: there is a bug in the implementation where 'max' is set using $startInResponse instead of $endInResponse
-//        self::assertArrayHasKey('max', $jsonData);
-//        self::assertEquals($endInResponse->getTimestamp(), $jsonData['max'], 'max time in response not correct');
+        self::assertArrayHasKey('max', $jsonData);
+        self::assertEquals($endInResponse->getTimestamp(), $jsonData['max'], 'max time in response not correct');
 
         self::assertArrayHasKey('links', $jsonData);
         self::assertArrayHasKey('self', $jsonData['links']);
         self::assertEquals($url, $jsonData['links']['self']);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBeSerializedToJSONWhenOptionalDataIsMissing()
+    #[Test]
+    public function itCanBeSerializedToJSONWhenOptionalDataIsMissing(): void
     {
-        self::markTestSkipped(
-            'this test fails due to errors in the implementation. optional constructor arguments are later assumed to be present.'
-        );
-
         $url = sprintf('https://www.example.com/%s', uniqid('key_'));
 
         $facetMock = $this->getMockBuilder(DateRangeFacet::class)
@@ -100,11 +88,11 @@ class DateRangeTest extends UnitTestCase
             ->getMock();
 
         $subject = $this->getMockBuilder(DateRange::class)
-            ->setConstructorArgs([$facetMock, null, null, null, null, null, null, []])
-            ->onlyMethods(['getUrl'])
+            ->setConstructorArgs([$facetMock, null, null, null, null, '', 0, []])
+            ->onlyMethods(['getFacetItemUrl'])
             ->getMock();
 
-        $subject->method('getUrl')->willReturn($url);
+        $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
         self::assertIsString($jsonString);

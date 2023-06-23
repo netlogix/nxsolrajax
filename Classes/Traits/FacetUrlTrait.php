@@ -11,7 +11,6 @@ use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 trait FacetUrlTrait
 {
@@ -20,62 +19,46 @@ trait FacetUrlTrait
      * Generates a reset URL for a given facet
      *
      * This has support for configurable linkHelpers.
-     *
-     * @param AbstractFacet $facet
-     * @return string
      */
     protected function getFacetResetUrl(AbstractFacet $facet): string
     {
-        $url = '';
-        $event = new GenerateFacetResetUrlEvent($facet, $url);
-
-        /** @var GenerateFacetResetUrlEvent $event */
-        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
+        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
+            new GenerateFacetResetUrlEvent($facet, '')
+        );
 
         $url = $event->getUrl();
-
-        if ($url == '') {
-            $previousRequest = $facet->getResultSet()->getUsedSearchRequest();
-            $url = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class)->getRemoveFacetUri(
-                $previousRequest,
-                $facet->getName()
-            );
+        if ($url !== '') {
+            return $url;
         }
 
-        return $url;
+        $previousRequest = $facet->getResultSet()->getUsedSearchRequest();
+        return GeneralUtility::makeInstance(SearchUriBuilder::class)->getRemoveFacetUri(
+            $previousRequest,
+            $facet->getName()
+        );
     }
 
     /**
      * Generates the URL for a given facet item.
      *
      * This has support for configurable linkHelpers.
-     *
-     * @param AbstractFacetItem $facetItem
-     * @param string $overrideUriValue Do not use the FacetItem's current value but force this one instead
-     * @return string
      */
     protected function getFacetItemUrl(AbstractFacetItem $facetItem, string $overrideUriValue = ''): string
     {
-        $url = '';
-        $event = new GenerateFacetItemUrlEvent($facetItem, $url, $overrideUriValue);
-
-        /** @var GenerateFacetItemUrlEvent $event */
-        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
+        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
+            new GenerateFacetItemUrlEvent($facetItem, '', $overrideUriValue)
+        );
 
         $url = $event->getUrl();
-
-        if ($url == '') {
-            $previousRequest = $facetItem->getFacet()->getResultSet()->getUsedSearchRequest();
-
-            $url = GeneralUtility::makeInstance(ObjectManager::class)->get(
-                SearchUriBuilder::class
-            )->getSetFacetValueUri(
-                $previousRequest,
-                $facetItem->getFacet()->getName(),
-                $overrideUriValue ?: $facetItem->getUriValue()
-            );
+        if ($url !== '') {
+            return $url;
         }
 
-        return $url;
+        $previousRequest = $facetItem->getFacet()->getResultSet()->getUsedSearchRequest();
+        return GeneralUtility::makeInstance(SearchUriBuilder::class)->getSetFacetValueUri(
+            $previousRequest,
+            $facetItem->getFacet()->getName(),
+            $overrideUriValue ?: $facetItem->getUriValue()
+        );
     }
 }

@@ -2,12 +2,11 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet as SolrDateRangeFacet;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class DateRangeFacet extends
-    \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet implements
-    JsonSerializable
+class DateRangeFacet extends SolrDateRangeFacet implements JsonSerializable
 {
     use FacetUrlTrait;
 

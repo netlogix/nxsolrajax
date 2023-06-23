@@ -6,9 +6,9 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\O
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
+use Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
 use function strtolower;
 
@@ -31,80 +31,64 @@ class Option extends SolrOption implements JsonSerializable
 
     public function getUrl(): string
     {
-        $settings = $this->getFacet()->getConfiguration();
+        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
+            new GenerateFacetItemUrlEvent($this, '')
+        );
 
-        // this uses the same event implementation as getResetUrl() due to historical reasons
-        $url = $this->sendLinkGenerationEvent();
-        if ($url) {
+        $url = $event->getUrl();
+        if ($url !== '') {
             return $url;
         }
 
-        $searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
+        $searchUriBuilder = GeneralUtility::makeInstance(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
-        $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
+        $settings = $this->getFacet()->getConfiguration();
+        $keepAllOptionsOnSelection = (int) $settings['keepAllOptionsOnSelection'];
         $operator = strtolower($settings['operator'] ?? '') ?: 'and';
-        switch (true) {
-            case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
-            case ($keepAllOptionsOnSelection == 0):
-                return $searchUriBuilder->getAddFacetValueUri(
-                    $previousRequest,
-                    $this->getFacet()->getName(),
-                    $this->getUriValue()
-                );
-            case ($keepAllOptionsOnSelection == 1 && $operator == 'and'):
-                return $searchUriBuilder->getSetFacetValueUri(
-                    $previousRequest,
-                    $this->getFacet()->getName(),
-                    $this->getUriValue()
-                );
-        }
-
-        return '';
-    }
-
-    private function sendLinkGenerationEvent(): string
-    {
-        // link generation works slightly differently here compared to FacetUrlTrait
-        // the event is duplicated here to get a consistent external event interface
-        $event = new GenerateFacetItemUrlEvent($this, '');
-
-        /** @var GenerateFacetItemUrlEvent $event */
-        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch($event);
-
-        return $event->getUrl();
+        return match (true) {
+            $keepAllOptionsOnSelection == 1 && $operator == 'or', $keepAllOptionsOnSelection == 0 => $searchUriBuilder->getAddFacetValueUri(
+                $previousRequest,
+                $this->getFacet()->getName(),
+                $this->getUriValue()
+            ),
+            $keepAllOptionsOnSelection == 1 && $operator == 'and' => $searchUriBuilder->getSetFacetValueUri(
+                $previousRequest,
+                $this->getFacet()->getName(),
+                $this->getUriValue()
+            ),
+            default => '',
+        };
     }
 
     public function getResetUrl(): string
     {
-        $settings = $this->getFacet()->getConfiguration();
+        $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
+            new GenerateFacetResetUrlEvent($this->facet, '')
+        );
 
-        // this uses the same event implementation as getUrl() due to historical reasons
-        $url = $this->sendLinkGenerationEvent();
-        if ($url) {
+        $url = $event->getUrl();
+        if ($url !== '') {
             return $url;
         }
 
-        $searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
+        $searchUriBuilder = GeneralUtility::makeInstance(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
-        $keepAllOptionsOnSelection = (int)$settings['keepAllOptionsOnSelection'];
+        $settings = $this->getFacet()->getConfiguration();
+        $keepAllOptionsOnSelection = (int) $settings['keepAllOptionsOnSelection'];
         $operator = strtolower($settings['operator'] ?? '') ?: 'and';
-        switch (true) {
-            case ($keepAllOptionsOnSelection == 1 && $operator == 'or'):
-            case ($keepAllOptionsOnSelection == 0):
-                return $searchUriBuilder->getRemoveFacetValueUri(
-                    $previousRequest,
-                    $this->getFacet()->getName(),
-                    $this->getUriValue()
-                );
-            case ($keepAllOptionsOnSelection == 1 && $operator == 'and'):
-                return $searchUriBuilder->getRemoveFacetUri(
-                    $previousRequest,
-                    $this->getFacet()->getName()
-                );
-        }
-
-        return '';
+        return match (true) {
+            $keepAllOptionsOnSelection == 1 && $operator == 'or', $keepAllOptionsOnSelection == 0 => $searchUriBuilder->getRemoveFacetValueUri(
+                $previousRequest,
+                $this->getFacet()->getName(),
+                $this->getUriValue()
+            ),
+            $keepAllOptionsOnSelection == 1 && $operator == 'and' => $searchUriBuilder->getRemoveFacetUri(
+                $previousRequest,
+                $this->getFacet()->getName()
+            ),
+            default => '',
+        };
     }
 }

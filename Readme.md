@@ -1,8 +1,8 @@
 # TYPO3 Extension `nxsolrajax`
 
 [![stability-stable](https://img.shields.io/badge/stability-stable-green.svg)](https://github.com/netlogix/nxsolrajax)
-[![TYPO3 V10](https://img.shields.io/badge/TYPO3-10-orange.svg)](https://get.typo3.org/version/10)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%207.4-8892BF.svg)](https://php.net/)
+[![TYPO3 V12](https://img.shields.io/badge/TYPO3-12-orange.svg)](https://get.typo3.org/version/10)
+[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%208.1-8892BF.svg)](https://php.net/)
 [![GitHub CI status](https://github.com/netlogix/nxsolrajax/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/netlogix/nxsolrajax/actions)
 
 This extension adds additional features to `apache-solr-for-typo3/solr`

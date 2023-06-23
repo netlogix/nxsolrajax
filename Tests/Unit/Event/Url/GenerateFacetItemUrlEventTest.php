@@ -6,15 +6,15 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Event\Url;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacetItem;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class GenerateFacetItemUrlEventTest extends UnitTestCase
 {
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesFacetItem()
+    protected bool $resetSingletonInstances = true;
+
+    #[Test]
+    public function itExposesFacetItem(): void
     {
         $facetMock = $this->getMockBuilder(AbstractFacetItem::class)
             ->disableOriginalConstructor()
@@ -22,14 +22,11 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, '');
 
-        self::assertEquals($facetMock, $subject->getFacetItem());
+        self::assertEquals($facetMock, $subject->facetItem);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesOverrideUriValue()
+    #[Test]
+    public function itExposesOverrideUriValue(): void
     {
         $overrideUriValue = uniqid('overrideUriValue_');
 
@@ -39,15 +36,12 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, '', $overrideUriValue);
 
-        self::assertEquals($overrideUriValue, $subject->getOverrideUriValue());
+        self::assertEquals($overrideUriValue, $subject->overrideUriValue);
     }
 
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesUrl()
+    #[Test]
+    public function itExposesUrl(): void
     {
         $url = uniqid('https://www.example.com/');
 
@@ -60,11 +54,8 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
         self::assertEquals($url, $subject->getUrl());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAllowsManipulationOfUrl()
+    #[Test]
+    public function itAllowsManipulationOfUrl(): void
     {
         $url1 = uniqid('https://www.example.com/');
         $url2 = uniqid('https://www.example.com/');

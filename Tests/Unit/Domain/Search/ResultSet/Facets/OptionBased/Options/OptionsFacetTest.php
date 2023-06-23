@@ -6,17 +6,14 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\OptionBa
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class OptionsFacetTest extends UnitTestCase
 {
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBeSerializedToJSON()
+    #[Test]
+    public function itCanBeSerializedToJSON(): void
     {
         $resultSet = new SearchResultSet();
 
@@ -33,13 +30,12 @@ class OptionsFacetTest extends UnitTestCase
                 $name,
                 $field,
                 $label,
-                $configuration,
-                $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
+                $configuration
             ])
-            ->onlyMethods(['getResetUrl'])
+            ->onlyMethods(['getFacetResetUrl'])
             ->getMock();
 
-        $subject->method('getResetUrl')->willReturn($resetUrl);
+        $subject->method('getFacetResetUrl')->willReturn($resetUrl);
 
         $subject->setIsUsed($isUsed);
 

@@ -8,7 +8,6 @@ use ApacheSolrForTypo3\Solr\Domain\Search\Query\Query;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\FacetCollection;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet;
-use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\Group;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\GroupCollection;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\GroupItemCollection;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Result\SearchResultCollection;
@@ -17,10 +16,11 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\SortingCollection;
 use ApacheSolrForTypo3\Solr\Search;
 use ApacheSolrForTypo3\Solr\System\Solr\Document\Document;
 use ApacheSolrForTypo3\Solr\System\Solr\ResponseAdapter;
+use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Service\SearchResultSetConverterService;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class SearchResultSetConverterServiceTest extends UnitTestCase
 {
@@ -44,11 +44,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         'result' => []
     ];
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanExportSearchResultSetToJson()
+    #[Test]
+    public function itCanExportSearchResultSetToJson(): void
     {
         $searchResultSet = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
@@ -70,11 +67,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertEquals($this->mockedBasicData, $json);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itThrowsExceptionOnFailedJsonExport()
+    #[Test]
+    public function itThrowsExceptionOnFailedJsonExport(): void
     {
         $this->expectExceptionCode(1659079186);
 
@@ -96,11 +90,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $subject->toJSON($searchResultSet);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAddsBasicResultDataIfNoSearchResponseExists()
+    #[Test]
+    public function itAddsBasicResultDataIfNoSearchResponseExists(): void
     {
         $subject = new SearchResultSetConverterService();
 
@@ -148,11 +139,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertEmpty($res['result']);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itWillRunThroughEnrichmentChainOnExporting()
+    #[Test]
+    public function itWillRunThroughEnrichmentChainOnExporting(): void
     {
         $mockedData = $this->mockedBasicData;
 
@@ -172,8 +160,6 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $subject->method('generateBasicSearchResultData')->willReturn($mockedData);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
-            // the constructor relies on objectManager which is not present in this context
-            ->disableOriginalConstructor()
             ->onlyMethods([])
             ->getMock();
 
@@ -205,11 +191,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $subject->toArray($searchResultSetMock);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itWillEnrichDocumentsWithHighlightedContent()
+    #[Test]
+    public function itWillEnrichDocumentsWithHighlightedContent(): void
     {
         $documentId = uniqid('documentID_');
         $highlightString = uniqid('highlight_');
@@ -217,8 +200,6 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $highlightedContent = new \stdClass();
         $highlightedContent->$documentId = new \stdClass();
         $highlightedContent->$documentId->content = [$highlightString];
-
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
 
         $searchResultSet = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
@@ -237,7 +218,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
         $searchResultSet->setUsedSearch($usedSearch);
 
-        $subject->_call('highlightSearchResults', $searchResultSet);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $this->callMethod($searchResultSetConverterService, 'highlightSearchResults', [$searchResultSet]);
 
         $documents = $searchResultSet->getSearchResults();
         self::assertCount(1, $documents);
@@ -247,14 +229,9 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertEquals($highlightString, $doc->highlightedContent);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itWillNotEnrichDocumentsWithHighlightedContentIfNoneExists()
+    #[Test]
+    public function itWillNotEnrichDocumentsWithHighlightedContentIfNoneExists(): void
     {
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
-
         $searchResultSet = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
             ->onlyMethods([])
@@ -267,7 +244,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
         $searchResultSet->setUsedSearch($usedSearch);
 
-        $subject->_call('highlightSearchResults', $searchResultSet);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $this->callMethod($searchResultSetConverterService, 'highlightSearchResults', [$searchResultSet]);
 
         $documents = $searchResultSet->getSearchResults();
         self::assertCount(1, $documents);
@@ -277,19 +255,14 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertNull($doc->highlightedContent);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAddsNavigationLinksToResults()
+    #[Test]
+    public function itAddsNavigationLinksToResults(): void
     {
         $data = $this->mockedBasicData;
         $firstUrl = uniqid('https://www.example.com/first/');
         $prevUrl = uniqid('https://www.example.com/prev/');
         $nextUrl = uniqid('https://www.example.com/next/');
         $lastUrl = uniqid('https://www.example.com/last/');
-
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
@@ -300,7 +273,12 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $searchResultSetMock->method('getNextUrl')->willReturn($nextUrl);
         $searchResultSetMock->method('getLastUrl')->willReturn($lastUrl);
 
-        $result = $subject->_call('addLinksToSearchResultData', $data, $searchResultSetMock);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $result = $this->callMethod(
+            $searchResultSetConverterService,
+            'addLinksToSearchResultData',
+            [$data, $searchResultSetMock]
+        );
 
         self::assertEquals($firstUrl, $result['search']['links']['first']);
         self::assertEquals($prevUrl, $result['search']['links']['prev']);
@@ -308,11 +286,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertEquals($lastUrl, $result['search']['links']['last']);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAddsQueryDataToResults()
+    #[Test]
+    public function itAddsQueryDataToResults(): void
     {
         $query = uniqid('query_');
         $usedResultsPerPage = rand(1, 10);
@@ -320,12 +295,12 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $resultCount = rand(100, 99999);
 
         $data = $this->mockedBasicData;
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
             ->onlyMethods([])
             ->getMock();
+
         $searchResultSetMock->setUsedQuery((new Query())->setQuery($query));
         $searchResultSetMock->setUsedResultsPerPage($usedResultsPerPage);
         $searchResultSetMock->setAllResultCount($resultCount);
@@ -338,7 +313,12 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
         $searchResultSetMock->setUsedSearch($usedSearch);
 
-        $result = $subject->_call('addQueryToSearchResultData', $data, $searchResultSetMock);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $result = $this->callMethod(
+            $searchResultSetConverterService,
+            'addQueryToSearchResultData',
+            [$data, $searchResultSetMock]
+        );
 
         self::assertArrayHasKey('q', $result['result']);
         self::assertEquals($query, $result['result']['q']);
@@ -359,16 +339,12 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertEmpty($result['result']['groups']);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAddsFacetDataToResults()
+    #[Test]
+    public function itAddsFacetDataToResults(): void
     {
         $facetName = uniqid('name_');
 
         $data = $this->mockedBasicData;
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
@@ -382,7 +358,6 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             uniqid('field_'),
             uniqid('label_'),
             [],
-            $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
         );
         $facet->setIsAvailable(true);
 
@@ -391,7 +366,12 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
         $this->inject($searchResultSetMock, 'facets', $facets);
 
-        $result = $subject->_call('addFacetsToSearchResultData', $data, $searchResultSetMock);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $result = $this->callMethod(
+            $searchResultSetConverterService,
+            'addFacetsToSearchResultData',
+            [$data, $searchResultSetMock]
+        );
 
         self::assertArrayHasKey('facets', $result);
         self::assertNotEmpty($result['facets']);
@@ -400,14 +380,10 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertSame($facet, $result['facets'][$facetName]);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itWillNotAddSortingFromDataIfNoneIsUsed()
+    #[Test]
+    public function itWillNotAddSortingFromDataIfNoneIsUsed(): void
     {
         $data = $this->mockedBasicData;
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
 
         self::assertArrayNotHasKey('sortings', $data);
 
@@ -417,16 +393,18 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             ->getMock();
         $this->inject($searchResultSetMock, 'sortings', new SortingCollection);
 
-        $result = $subject->_call('addSortingToSearchResultData', $data, $searchResultSetMock);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $result = $this->callMethod(
+            $searchResultSetConverterService,
+            'addSortingToSearchResultData',
+            [$data, $searchResultSetMock]
+        );
 
         self::assertArrayNotHasKey('sortings', $result);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itWAddsSortingFromDataIfNoneIsUsed()
+    #[Test]
+    public function itWAddsSortingFromDataIfNoneIsUsed(): void
     {
         $sortingName = uniqid('name_');
 
@@ -439,7 +417,6 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         );
 
         $data = $this->mockedBasicData;
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
 
         self::assertArrayNotHasKey('sortings', $data);
 
@@ -451,23 +428,24 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
         $searchResultSetMock->getSortings()->addSorting($sorting);
 
-        $result = $subject->_call('addSortingToSearchResultData', $data, $searchResultSetMock);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $result = $this->callMethod(
+            $searchResultSetConverterService,
+            'addSortingToSearchResultData',
+            [$data, $searchResultSetMock]
+        );
 
         self::assertArrayHasKey('sortings', $result);
         self::assertArrayHasKey($sortingName, $result['sortings']);
         self::assertEquals($sorting->getDirection(), $result['sortings'][$sortingName]->getDirection());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itDoesNotGroupSearchResultsIfNotEnabled()
+    #[Test]
+    public function itDoesNotGroupSearchResultsIfNotEnabled(): void
     {
         $document = new Document(['id' => uniqid('documentID_')]);
 
         $data = $this->mockedBasicData;
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
@@ -476,7 +454,12 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
         $searchResultSetMock->setSearchResults(new SearchResultCollection([$document]));
 
-        $result = $subject->_call('groupSearchResultData', $data, $searchResultSetMock);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $result = $this->callMethod(
+            $searchResultSetConverterService,
+            'groupSearchResultData',
+            [$data, $searchResultSetMock]
+        );
 
         self::assertArrayHasKey('result', $result);
         self::assertIsArray($result['result']);
@@ -486,53 +469,85 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         self::assertEquals($document, $result['result']['items'][0]);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itGroupsSearchResultsIfEnabled()
+    #[Test]
+    public function itGroupsSearchResultsIfEnabled(): void
     {
         $document = new Document(['id' => uniqid('documentID_')]);
 
         $data = $this->mockedBasicData;
-        $subject = $this->getAccessibleMock(SearchResultSetConverterService::class, ['dummy']);
-
-        $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods([])
-            ->getMock();
-        $this->inject($searchResultSetMock, 'facets', new FacetCollection());
-
-        $searchResultSetMock->addFacet(
-            new DateRangeFacet(
-                $searchResultSetMock,
-                uniqid('name_'),
-                uniqid('field_'),
-                uniqid('label_'),
-                [],
-                $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
-            )
-        );
-
-        $searchResults = new SearchResultCollection([$document]);
 
         $group = new Group(uniqid('groupName_'), 10);
         $group->setGroupItems(new GroupItemCollection([$document]));
 
-        $groupCollection = new GroupCollection();
-        $groupCollection->add($group);
+        $groupCollection = new GroupCollection([$group]);
 
-        $searchResults->setGroups($groupCollection);
+        $searchResults = $this->getMockBuilder(SearchResultCollection::class)
+            ->setConstructorArgs([[$document]])
+            ->getMock();
+        $searchResults->method('getGroups')->willReturn($groupCollection);
 
-        $searchResultSetMock->setSearchResults($searchResults);
+        $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)->getMock();
+        $searchResultSetMock->method('isGroupingEnabled')->willReturn(true);
+        $searchResultSetMock->method('getFacets')->willReturn(
+            new FacetCollection(
+                [
+                    new DateRangeFacet(
+                        $searchResultSetMock,
+                        'date_range_facet',
+                        uniqid('field_'),
+                        uniqid('label_'),
+                        []
+                    )
+                ]
+            )
+        );
+        $searchResultSetMock->method('getSearchResults')->willReturn($searchResults);
 
-        $result = $subject->_call('groupSearchResultData', $data, $searchResultSetMock);
+        $searchResultSetConverterService = new SearchResultSetConverterService();
+        $result = $this->callMethod(
+            $searchResultSetConverterService,
+            'groupSearchResultData',
+            [$data, $searchResultSetMock]
+        );
 
         self::assertArrayHasKey('result', $result);
         self::assertIsArray($result['result']);
         self::assertArrayHasKey('groups', $result['result']);
         self::assertNotEmpty($result['result']['groups']);
-
         self::assertEquals($group, $result['result']['groups'][0]);
+    }
+
+    protected function inject($target, $name, $dependency)
+    {
+        if (! is_object($target)) {
+            throw new \InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
+        }
+
+        $objectReflection = new \ReflectionObject($target);
+        $methodNamePart = strtoupper($name[0]) . substr($name, 1);
+        if ($objectReflection->hasMethod('set' . $methodNamePart)) {
+            $methodName = 'set' . $methodNamePart;
+            $target->$methodName($dependency);
+        } elseif ($objectReflection->hasMethod('inject' . $methodNamePart)) {
+            $methodName = 'inject' . $methodNamePart;
+            $target->$methodName($dependency);
+        } elseif ($objectReflection->hasProperty($name)) {
+            $property = $objectReflection->getProperty($name);
+            $property->setAccessible(true);
+            $property->setValue($target, $dependency);
+        } else {
+            throw new \RuntimeException(
+                'Could not inject ' . $name . ' into object of type ' . get_class($target),
+                1476107339
+            );
+        }
+    }
+
+    protected function callMethod(object $object, string $method, array $args): mixed
+    {
+        $class = new \ReflectionClass($object);
+        $reflectionMethod = $class->getMethod($method);
+        $reflectionMethod->setAccessible(true);
+        return $reflectionMethod->invokeArgs($object, $args);
     }
 }
