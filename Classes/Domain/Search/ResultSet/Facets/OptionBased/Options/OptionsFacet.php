@@ -2,11 +2,11 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet as SolrOptionsFacet;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class OptionsFacet extends
-    \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet implements JsonSerializable
+class OptionsFacet extends SolrOptionsFacet implements JsonSerializable
 {
     use FacetUrlTrait;
 

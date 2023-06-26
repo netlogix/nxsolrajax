@@ -2,9 +2,10 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\GroupItem as SolrGroupItem;
 use JsonSerializable;
 
-class GroupItem extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Grouping\GroupItem implements JsonSerializable
+class GroupItem extends SolrGroupItem implements JsonSerializable
 {
     private string $groupLabel = '';
     private string $groupUrl = '';

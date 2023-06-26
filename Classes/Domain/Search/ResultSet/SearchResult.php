@@ -2,10 +2,10 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Result\SearchResult as SolrSearchResult;
 use JsonSerializable;
 
-class SearchResult extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Result\SearchResult implements
-    JsonSerializable
+class SearchResult extends SolrSearchResult implements JsonSerializable
 {
 
     public function jsonSerialize(): array

@@ -6,29 +6,25 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Event\Search;
 
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class AfterGetSuggestionsEventTest extends UnitTestCase
 {
+    protected bool $resetSingletonInstances = true;
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesQuery()
+    #[Test]
+    public function itExposesQuery(): void
     {
         $query = uniqid('query_');
 
         $subject = new AfterGetSuggestionsEvent($query, [], new TypoScriptConfiguration([]));
 
-        self::assertSame($query, $subject->getQuery());
+        self::assertSame($query, $subject->query);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesSuggestions()
+    #[Test]
+    public function itExposesSuggestions(): void
     {
         $suggestions = [uniqid('suggestion_')];
 
@@ -37,11 +33,8 @@ class AfterGetSuggestionsEventTest extends UnitTestCase
         self::assertSame($suggestions, $subject->getSuggestions());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAllowsModificationOfSuggestions()
+    #[Test]
+    public function itAllowsModificationOfSuggestions(): void
     {
         $suggestions = [];
 
@@ -54,17 +47,14 @@ class AfterGetSuggestionsEventTest extends UnitTestCase
         self::assertNotEmpty($subject->getSuggestions());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesConfiguration()
+    #[Test]
+    public function itExposesConfiguration(): void
     {
         $configuration = new TypoScriptConfiguration([]);
 
         $subject = new AfterGetSuggestionsEvent(uniqid('query_'), [], $configuration);
 
-        self::assertSame($configuration, $subject->getTypoScriptConfiguration());
+        self::assertSame($configuration, $subject->typoScriptConfiguration);
     }
 
 }

@@ -9,25 +9,11 @@ use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 final class AfterGetSuggestionsEvent
 {
 
-    private string $query;
-    private array $suggestions;
-    private TypoScriptConfiguration $typoScriptConfiguration;
-
-    public function __construct(string $query, array $suggestions, TypoScriptConfiguration $typoScriptConfiguration)
-    {
-        $this->query = $query;
-        $this->suggestions = $suggestions;
-        $this->typoScriptConfiguration = $typoScriptConfiguration;
-    }
-
-    public function getTypoScriptConfiguration(): TypoScriptConfiguration
-    {
-        return $this->typoScriptConfiguration;
-    }
-
-    public function getQuery(): string
-    {
-        return $this->query;
+    public function __construct(
+        public readonly string $query,
+        private array $suggestions,
+        public readonly TypoScriptConfiguration $typoScriptConfiguration
+    ) {
     }
 
     public function getSuggestions(): array
@@ -35,9 +21,8 @@ final class AfterGetSuggestionsEvent
         return $this->suggestions;
     }
 
-    public function setSuggestions(array $suggestions): AfterGetSuggestionsEvent
+    public function setSuggestions(array $suggestions): void
     {
         $this->suggestions = $suggestions;
-        return $this;
     }
 }

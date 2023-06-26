@@ -4,18 +4,16 @@
   "description": "TYPO3 Extension \"nxsolrajax\"",
   "license": "MIT",
   "require": {
-    "php": "^7.4 || ^8.0",
-    "apache-solr-for-typo3/solr": "^11.5",
-    "netlogix/nxajaxpluginpage": "^2.1.0",
-    "typo3/cms-core": "^11.5",
+    "php": "^8.1",
+    "apache-solr-for-typo3/solr": "dev-main",
+    "netlogix/nxajaxpluginpage": "^2.2",
+    "typo3/cms-core": "^12.4",
     "ext-json": "*"
   },
   "require-dev": {
     "ext-sqlite3": "*",
-    "nimut/testing-framework": "^6.0",
-    "nimut/phpunit-merger": "^1.1",
-    "phpunit/phpcov": "^8.2",
-    "brianium/paratest": "^6.6"
+    "typo3/testing-framework": "^8.0",
+    "phpunit/phpcov": "^9.0"
   },
   "autoload": {
     "psr-4": {
@@ -30,8 +28,8 @@
   "extra": {
     "typo3/cms": {
       "extension-key": "nxsolrajax",
-      "web-dir": ".Build/Web",
-      "cms-package-dir": "{$vendor-dir}/typo3/cms"
+      "app-dir": ".Build",
+      "web-dir": ".Build/Web"
     }
   },
   "config": {
@@ -43,12 +41,13 @@
     }
   },
   "scripts": {
+    "test-unit": "phpunit -c phpunit.xml",
     "post-autoload-dump": [
       "@prepare-extension-test-structure",
-      "mkdir --parents .Build/logs/"
+      "mkdir -p .Build/logs/"
     ],
     "prepare-extension-test-structure": [
-      "Nimut\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
+      "TYPO3\\TestingFramework\\Composer\\ExtensionTestEnvironment::prepare"
     ]
   }
 }

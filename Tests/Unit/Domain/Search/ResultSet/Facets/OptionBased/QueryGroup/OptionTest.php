@@ -7,25 +7,21 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\OptionBa
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class OptionTest extends UnitTestCase
 {
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBesSerializedToJSON()
+    #[Test]
+    public function itCanBesSerializedToJSON(): void
     {
         $queryGroupFacet = new QueryGroupFacet(
             new SearchResultSet(),
             uniqid('name_'),
             uniqid('field_'),
             '',
-            [],
-            $this->getMockBuilder(ObjectManager::class)->disableOriginalConstructor()->getMock()
+            []
         );
 
 
@@ -43,10 +39,10 @@ class OptionTest extends UnitTestCase
                 $documentCount,
                 $selected
             ])
-            ->onlyMethods(['getUrl'])
+            ->onlyMethods(['getFacetItemUrl'])
             ->getMock();
 
-        $subject->method('getUrl')->willReturn($url);
+        $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
         self::assertIsString($jsonString);

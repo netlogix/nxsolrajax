@@ -2,12 +2,11 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet as SolrHierarchyFacet;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Traits\FacetUrlTrait;
 
-class HierarchyFacet extends
-    \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet implements
-    JsonSerializable
+class HierarchyFacet extends SolrHierarchyFacet implements JsonSerializable
 {
     use FacetUrlTrait;
 

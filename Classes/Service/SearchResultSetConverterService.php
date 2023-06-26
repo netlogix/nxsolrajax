@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Netlogix\Nxsolrajax\Service;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\AbstractOptionFacetItem;
+use Exception;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem;
@@ -45,16 +46,12 @@ class SearchResultSetConverterService implements SingletonInterface
 
         if (json_last_error() != JSON_ERROR_NONE) {
             // todo add custom exception
-            throw new \Exception(json_last_error_msg(), 1659079186);
+            throw new Exception(json_last_error_msg(), 1659079186);
         }
 
         return $json;
     }
 
-
-    /**
-     * @return array
-     */
     protected function generateBasicSearchResultData(SearchResultSet $searchResultSet): array
     {
         $result = [
@@ -78,30 +75,23 @@ class SearchResultSetConverterService implements SingletonInterface
         return $result;
     }
 
-    /**
-     * @return void
-     */
     protected function highlightSearchResults(SearchResultSet $searchResultSet): void
     {
         $highlightedContent = $searchResultSet->getUsedSearch()->getHighlightedContent();
 
-        if (!$highlightedContent) {
+        if (! $highlightedContent) {
             return;
         }
 
         /** @var SearchResult $document */
         foreach ($searchResultSet->getSearchResults() as $document) {
-            if (!empty($highlightedContent->{$document->getId()}->content[0])) {
+            if (! empty($highlightedContent->{$document->getId()}->content[0])) {
                 $content = implode(' [...] ', $highlightedContent->{$document->getId()}->content);
                 $document->setField('highlightedContent', $content);
             }
         }
     }
 
-    /**
-     * @param array $result
-     * @return array
-     */
     protected function addLinksToSearchResultData(array $result, SearchResultSet $searchResultSet): array
     {
         $result['search']['links']['first'] = $searchResultSet->getFirstUrl();
@@ -110,7 +100,7 @@ class SearchResultSetConverterService implements SingletonInterface
         $result['search']['links']['last'] = $searchResultSet->getLastUrl();
 
         $result['search']['links'] = array_map(function ($uri) {
-            if (!$uri) {
+            if (! $uri) {
                 return $uri;
             }
             $uri = new Uri($uri);
@@ -120,16 +110,11 @@ class SearchResultSetConverterService implements SingletonInterface
                 return $query !== 'tx_solr[page]=1';
             });
             $queryString = trim(implode('&', $query), '&');
-            return (string)$uri->withQuery($queryString);
+            return (string) $uri->withQuery($queryString);
         }, $result['search']['links']);
         return $result;
     }
 
-
-    /**
-     * @param array $result
-     * @return array
-     */
     protected function addQueryToSearchResultData(array $result, SearchResultSet $searchResultSet): array
     {
         $result['result'] = [
@@ -143,11 +128,6 @@ class SearchResultSetConverterService implements SingletonInterface
         return $result;
     }
 
-
-    /**
-     * @param array $result
-     * @return array
-     */
     protected function addFacetsToSearchResultData(array $result, SearchResultSet $searchResultSet): array
     {
         if ($result['facetsDataValid'] = $searchResultSet->shouldAddFacetData()) {
@@ -156,27 +136,18 @@ class SearchResultSetConverterService implements SingletonInterface
         return $result;
     }
 
-    /**
-     * @param array $result
-     * @return array
-     */
     protected function addSortingToSearchResultData(array $result, SearchResultSet $searchResultSet): array
     {
         $result['sortings'] = $searchResultSet->getSortings()->getArrayCopy();
-        if (!$result['sortings']) {
+        if (! $result['sortings']) {
             unset($result['sortings']);
         }
         return $result;
     }
 
-
-    /**
-     * @param array $result
-     * @return array|void
-     */
     protected function groupSearchResultData(array $result, SearchResultSet $searchResultSet)
     {
-        if (!$searchResultSet->isGroupingEnabled()) {
+        if (! $searchResultSet->isGroupingEnabled()) {
             $result['result']['items'] = $searchResultSet->getSearchResults()->getArrayCopy();
             return $result;
         }

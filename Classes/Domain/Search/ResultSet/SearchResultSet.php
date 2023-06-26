@@ -2,41 +2,29 @@
 
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
-use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\AbstractOptionFacetItem;
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet as SolrSearchResult;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
-use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option;
-use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
-use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem;
 use Netlogix\Nxsolrajax\Service\SearchResultSetConverterService;
-use TYPO3\CMS\Core\Http\Uri;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
-use TYPO3\CMS\Extbase\Object\ObjectManager;
 
-class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet implements
-    JsonSerializable
+class SearchResultSet extends SolrSearchResult implements JsonSerializable
 {
 
     protected SearchUriBuilder $searchUriBuilder;
 
     protected UriBuilder $uriBuilder;
 
-    /**
-     * @var bool
-     */
     protected bool $forceAddFacetData = false;
 
-    /**
-     * @inheritdoc
-     */
     public function __construct()
     {
         parent::__construct();
 
-        $this->searchUriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(SearchUriBuilder::class);
-        $this->uriBuilder = GeneralUtility::makeInstance(ObjectManager::class)->get(UriBuilder::class);
+        $this->searchUriBuilder = GeneralUtility::makeInstance(SearchUriBuilder::class);
+        $this->uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
     }
 
     public function jsonSerialize(): array
@@ -46,7 +34,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
 
     public function getSuggestion(): string
     {
-        if (!$this->getHasSpellCheckingSuggestions()) {
+        if (! $this->getHasSpellCheckingSuggestions()) {
             return '';
         }
         return current($this->spellCheckingSuggestions)->getSuggestion();
@@ -70,7 +58,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
 
     public function getSuggestionUrl(): string
     {
-        if (!$this->getHasSpellCheckingSuggestions()) {
+        if (! $this->getHasSpellCheckingSuggestions()) {
             return '';
         }
         /** @var Suggestion $suggestion */
@@ -132,7 +120,7 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
         if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
             $uri = $this->searchUriBuilder->getResultPageUri(
                 $previousRequest,
-                (int)ceil($numberOfResults / $resultsPerPage)
+                (int) ceil($numberOfResults / $resultsPerPage)
             );
         }
         return $uri;
@@ -152,15 +140,5 @@ class SearchResultSet extends \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\S
     {
         $this->forceAddFacetData = $forceAddFacetData;
     }
-
-
-
-
-
-
-
-
-
-
 
 }

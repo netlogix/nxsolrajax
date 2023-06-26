@@ -6,15 +6,14 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\OptionBa
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\Node;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 class NodeTest extends UnitTestCase
 {
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanDetermineOwnActiveStateIfSelected()
+
+    #[Test]
+    public function itCanDetermineOwnActiveStateIfSelected(): void
     {
         $facetMock = $this->getMockBuilder(HierarchyFacet::class)
             ->disableOriginalConstructor()
@@ -25,11 +24,8 @@ class NodeTest extends UnitTestCase
         self::assertTrue($subject->isActive());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanDetermineOwnActiveStateIfNotSelected()
+    #[Test]
+    public function itCanDetermineOwnActiveStateIfNotSelected(): void
     {
         $facetMock = $this->getMockBuilder(HierarchyFacet::class)
             ->disableOriginalConstructor()
@@ -40,11 +36,8 @@ class NodeTest extends UnitTestCase
         self::assertFalse($subject->isActive());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanDetermineOwnActiveStateIfOneChildIsActive()
+    #[Test]
+    public function itCanDetermineOwnActiveStateIfOneChildIsActive(): void
     {
         $facetMock = $this->getMockBuilder(HierarchyFacet::class)
             ->disableOriginalConstructor()
@@ -65,11 +58,8 @@ class NodeTest extends UnitTestCase
         self::assertTrue($subject->isActive());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBeSerializedToJSON()
+    #[Test]
+    public function itCanBeSerializedToJSON(): void
     {
         $facetMock = $this->getMockBuilder(HierarchyFacet::class)
             ->disableOriginalConstructor()
@@ -84,10 +74,10 @@ class NodeTest extends UnitTestCase
 
         $subject = $this->getMockBuilder(Node::class)
             ->setConstructorArgs([$facetMock, null, $key, $label, $value, $count, $selected])
-            ->onlyMethods(['getUrl'])
+            ->onlyMethods(['getFacetItemUrl'])
             ->getMock();
 
-        $subject->method('getUrl')->willReturn($url);
+        $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
         self::assertIsString($jsonString);

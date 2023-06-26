@@ -5,15 +5,14 @@ declare(strict_types=1);
 namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet;
 
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResult;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class SearchResultTest extends UnitTestCase
 {
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBeSerializedToJSON()
+
+    #[Test]
+    public function itCanBeSerializedToJSON(): void
     {
         $data = [
             'id' => (string)rand(1, 9999999),
@@ -50,11 +49,8 @@ class SearchResultTest extends UnitTestCase
         self::assertEquals($data['url'], $jsonData['url']);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itReturnsHighlightedContentForContent()
+    #[Test]
+    public function itReturnsHighlightedContentForContent(): void
     {
         $data = ['highlightedContent' => uniqid('highlightedContent_')];
 
@@ -63,11 +59,8 @@ class SearchResultTest extends UnitTestCase
         self::assertEquals($data['highlightedContent'], $subject->getContent());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itReturnsAbstractForContent()
+    #[Test]
+    public function itReturnsAbstractForContent(): void
     {
         $data = ['abstract' => uniqid('abstract_')];
 
@@ -76,11 +69,8 @@ class SearchResultTest extends UnitTestCase
         self::assertEquals($data['abstract'], $subject->getContent());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itPrefersHighlightedContentForContent()
+    #[Test]
+    public function itPrefersHighlightedContentForContent(): void
     {
         $data = [
             'highlightedContent' => uniqid('highlightedContent_'),

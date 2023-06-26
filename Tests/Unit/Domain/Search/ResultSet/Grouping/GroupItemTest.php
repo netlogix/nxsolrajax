@@ -7,15 +7,14 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Grouping;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
 use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class GroupItemTest extends UnitTestCase
 {
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanBeSerializedToJSON()
+
+    #[Test]
+    public function itCanBeSerializedToJSON(): void
     {
         $groupName = uniqid('groupName_');
         $resultsPerPage = rand(1, 99999);

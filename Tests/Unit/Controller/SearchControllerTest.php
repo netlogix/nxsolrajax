@@ -5,42 +5,38 @@ declare(strict_types=1);
 namespace Netlogix\Nxsolrajax\Tests\Unit\Controller;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
-use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSetService;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequestBuilder;
 use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
-use ApacheSolrForTypo3\Solr\Mvc\Controller\SolrControllerContext;
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use ApacheSolrForTypo3\Solr\System\Solr\SolrUnavailableException;
-use Exception;
 use Netlogix\Nxsolrajax\Controller\SearchController;
-use Nimut\TestingFramework\Rendering\RenderingContextFixture;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
+use PHPUnit\Framework\Attributes\Test;
+use PHPUnit\Framework\MockObject\MockObject;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ResponseFactory;
+use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
+use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
+use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
-use TYPO3\CMS\Extbase\Mvc\Response;
 use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
-use TYPO3Fluid\Fluid\Core\Compiler\TemplateCompiler;
-use TYPO3Fluid\Fluid\Core\Parser\TemplateParser;
-use TYPO3Fluid\Fluid\Core\ViewHelper\ViewHelperVariableContainer;
-use TYPO3Fluid\Fluid\View\TemplatePaths;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class SearchControllerTest extends UnitTestCase
 {
+    protected bool $resetSingletonInstances = true;
+
     public function setUp(): void
     {
         parent::setUp();
 
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['interceptors'] = [];
-
-        $GLOBALS['TSFE'] = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'] = [];
     }
 
@@ -48,130 +44,88 @@ class SearchControllerTest extends UnitTestCase
     {
         parent::tearDown();
 
-        unset($_SERVER['HTTP_ACCEPT'], $GLOBALS['TYPO3_CONF_VARS']['EXTCONF']['nxsolrajax']['modifySuggestions'], $GLOBALS['TSFE']);
         unset($GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['interceptors']);
 
         GeneralUtility::purgeInstances();
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function indexActionAddsContentTypeForJSONRequests()
+    #[Test]
+    public function indexActionAddsContentTypeForJSONRequests(): void
     {
-        $_SERVER['HTTP_ACCEPT'] = 'application/json';
-
-        $tsfeMock = $this->getMockBuilder(TypoScriptFrontendController::class)
+        $searchController = $this->getMockBuilder(SearchController::class)
             ->disableOriginalConstructor()
-            ->onlyMethods([])
+            ->onlyMethods(['getSearchResultSet'])
             ->getMock();
-
-
-        $subject = $this->getMockBuilder(SearchController::class)
-            ->onlyMethods(['getSearchResultSet', 'getTypoScriptFrontendController'])
-            ->getMock();
-        $subject->method('getSearchResultSet')->willReturn(
+        $searchController->method('getSearchResultSet')->willReturn(
             new SearchResultSet()
         );
-        $subject->method('getTypoScriptFrontendController')->willReturn($tsfeMock);
 
-        $this->inject($subject, 'responseFactory', new ResponseFactory());
-        $this->inject($subject, 'streamFactory', new StreamFactory());
+        $this->inject($searchController, 'responseFactory', new ResponseFactory());
+        $this->inject($searchController, 'streamFactory', new StreamFactory());
+        $this->inject(
+            $searchController,
+            'request',
+            $this->createRequest()
+                ->withHeader('Accept', 'application/json')
+        );
+        $response = $searchController->indexAction();
 
-        $res = $subject->indexAction();
-
-        self::assertEquals('application/json; charset=utf-8', $res->getHeaderLine('Content-Type'));
+        self::assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function indexActionWillHandleSolrUnavailable()
+    #[Test]
+    public function indexActionWillHandleSolrUnavailable(): void
     {
-        // use an exception to verify that the method was called and then break out of the stack to prevent further actions
-        $time = time();
-        $this->expectExceptionCode($time);
-
-        $subject = $this->getMockBuilder(SearchController::class)
+        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getSearchResultSet', 'handleSolrUnavailable'])
+            ->onlyMethods(['getLoggingExceptions'])
+            ->getMock();
+        $typoScriptConfiguration->method('getLoggingExceptions')->willReturn(false);
+
+        $searchController = $this->getMockBuilder(SearchController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getSearchResultSet'])
             ->getMock();
 
-        $message = uniqid('message_');
-        $number = time();
+        $searchController->method('getSearchResultSet')
+            ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
-        $subject->method('getSearchResultSet')->willThrowException(new SolrUnavailableException($message, $number));
-        $subject->expects(self::once())->method('handleSolrUnavailable')->willThrowException(
-            new Exception(uniqid(), $time)
-        );
+        $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
-        $subject->indexAction();
+        $response = $searchController->indexAction();
+        self::assertInstanceOf(ForwardResponse::class, $response);
+        self::assertEquals('solrNotAvailable', $response->getActionName());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function indexActionAddsDataToView()
+    #[Test]
+    public function indexActionAddsDataToView(): void
     {
         $viewMock = $this->getMockBuilder(TemplateView::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['assign'])
             ->getMock();
-        $viewMock->expects(self::exactly(2))->method('assign')->withConsecutive(['resultSet'], ['resultSetJson']);
 
-        $renderingContext = new RenderingContextFixture();
-        $renderingContext->injectViewHelperVariableContainer(new ViewHelperVariableContainer());
-        $renderingContext->setTemplateCompiler(new TemplateCompiler());
-        $renderingContext->setTemplateParser(new TemplateParser());
-        $renderingContext->setTemplatePaths(new TemplatePaths());
+        $viewMock->expects(self::exactly(1))
+            ->method('assign')
+            ->with('resultSet', []);
 
-        $viewMock->setRenderingContext($renderingContext);
-
-        $subject = $this->getMockBuilder(SearchController::class)
+        $searchController = $this->getMockBuilder(SearchController::class)
             ->onlyMethods(['getSearchResultSet', 'htmlResponse'])
             ->getMock();
-        $subject->method('getSearchResultSet')->willReturn(
-            new SearchResultSet()
-        );
-        $subject->method('htmlResponse')->willReturn(
-            new \TYPO3\CMS\Core\Http\Response()
-        );
 
+        $searchController->method('getSearchResultSet')->willReturn(new SearchResultSet());
+        $searchController->method('htmlResponse')->willReturn(new Response());
 
-        $this->inject($subject, 'view', $viewMock);
-        $this->inject($subject, 'responseFactory', new ResponseFactory());
-        $this->inject($subject, 'streamFactory', new StreamFactory());
+        $this->inject($searchController, 'view', $viewMock);
+        $this->inject($searchController, 'responseFactory', new ResponseFactory());
+        $this->inject($searchController, 'streamFactory', new StreamFactory());
+        $this->inject($searchController, 'request', $this->createRequest());
 
-        $subject->indexAction();
+        $searchController->indexAction();
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function resultsActionWillApplyHeadersToResponse()
-    {
-        $subject = $this->getMockBuilder(SearchController::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getSearchResultSet', 'applyHttpHeadersToResponse'])
-            ->getMock();
-        $subject->method('getSearchResultSet')->willReturn(new SearchResultSet());
-        $subject->expects(self::once())->method('applyHttpHeadersToResponse');
-
-        $this->inject($subject, 'responseFactory', new ResponseFactory());
-        $this->inject($subject, 'streamFactory', new StreamFactory());
-
-        $subject->resultsAction();
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function resultsActionWillReturnResultsAsJSON()
+    #[Test]
+    public function resultsActionWillReturnResultsAsJson(): void
     {
         $subject = $this->getMockBuilder(SearchController::class)
             ->disableOriginalConstructor()
@@ -182,144 +136,115 @@ class SearchControllerTest extends UnitTestCase
         $this->inject($subject, 'responseFactory', new ResponseFactory());
         $this->inject($subject, 'streamFactory', new StreamFactory());
 
-        $res = $subject->resultsAction();
-
-        self::assertEquals('application/json; charset=utf-8', $res->getHeaderLine('Content-Type'));
+        $response = $subject->resultsAction();
+        self::assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
-
-    /**
-     * @test
-     * @return void
-     */
-    public function resultActionWillHandleSolrUnavailable()
+    #[Test]
+    public function resultActionWillHandleSolrUnavailable(): void
     {
-        // use an exception to verify that the method was called and then break out of the stack to prevent further actions
-        $time = time();
-        $this->expectExceptionCode($time);
-
-        $subject = $this->getMockBuilder(SearchController::class)
+        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getSearchResultSet', 'handleSolrUnavailable'])
+            ->onlyMethods(['getLoggingExceptions'])
+            ->getMock();
+        $typoScriptConfiguration->method('getLoggingExceptions')->willReturn(false);
+
+        $searchController = $this->getMockBuilder(SearchController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getSearchResultSet'])
             ->getMock();
 
-        $message = uniqid('message_');
-        $number = time();
+        $searchController->method('getSearchResultSet')
+            ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
-        $subject->method('getSearchResultSet')->willThrowException(new SolrUnavailableException($message, $number));
-        $subject->expects(self::once())->method('handleSolrUnavailable')->willThrowException(
-            new Exception(uniqid(), $time)
-        );
+        $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
-        $subject->indexAction();
+        $response = $searchController->resultsAction();
+        self::assertInstanceOf(ForwardResponse::class, $response);
+        self::assertEquals('solrNotAvailable', $response->getActionName());
     }
 
-
-    /**
-     * @test
-     * @return void
-     */
-    public function suggestActionWillHandleSolrUnavailable()
+    #[Test]
+    public function suggestActionsWillReturnResultsAsJson(): void
     {
-        $subject = new SearchController();
+        $queryString = uniqid('query_');
+        $request = $this->createRequest()
+            ->withArgument('q', $queryString);
 
-        $request = new Request();
-        $request->setArgument('q', uniqid('query_'));
-        $this->inject($subject, 'request', $request);
+        $typoScriptFrontendController =$this->typoscritpFrontendControllerMock();
+        $typoscriptConfiguration = new TypoScriptConfiguration([], (int) $typoScriptFrontendController->getRequestedId());
 
-        $mockSuggestService = $this->getMockBuilder(SuggestService::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['getSuggestions'])
-            ->getMock();
-        $mockSuggestService->method('getSuggestions')->willThrowException(new SolrUnavailableException());
-        GeneralUtility::addInstance(SuggestService::class, $mockSuggestService);
-
-        $mockTSFE = $this->getMockBuilder(TypoScriptFrontendController::class)
+        $searchRequest = $this->getMockBuilder(SearchRequest::class)
             ->disableOriginalConstructor()
             ->onlyMethods([])
             ->getMock();
-        $mockTSFE->id = (string)rand(1, 9999);
-        $this->inject($subject, 'typoScriptFrontendController', $mockTSFE);
 
-        $typoscriptConfiguration = new TypoScriptConfiguration([], (int)$mockTSFE->id);
-        $this->inject($subject, 'typoScriptConfiguration', $typoscriptConfiguration);
+        $searchRequestBuilder = $this->getMockBuilder(SearchRequestBuilder::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['buildForSuggest'])
+            ->getMock();
+        $searchRequestBuilder->method('buildForSuggest')->willReturn($searchRequest);
 
-        $res = $subject->suggestAction();
+        $suggestService = $this->getMockBuilder(SuggestService::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getSuggestions'])
+            ->getMock();
 
-        self::assertInstanceOf(ForwardResponse::class, $res);
+        $suggestions = ['asdasdasdasd a sdasdsa'];
+        $suggestService->method('getSuggestions')->willReturn($suggestions);
+
+        GeneralUtility::addInstance(SuggestService::class, $suggestService);
+        GeneralUtility::addInstance(SearchRequestBuilder::class, $searchRequestBuilder);
+        $this->registerEvent(AfterGetSuggestionsEvent::class, $queryString, $suggestions, $typoscriptConfiguration);
+
+        $searchController = $this->getMockBuilder(SearchController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods([])
+            ->getMock();
+
+        $this->inject($searchController, 'request', $request);
+        $this->inject($searchController, 'typoScriptFrontendController', $typoScriptFrontendController);
+        $this->inject($searchController, 'typoScriptConfiguration', $typoscriptConfiguration);
+        $this->inject($searchController, 'responseFactory', new ResponseFactory());
+        $this->inject($searchController, 'streamFactory', new StreamFactory());
+
+        $result = $searchController->suggestAction();
+
+        self::assertEquals('application/json; charset=utf-8', $result->getHeaderLine('Content-Type'));
     }
 
-
-    /**
-     * @test
-     * @return void
-     */
-    public function isSetsSearchResultsInControllerContext()
+    #[Test]
+    public function suggestActionWillHandleSolrUnavailable(): void
     {
-        $subject = $this->getAccessibleMock(SearchController::class, ['dummy']);
-
-        $controllerContext = $this->getMockBuilder(SolrControllerContext::class)
+        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['setSearchResultSet'])
+            ->onlyMethods(['getLoggingExceptions'])
             ->getMock();
-        $controllerContext->expects(self::once())->method('setSearchResultSet');
-        $this->inject($subject, 'controllerContext', $controllerContext);
+        $typoScriptConfiguration->method('getLoggingExceptions')->willReturn(false);
 
-        $request = new Request();
-        $this->inject($subject, 'request', $request);
-
-        $mockTSFE = $this->getMockBuilder(TypoScriptFrontendController::class)
+        $searchController = $this->getMockBuilder(SearchController::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getRequestedId'])
+            ->onlyMethods(['getSearchRequest'])
             ->getMock();
-        $mockTSFE->method('getRequestedId')->willReturn(rand(1, 9999));
-        $this->inject($subject, 'typoScriptFrontendController', $mockTSFE);
 
-        $searchRequest = new SearchRequest();
+        $searchController->method('getSearchRequest')
+            ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
-        $searchRequestBuilderMock = $this->getMockBuilder(SearchRequestBuilder::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['buildForSearch'])
-            ->getMock();
-        $searchRequestBuilderMock->method('buildForSearch')->willReturn($searchRequest);
-        $this->inject($subject, 'searchRequestBuilder', $searchRequestBuilderMock);
+        $this->inject(
+            $searchController,
+            'request',
+            $this->createRequest()
+                ->withArgument('q', uniqid('query_'))
+        );
+        $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
-        $searchResultSet = new SearchResultSet();
-
-        $searchServiceMock = $this->getMockBuilder(SearchResultSetService::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['search'])
-            ->getMock();
-        $searchServiceMock->expects(self::once())->method('search')->with($searchRequest)->willReturn($searchResultSet);
-        $this->inject($subject, 'searchService', $searchServiceMock);
-
-        $res = $subject->_call('getSearchResultSet');
-
-        self::assertSame($searchResultSet, $res);
+        $response = $searchController->suggestAction();
+        self::assertInstanceOf(ForwardResponse::class, $response);
+        self::assertEquals('solrNotAvailable', $response->getActionName());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itCanGetTSFE()
-    {
-        $subject = $this->getAccessibleMock(SearchController::class, ['dummy']);
-
-        $GLOBALS['TSFE'] = $this->getMockBuilder(TypoScriptFrontendController::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $res = $subject->_call('getTypoScriptFrontendController');
-
-        self::assertSame($GLOBALS['TSFE'], $res);
-    }
-
-    /**
-     * @test
-     * @return void
-     */
-    public function solrNotAvailableActionReturnsJsonResponse()
+    #[Test]
+    public function solrNotAvailableActionReturnsJsonResponse(): void
     {
         $subject = new SearchController();
 
@@ -336,11 +261,8 @@ class SearchControllerTest extends UnitTestCase
         self::assertEquals(JSON_ERROR_NONE, json_last_error(), 'failed decoding content to JSON');
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function solrNotAvailableActionReturnsErrorsInResponse()
+    #[Test]
+    public function solrNotAvailableActionReturnsErrorsInResponse(): void
     {
         $subject = new SearchController();
 
@@ -362,12 +284,10 @@ class SearchControllerTest extends UnitTestCase
         self::assertEmpty($resData['message']);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itStartsErrorHandlingIfSolrIsUnavailable() {
-        $expectedResponse = new \TYPO3\CMS\Core\Http\Response();
+    #[Test]
+    public function itStartsErrorHandlingIfSolrIsUnavailable(): void
+    {
+        $expectedResponse = new Response();
 
         $subject = $this->getMockBuilder(SearchController::class)
             ->disableOriginalConstructor()
@@ -380,5 +300,73 @@ class SearchControllerTest extends UnitTestCase
         $res = $subject->resultsAction();
 
         self::assertSame($expectedResponse, $res);
+    }
+
+    protected function inject($target, $name, $dependency)
+    {
+        if (! is_object($target)) {
+            throw new \InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
+        }
+
+        $objectReflection = new \ReflectionObject($target);
+        $methodNamePart = strtoupper($name[0]) . substr($name, 1);
+        if ($objectReflection->hasMethod('set' . $methodNamePart)) {
+            $methodName = 'set' . $methodNamePart;
+            $target->$methodName($dependency);
+        } elseif ($objectReflection->hasMethod('inject' . $methodNamePart)) {
+            $methodName = 'inject' . $methodNamePart;
+            $target->$methodName($dependency);
+        } elseif ($objectReflection->hasProperty($name)) {
+            $property = $objectReflection->getProperty($name);
+            $property->setAccessible(true);
+            $property->setValue($target, $dependency);
+        } else {
+            throw new \RuntimeException(
+                'Could not inject ' . $name . ' into object of type ' . get_class($target),
+                1476107339
+            );
+        }
+    }
+
+    protected function createRequest(): Request
+    {
+        $serverRequest = (new ServerRequest())->withAttribute('extbase', new ExtbaseRequestParameters());
+        return (new Request($serverRequest))
+            ->withControllerExtensionName('SearchController')
+            ->withControllerName('Search')
+            ->withControllerActionName('index');
+    }
+
+    protected function typoscritpFrontendControllerMock(): TypoScriptFrontendController
+    {
+
+        $siteLanguage = $this->getMockBuilder(SiteLanguage::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getLanguageId'])
+            ->getMock();
+        $siteLanguage->method('getLanguageId')->willReturn(0);
+
+        $mock = $this->getMockBuilder(TypoScriptFrontendController::class)
+            ->disableOriginalConstructor()
+            ->onlyMethods(['getRequestedId', 'getLanguage'])
+            ->getMock();
+        $mock->method('getRequestedId')->willReturn(1);
+        $mock->method('getLanguage')->willReturn($siteLanguage);
+        return $mock;
+    }
+
+    protected function registerEvent(string $className, ...$args): EventDispatcherInterface&MockObject
+    {
+        $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $eventDispatcher->expects(self::once())->method('dispatch')->with(
+            self::isInstanceOf($className)
+        )->willReturn(new $className(...$args));
+
+        GeneralUtility::addInstance(EventDispatcherInterface::class, $eventDispatcher);
+
+        return $eventDispatcher;
     }
 }

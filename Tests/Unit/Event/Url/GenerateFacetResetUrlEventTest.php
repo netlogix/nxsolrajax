@@ -6,15 +6,15 @@ namespace Netlogix\Nxsolrajax\Tests\Unit\Event\Url;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacet;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent;
-use Nimut\TestingFramework\TestCase\UnitTestCase;
+use PHPUnit\Framework\Attributes\Test;
+use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class GenerateFacetResetUrlEventTest extends UnitTestCase
 {
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesFacet()
+    protected bool $resetSingletonInstances = true;
+
+    #[Test]
+    public function itExposesFacet(): void
     {
         $facetMock = $this->getMockBuilder(AbstractFacet::class)
             ->disableOriginalConstructor()
@@ -22,14 +22,11 @@ class GenerateFacetResetUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetResetUrlEvent($facetMock, '');
 
-        self::assertEquals($facetMock, $subject->getFacet());
+        self::assertEquals($facetMock, $subject->facet);
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itExposesUrl()
+    #[Test]
+    public function itExposesUrl(): void
     {
         $url = uniqid('https://www.example.com/');
 
@@ -42,11 +39,8 @@ class GenerateFacetResetUrlEventTest extends UnitTestCase
         self::assertEquals($url, $subject->getUrl());
     }
 
-    /**
-     * @test
-     * @return void
-     */
-    public function itAllowsManipulationOfUrl()
+    #[Test]
+    public function itAllowsManipulationOfUrl(): void
     {
         $url1 = uniqid('https://www.example.com/');
         $url2 = uniqid('https://www.example.com/');
