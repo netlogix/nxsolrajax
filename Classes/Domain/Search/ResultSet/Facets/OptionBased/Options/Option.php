@@ -44,7 +44,7 @@ class Option extends SolrOption implements JsonSerializable
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $settings = $this->getFacet()->getConfiguration();
-        $keepAllOptionsOnSelection = (int) $settings['keepAllOptionsOnSelection'];
+        $keepAllOptionsOnSelection = (int) ($settings['keepAllOptionsOnSelection'] ?? 0);
         $operator = strtolower($settings['operator'] ?? '') ?: 'and';
         return match (true) {
             $keepAllOptionsOnSelection == 1 && $operator == 'or', $keepAllOptionsOnSelection == 0 => $searchUriBuilder->getAddFacetValueUri(
@@ -76,7 +76,7 @@ class Option extends SolrOption implements JsonSerializable
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $settings = $this->getFacet()->getConfiguration();
-        $keepAllOptionsOnSelection = (int) $settings['keepAllOptionsOnSelection'];
+        $keepAllOptionsOnSelection = (int) ($settings['keepAllOptionsOnSelection'] ?? 0);
         $operator = strtolower($settings['operator'] ?? '') ?: 'and';
         return match (true) {
             $keepAllOptionsOnSelection == 1 && $operator == 'or', $keepAllOptionsOnSelection == 0 => $searchUriBuilder->getRemoveFacetValueUri(

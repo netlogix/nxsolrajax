@@ -22,7 +22,7 @@ class SearchResult extends SolrSearchResult implements JsonSerializable
 
     public function getContent(): string
     {
-        return $this->fields['highlightedContent'] ?? $this->fields['abstract'];
+        return $this->fields['highlightedContent'] ?? $this->fields['abstract'] ?? '';
     }
 
     public function getImage(): string

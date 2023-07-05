@@ -8,6 +8,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Service\SearchResultSetConverterService;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\RequestInterface;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 
 class SearchResultSet extends SolrSearchResult implements JsonSerializable
@@ -19,12 +20,21 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
 
     protected bool $forceAddFacetData = false;
 
+    protected ?RequestInterface $request = null;
+
     public function __construct()
     {
         parent::__construct();
 
         $this->searchUriBuilder = GeneralUtility::makeInstance(SearchUriBuilder::class);
         $this->uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
+    }
+
+    public function setRequest(RequestInterface $request)
+    {
+        $this->request = $request;
+        $this->uriBuilder->setRequest($request);
+        $this->searchUriBuilder->injectUriBuilder($this->uriBuilder);
     }
 
     public function jsonSerialize(): array
