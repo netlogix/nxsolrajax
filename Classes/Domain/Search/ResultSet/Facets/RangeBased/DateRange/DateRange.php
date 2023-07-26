@@ -26,7 +26,7 @@ class DateRange extends SolrDateRange implements JsonSerializable
 
     public function getUrl(): string
     {
-        return $this->getFacetItemUrl($this, '{dateRange}');
+        return $this->getFacetItemUrl($this, '___FROM___-___TO___');
     }
 
 }
