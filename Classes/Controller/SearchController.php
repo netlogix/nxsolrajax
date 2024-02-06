@@ -12,6 +12,7 @@ use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 
 class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchController
 {
@@ -54,11 +55,15 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
      */
     public function suggestAction(): ResponseInterface
     {
-        $queryString = $this->request->getArgument('q');
-        $additionalFilters = $this->request->hasArgument('filters') ? $this->request->getArgument('filters') : [];
+        try {
+            $queryString = $this->request->getArgument('q');
+            $additionalFilters = $this->request->hasArgument('filters') ? $this->request->getArgument('filters') : [];
+        } catch (NoSuchArgumentException $e) {
+            return $this->jsonResponse(json_encode([]));
+        }
 
         try {
-            $searchRequest = $this->getSearchRequest();
+            $searchRequest = $this->getSuggestRequest();
             $suggestService = GeneralUtility::makeInstance(
                 SuggestService::class,
                 $this->typoScriptFrontendController,
@@ -108,12 +113,34 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         // to access it without passing it from partial to partial
         $this->view->getRenderingContext()->getVariableProvider()->add('searchResultSet', $searchResultSet);
 
+        $searchResultSet->setRequest($this->request);
         return $searchResultSet;
     }
 
     protected function getSearchRequest(): SearchRequest
     {
-        $rawQuery = htmlspecialchars(mb_strtolower(trim($this->request->getArgument('q'))));
+        if ($this->request->hasArgument('q')) {
+            $rawQuery = htmlspecialchars(mb_strtolower(trim($this->request->getArgument('q'))));
+        } else {
+            $rawQuery = '';
+        }
+        $arguments = $this->request->getArguments();
+        $pageId = $this->typoScriptFrontendController->getRequestedId();
+        $languageId = $this->typoScriptFrontendController->getLanguage()->getLanguageId();
+        return $this->getSearchRequestBuilder()->buildForSearch(
+            $arguments,
+            $pageId,
+            $languageId
+        );
+    }
+
+    protected function getSuggestRequest(): SearchRequest
+    {
+        if ($this->request->hasArgument('q')) {
+            $rawQuery = htmlspecialchars(mb_strtolower(trim($this->request->getArgument('q'))));
+        } else {
+            $rawQuery = '';
+        }
         $arguments = $this->request->getArguments();
         $pageId = $this->typoScriptFrontendController->getRequestedId();
         $languageId = $this->typoScriptFrontendController->getLanguage()->getLanguageId();

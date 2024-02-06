@@ -224,10 +224,10 @@ class SearchControllerTest extends UnitTestCase
 
         $searchController = $this->getMockBuilder(SearchController::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getSearchRequest'])
+            ->onlyMethods(['getSuggestRequest'])
             ->getMock();
 
-        $searchController->method('getSearchRequest')
+        $searchController->method('getSuggestRequest')
             ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
         $this->inject(
