@@ -15,6 +15,7 @@ use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use ReflectionClass;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
@@ -171,7 +172,7 @@ class SearchControllerTest extends UnitTestCase
         $request = $this->createRequest()
             ->withArgument('q', $queryString);
 
-        $typoScriptFrontendController =$this->typoscritpFrontendControllerMock();
+        $typoScriptFrontendController =$this->typoscriptFrontendControllerMock();
         $typoscriptConfiguration = new TypoScriptConfiguration([], (int) $typoScriptFrontendController->getRequestedId());
 
         $searchRequest = $this->getMockBuilder(SearchRequest::class)
@@ -244,10 +245,39 @@ class SearchControllerTest extends UnitTestCase
     }
 
     #[Test]
+    public function solrNotAvailableActionReturnsHtmlResponse(): void
+    {
+        $subject = new SearchController();
+
+        $this->inject(
+            $subject,
+            'request',
+            $this->createRequest()
+                ->withHeader('Accept', 'text/html')
+        );
+        $subject->injectResponseFactory(new ResponseFactory());
+        $subject->injectStreamFactory(new StreamFactory());
+
+        $res = $subject->solrNotAvailableAction();
+
+        self::assertEquals('text/html; charset=utf-8', $res->getHeaderLine('Content-Type'));
+
+        $res->getBody()->rewind();
+
+        self::assertEquals('Apache Solr Server is not available.', $res->getBody()->getContents());
+    }
+
+    #[Test]
     public function solrNotAvailableActionReturnsJsonResponse(): void
     {
         $subject = new SearchController();
 
+        $this->inject(
+            $subject,
+            'request',
+            $this->createRequest()
+                ->withHeader('Accept', 'application/json')
+        );
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
@@ -266,6 +296,12 @@ class SearchControllerTest extends UnitTestCase
     {
         $subject = new SearchController();
 
+        $this->inject(
+            $subject,
+            'request',
+            $this->createRequest()
+                ->withHeader('Accept', 'application/json')
+        );
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
@@ -281,7 +317,7 @@ class SearchControllerTest extends UnitTestCase
         self::assertEquals(503, $resData['status']);
 
         self::assertArrayHasKey('message', $resData);
-        self::assertEmpty($resData['message']);
+        self::assertEquals('Apache Solr Server is not available.', $resData['message']);
     }
 
     #[Test]
@@ -337,7 +373,7 @@ class SearchControllerTest extends UnitTestCase
             ->withControllerActionName('index');
     }
 
-    protected function typoscritpFrontendControllerMock(): TypoScriptFrontendController
+    protected function typoscriptFrontendControllerMock(): TypoScriptFrontendController
     {
 
         $siteLanguage = $this->getMockBuilder(SiteLanguage::class)
