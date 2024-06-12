@@ -99,9 +99,10 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
 
     public function solrNotAvailableAction(): ResponseInterface
     {
-        return $this->responseFactory->createResponse(503, self::STATUS_503_MESSAGE)
-            ->withHeader('Content-Type', 'application/json; charset=utf-8')
-            ->withBody($this->streamFactory->createStream(json_encode(['status' => 503, 'message' => ''])));
+        return strpos($this->request->getHeaderLine('Accept') ?? '', 'application/json') !== false
+            ? $this->jsonResponse(json_encode(['status' => 503, 'message' => self::STATUS_503_MESSAGE]))
+            : $this->htmlResponse(self::STATUS_503_MESSAGE)
+                ->withStatus(503, self::STATUS_503_MESSAGE);
     }
 
     protected function getSearchResultSet(): SolrSearchResultSet
