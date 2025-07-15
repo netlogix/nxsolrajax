@@ -1,0 +1,4 @@
+name: netlogix/nxsolrajax
+label: Solrajax
+dependencies:
+  - netlogix/nxajaxpluginpage

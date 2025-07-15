@@ -20,7 +20,7 @@ class DateRangeFacetTest extends UnitTestCase
         $name = uniqid('name_');
         $field = uniqid('_field');
         $label = uniqid('_label');
-        $isUsed = rand(0, 999) % 2 == 0;
+        $isUsed = random_int(0, 999) % 2 == 0;
         $resetUrl = sprintf('https://www.example.com/%s', $name);
         $options = ['foo' => uniqid('bar_')];
 
@@ -42,30 +42,30 @@ class DateRangeFacetTest extends UnitTestCase
 
         $jsonString = json_encode($subject);
 
-        self::assertNotEmpty($jsonString);
+        $this->assertNotEmpty($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
-        self::assertNotEmpty($jsonData);
+        $this->assertIsArray($jsonData);
+        $this->assertNotEmpty($jsonData);
 
-        self::assertArrayHasKey('name', $jsonData);
-        self::assertEquals($jsonData['name'], $name);
+        $this->assertArrayHasKey('name', $jsonData);
+        $this->assertEquals($jsonData['name'], $name);
 
-        self::assertArrayHasKey('type', $jsonData);
-        self::assertEquals(DateRangeFacetAlias::TYPE_DATE_RANGE, $jsonData['type']);
+        $this->assertArrayHasKey('type', $jsonData);
+        $this->assertEquals(DateRangeFacetAlias::TYPE_DATE_RANGE, $jsonData['type']);
 
-        self::assertArrayHasKey('label', $jsonData);
-        self::assertEquals($jsonData['label'], $label);
+        $this->assertArrayHasKey('label', $jsonData);
+        $this->assertEquals($jsonData['label'], $label);
 
-        self::assertArrayHasKey('used', $jsonData);
-        self::assertEquals($jsonData['used'], $isUsed);
+        $this->assertArrayHasKey('used', $jsonData);
+        $this->assertEquals($jsonData['used'], $isUsed);
 
-        self::assertArrayHasKey('options', $jsonData);
+        $this->assertArrayHasKey('options', $jsonData);
         // fixme this does not export options but dateRange
 //        self::assertEquals($jsonData['options'], $options);
 
-        self::assertArrayHasKey('links', $jsonData);
-        self::assertArrayHasKey('reset', $jsonData['links']);
-        self::assertEquals($jsonData['links']['reset'], $resetUrl);
+        $this->assertArrayHasKey('links', $jsonData);
+        $this->assertArrayHasKey('reset', $jsonData['links']);
+        $this->assertEquals($jsonData['links']['reset'], $resetUrl);
     }
 }

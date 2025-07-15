@@ -22,7 +22,7 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, '');
 
-        self::assertEquals($facetMock, $subject->facetItem);
+        $this->assertEquals($facetMock, $subject->facetItem);
     }
 
     #[Test]
@@ -36,7 +36,7 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, '', $overrideUriValue);
 
-        self::assertEquals($overrideUriValue, $subject->overrideUriValue);
+        $this->assertSame($overrideUriValue, $subject->overrideUriValue);
     }
 
 
@@ -51,7 +51,7 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, $url);
 
-        self::assertEquals($url, $subject->getUrl());
+        $this->assertSame($url, $subject->getUrl());
     }
 
     #[Test]
@@ -68,6 +68,6 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
 
         $subject->setUrl($url2);
 
-        self::assertEquals($url2, $subject->getUrl());
+        $this->assertSame($url2, $subject->getUrl());
     }
 }

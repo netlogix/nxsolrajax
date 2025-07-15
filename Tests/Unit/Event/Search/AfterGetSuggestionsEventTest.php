@@ -20,7 +20,7 @@ class AfterGetSuggestionsEventTest extends UnitTestCase
 
         $subject = new AfterGetSuggestionsEvent($query, [], new TypoScriptConfiguration([]));
 
-        self::assertSame($query, $subject->query);
+        $this->assertSame($query, $subject->query);
     }
 
     #[Test]
@@ -30,7 +30,7 @@ class AfterGetSuggestionsEventTest extends UnitTestCase
 
         $subject = new AfterGetSuggestionsEvent(uniqid('query_'), $suggestions, new TypoScriptConfiguration([]));
 
-        self::assertSame($suggestions, $subject->getSuggestions());
+        $this->assertSame($suggestions, $subject->getSuggestions());
     }
 
     #[Test]
@@ -40,11 +40,11 @@ class AfterGetSuggestionsEventTest extends UnitTestCase
 
         $subject = new AfterGetSuggestionsEvent(uniqid('query_'), $suggestions, new TypoScriptConfiguration([]));
 
-        self::assertEmpty($subject->getSuggestions());
+        $this->assertEmpty($subject->getSuggestions());
 
         $subject->setSuggestions([uniqid('suggestion_')]);
 
-        self::assertNotEmpty($subject->getSuggestions());
+        $this->assertNotEmpty($subject->getSuggestions());
     }
 
     #[Test]
@@ -54,7 +54,7 @@ class AfterGetSuggestionsEventTest extends UnitTestCase
 
         $subject = new AfterGetSuggestionsEvent(uniqid('query_'), [], $configuration);
 
-        self::assertSame($configuration, $subject->typoScriptConfiguration);
+        $this->assertSame($configuration, $subject->typoScriptConfiguration);
     }
 
 }

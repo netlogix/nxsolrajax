@@ -18,7 +18,7 @@ class QueryGroupFacetTest extends UnitTestCase
         $field = uniqid('field_');
         $label = uniqid('label_');
         $resetUrl = sprintf('https://www.example.com/%s', $name);
-        $isUsed = rand(0, 1) == 0;
+        $isUsed = random_int(0, 1) == 0;
 
         $subject = $this->getMockBuilder(QueryGroupFacet::class)
             ->setConstructorArgs([
@@ -35,31 +35,28 @@ class QueryGroupFacetTest extends UnitTestCase
         $subject->setIsUsed($isUsed);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('name', $jsonData);
-        self::assertEquals($name, $jsonData['name']);
+        $this->assertArrayHasKey('name', $jsonData);
+        $this->assertEquals($name, $jsonData['name']);
 
-        self::assertArrayHasKey('type', $jsonData);
-        self::assertEquals(
-            \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet::TYPE_QUERY_GROUP,
-            $jsonData['type']
-        );
+        $this->assertArrayHasKey('type', $jsonData);
+        $this->assertEquals(\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet::TYPE_QUERY_GROUP, $jsonData['type']);
 
-        self::assertArrayHasKey('label', $jsonData);
-        self::assertEquals($label, $jsonData['label']);
+        $this->assertArrayHasKey('label', $jsonData);
+        $this->assertEquals($label, $jsonData['label']);
 
-        self::assertArrayHasKey('used', $jsonData);
-        self::assertEquals($isUsed, $jsonData['used']);
+        $this->assertArrayHasKey('used', $jsonData);
+        $this->assertEquals($isUsed, $jsonData['used']);
 
-        self::assertArrayHasKey('options', $jsonData);
-        self::assertEquals([], $jsonData['options']);
+        $this->assertArrayHasKey('options', $jsonData);
+        $this->assertEquals([], $jsonData['options']);
 
-        self::assertArrayHasKey('links', $jsonData);
-        self::assertArrayHasKey('reset', $jsonData['links']);
-        self::assertEquals($resetUrl, $jsonData['links']['reset']);
+        $this->assertArrayHasKey('links', $jsonData);
+        $this->assertArrayHasKey('reset', $jsonData['links']);
+        $this->assertEquals($resetUrl, $jsonData['links']['reset']);
     }
 }

@@ -1,12 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\Option as SolrOption;
-use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent;
+use Netlogix\Nxsolrajax\Traits\SearchUriBuilderTrait;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
@@ -14,8 +16,9 @@ use function strtolower;
 
 class Option extends SolrOption implements JsonSerializable
 {
+    use SearchUriBuilderTrait;
 
-    function jsonSerialize(): array
+    public function jsonSerialize(): array
     {
         return [
             'label' => $this->getLabel(),
@@ -40,19 +43,18 @@ class Option extends SolrOption implements JsonSerializable
             return $url;
         }
 
-        $searchUriBuilder = GeneralUtility::makeInstance(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $settings = $this->getFacet()->getConfiguration();
         $keepAllOptionsOnSelection = (int) ($settings['keepAllOptionsOnSelection'] ?? 0);
-        $operator = strtolower($settings['operator'] ?? '') ?: 'and';
+        $operator = in_array(strtolower($settings['operator'] ?? ''), ['', '0'], true) ? 'and' : strtolower($settings['operator'] ?? '');
         return match (true) {
-            $keepAllOptionsOnSelection == 1 && $operator == 'or', $keepAllOptionsOnSelection == 0 => $searchUriBuilder->getAddFacetValueUri(
+            $keepAllOptionsOnSelection == 1 && $operator === 'or', $keepAllOptionsOnSelection == 0 => $this->searchUriBuilder->getAddFacetValueUri(
                 $previousRequest,
                 $this->getFacet()->getName(),
                 $this->getUriValue()
             ),
-            $keepAllOptionsOnSelection == 1 && $operator == 'and' => $searchUriBuilder->getSetFacetValueUri(
+            $keepAllOptionsOnSelection == 1 && $operator === 'and' => $this->searchUriBuilder->getSetFacetValueUri(
                 $previousRequest,
                 $this->getFacet()->getName(),
                 $this->getUriValue()
@@ -72,19 +74,18 @@ class Option extends SolrOption implements JsonSerializable
             return $url;
         }
 
-        $searchUriBuilder = GeneralUtility::makeInstance(SearchUriBuilder::class);
         $previousRequest = $this->getFacet()->getResultSet()->getUsedSearchRequest();
 
         $settings = $this->getFacet()->getConfiguration();
         $keepAllOptionsOnSelection = (int) ($settings['keepAllOptionsOnSelection'] ?? 0);
-        $operator = strtolower($settings['operator'] ?? '') ?: 'and';
+        $operator = in_array(strtolower($settings['operator'] ?? ''), ['', '0'], true) ? 'and' : strtolower($settings['operator'] ?? '');
         return match (true) {
-            $keepAllOptionsOnSelection == 1 && $operator == 'or', $keepAllOptionsOnSelection == 0 => $searchUriBuilder->getRemoveFacetValueUri(
+            $keepAllOptionsOnSelection == 1 && $operator === 'or', $keepAllOptionsOnSelection == 0 => $this->searchUriBuilder->getRemoveFacetValueUri(
                 $previousRequest,
                 $this->getFacet()->getName(),
                 $this->getUriValue()
             ),
-            $keepAllOptionsOnSelection == 1 && $operator == 'and' => $searchUriBuilder->getRemoveFacetUri(
+            $keepAllOptionsOnSelection == 1 && $operator === 'and' => $this->searchUriBuilder->getRemoveFacetUri(
                 $previousRequest,
                 $this->getFacet()->getName()
             ),

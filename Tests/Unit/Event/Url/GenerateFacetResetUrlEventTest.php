@@ -22,7 +22,7 @@ class GenerateFacetResetUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetResetUrlEvent($facetMock, '');
 
-        self::assertEquals($facetMock, $subject->facet);
+        $this->assertEquals($facetMock, $subject->facet);
     }
 
     #[Test]
@@ -36,7 +36,7 @@ class GenerateFacetResetUrlEventTest extends UnitTestCase
 
         $subject = new GenerateFacetResetUrlEvent($facetMock, $url);
 
-        self::assertEquals($url, $subject->getUrl());
+        $this->assertSame($url, $subject->getUrl());
     }
 
     #[Test]
@@ -53,6 +53,6 @@ class GenerateFacetResetUrlEventTest extends UnitTestCase
 
         $subject->setUrl($url2);
 
-        self::assertEquals($url2, $subject->getUrl());
+        $this->assertSame($url2, $subject->getUrl());
     }
 }

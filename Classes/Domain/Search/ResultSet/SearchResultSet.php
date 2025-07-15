@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet as SolrSearchResult;
@@ -30,7 +32,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         $this->uriBuilder = GeneralUtility::makeInstance(UriBuilder::class);
     }
 
-    public function setRequest(RequestInterface $request)
+    public function setRequest(RequestInterface $request): void
     {
         $this->request = $request;
         $this->uriBuilder->setRequest($request);
@@ -39,7 +41,9 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return GeneralUtility::makeInstance(SearchResultSetConverterService::class)->toArray($this);
+        return GeneralUtility::makeInstance(SearchResultSetConverterService::class)
+            ->setSearchUriBuilder($this->searchUriBuilder)
+            ->toArray($this);
     }
 
     public function getSuggestion(): string
@@ -47,6 +51,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         if (! $this->getHasSpellCheckingSuggestions()) {
             return '';
         }
+
         return current($this->spellCheckingSuggestions)->getSuggestion();
     }
 
@@ -63,7 +68,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
 
     public function getSuggestUrl(): string
     {
-        return $this->uriBuilder->reset()->setTargetPageType('1471261352')->build();
+        return $this->uriBuilder->reset()->setTargetPageType(1471261352)->build();
     }
 
     public function getSuggestionUrl(): string
@@ -71,6 +76,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         if (! $this->getHasSpellCheckingSuggestions()) {
             return '';
         }
+
         /** @var Suggestion $suggestion */
         $suggestion = current($this->spellCheckingSuggestions)->getSuggestion();
         $previousRequest = $this->getUsedSearchRequest();
@@ -85,12 +91,14 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         if ($page > 2) {
             $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, 1);
         }
+
         return $uri;
     }
 
     protected function getPage(): int
     {
-        return $this->getUsedSearchRequest()->getPage() ?: 1;
+        $page = $this->getUsedSearchRequest()->getPage();
+        return in_array($page, [null, 0], true) ? 1 : $page;
     }
 
     public function getPrevUrl(): string
@@ -101,6 +109,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         if ($page > 1) {
             $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page - 1);
         }
+
         return $uri;
     }
 
@@ -116,6 +125,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         if ($numberOfResults - $resultsPerPage > $resultOffset) {
             $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page + 1);
         }
+
         return $uri;
     }
 
@@ -133,6 +143,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
                 (int) ceil($numberOfResults / $resultsPerPage)
             );
         }
+
         return $uri;
     }
 
@@ -146,7 +157,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         return $this->searchResults->getHasGroups();
     }
 
-    public function forceAddFacetData(bool $forceAddFacetData = true)
+    public function forceAddFacetData(bool $forceAddFacetData = true): void
     {
         $this->forceAddFacetData = $forceAddFacetData;
     }

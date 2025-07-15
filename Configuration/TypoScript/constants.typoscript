@@ -2,4 +2,4 @@ plugin.tx_nxsolrajax {
 
 }
 
-plugin.txnxsolrpluginpage.list_type.json := addToList(nxsolrajax_index)
+plugin.tx_nxajaxpluginpage.CType.json := addToList(nxsolrajax_index)

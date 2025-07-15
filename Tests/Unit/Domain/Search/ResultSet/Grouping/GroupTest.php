@@ -15,23 +15,23 @@ class GroupTest extends UnitTestCase
     public function itCanBeSerializedToJSON(): void
     {
         $groupName = uniqid('groupName_');
-        $resultsPerPage = rand(1, 99999);
+        $resultsPerPage = random_int(1, 99999);
 
         $subject = new Group($groupName, $resultsPerPage);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('groupName', $jsonData);
-        self::assertEquals($groupName, $jsonData['groupName']);
+        $this->assertArrayHasKey('groupName', $jsonData);
+        $this->assertEquals($groupName, $jsonData['groupName']);
 
-        self::assertArrayHasKey('resultsPerPage', $jsonData);
-        self::assertEquals($resultsPerPage, $jsonData['resultsPerPage']);
+        $this->assertArrayHasKey('resultsPerPage', $jsonData);
+        $this->assertEquals($resultsPerPage, $jsonData['resultsPerPage']);
 
-        self::assertArrayHasKey('groupItems', $jsonData);
-        self::assertEquals([], $jsonData['groupItems']);
+        $this->assertArrayHasKey('groupItems', $jsonData);
+        $this->assertEquals([], $jsonData['groupItems']);
     }
 }

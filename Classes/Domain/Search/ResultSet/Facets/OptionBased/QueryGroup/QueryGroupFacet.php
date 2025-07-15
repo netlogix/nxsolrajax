@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet as SolrQueryGroupFacet;
@@ -10,14 +12,14 @@ class QueryGroupFacet extends SolrQueryGroupFacet implements JsonSerializable
 {
     use FacetUrlTrait;
 
-    function jsonSerialize(): array
+    public function jsonSerialize(): array
     {
         return [
             'name' => $this->getName(),
             'type' => self::TYPE_QUERY_GROUP,
             'label' => $this->getLabel(),
             'used' => $this->getIsUsed(),
-            'options' => array_values($this->getOptions()->getArrayCopy()),
+            'options' => $this->addSearchUriBuilderToOptions(array_values($this->getOptions()->getArrayCopy())),
             'links' => [
                 'reset' => $this->getResetUrl(),
             ]

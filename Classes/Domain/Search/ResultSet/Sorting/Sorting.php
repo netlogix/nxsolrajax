@@ -1,14 +1,16 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Sorting;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Sorting\Sorting as SolrSorting;
-use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use JsonSerializable;
-use TYPO3\CMS\Core\Utility\GeneralUtility;
+use Netlogix\Nxsolrajax\Traits\SearchUriBuilderTrait;
 
 class Sorting extends SolrSorting implements JsonSerializable
 {
+    use SearchUriBuilderTrait;
 
     public function jsonSerialize(): array
     {
@@ -23,21 +25,19 @@ class Sorting extends SolrSorting implements JsonSerializable
 
     public function getUrl(): string
     {
-        $searchUriBuilder = GeneralUtility::makeInstance(SearchUriBuilder::class);
         $previousRequest = $this->resultSet->getUsedSearchRequest();
 
         // This basically mimics the conditions from EXT:solr fluid partial
-        if ($this->getIsResetOption() === true) {
-            return $searchUriBuilder->getRemoveSortingUri($previousRequest);
-        } else {
-            return $searchUriBuilder->getSetSortingUri(
-                previousSearchRequest: $previousRequest,
-                sortingName: $this->getName(),
-                sortingDirection: match ($this->getSelected()) {
-                    true => $this->getOppositeDirection(),
-                    false => $this->getDirection(),
-                }
-            );
+        if ($this->getIsResetOption()) {
+            return $this->searchUriBuilder->getRemoveSortingUri($previousRequest);
         }
+        return $this->searchUriBuilder->getSetSortingUri(
+            previousSearchRequest: $previousRequest,
+            sortingName: $this->getName(),
+            sortingDirection: match ($this->getSelected()) {
+                true => $this->getOppositeDirection(),
+                false => $this->getDirection(),
+            }
+        );
     }
 }

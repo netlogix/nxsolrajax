@@ -27,7 +27,7 @@ class OptionTest extends UnitTestCase
 
         $label = uniqid('label_');
         $value = uniqid('value_');
-        $documentCount = rand(0, 999);
+        $documentCount = random_int(0, 999);
         $selected = $documentCount % 2 == 0;
         $url = sprintf('https://www.example.com/%s', $value);
 
@@ -45,25 +45,25 @@ class OptionTest extends UnitTestCase
         $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('label', $jsonData);
-        self::assertEquals($label, $jsonData['label']);
+        $this->assertArrayHasKey('label', $jsonData);
+        $this->assertEquals($label, $jsonData['label']);
 
-        self::assertArrayHasKey('name', $jsonData);
-        self::assertEquals($value, $jsonData['name']);
+        $this->assertArrayHasKey('name', $jsonData);
+        $this->assertEquals($value, $jsonData['name']);
 
-        self::assertArrayHasKey('count', $jsonData);
-        self::assertEquals($documentCount, $jsonData['count']);
+        $this->assertArrayHasKey('count', $jsonData);
+        $this->assertEquals($documentCount, $jsonData['count']);
 
-        self::assertArrayHasKey('selected', $jsonData);
-        self::assertEquals($selected, $jsonData['selected']);
+        $this->assertArrayHasKey('selected', $jsonData);
+        $this->assertEquals($selected, $jsonData['selected']);
 
-        self::assertArrayHasKey('links', $jsonData);
-        self::assertArrayHasKey('self', $jsonData['links']);
-        self::assertEquals($url, $jsonData['links']['self']);
+        $this->assertArrayHasKey('links', $jsonData);
+        $this->assertArrayHasKey('self', $jsonData['links']);
+        $this->assertEquals($url, $jsonData['links']['self']);
     }
 }

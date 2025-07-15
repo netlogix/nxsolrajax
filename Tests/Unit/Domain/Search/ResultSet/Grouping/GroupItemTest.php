@@ -17,12 +17,12 @@ class GroupItemTest extends UnitTestCase
     public function itCanBeSerializedToJSON(): void
     {
         $groupName = uniqid('groupName_');
-        $resultsPerPage = rand(1, 99999);
+        $resultsPerPage = random_int(1, 99999);
 
         $groupValue = uniqid('groupValue_');
-        $numFound = rand(0, 999);
-        $start = rand(0, 99);
-        $maxScore = rand(1, 99999) * .1;
+        $numFound = random_int(0, 999);
+        $start = random_int(0, 99);
+        $maxScore = random_int(1, 99999) * .1;
 
         $group = new Group($groupName, $resultsPerPage);
 
@@ -39,30 +39,30 @@ class GroupItemTest extends UnitTestCase
         $subject->setGroupLabel($groupLabel);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('label', $jsonData);
-        self::assertEquals($groupLabel, $jsonData['label']);
+        $this->assertArrayHasKey('label', $jsonData);
+        $this->assertEquals($groupLabel, $jsonData['label']);
 
-        self::assertArrayHasKey('name', $jsonData);
-        self::assertEquals($groupValue, $jsonData['name']);
+        $this->assertArrayHasKey('name', $jsonData);
+        $this->assertEquals($groupValue, $jsonData['name']);
 
-        self::assertArrayHasKey('totalResults', $jsonData);
-        self::assertEquals($numFound, $jsonData['totalResults']);
+        $this->assertArrayHasKey('totalResults', $jsonData);
+        $this->assertEquals($numFound, $jsonData['totalResults']);
 
-        self::assertArrayHasKey('start', $jsonData);
-        self::assertEquals($start, $jsonData['start']);
+        $this->assertArrayHasKey('start', $jsonData);
+        $this->assertEquals($start, $jsonData['start']);
 
-        self::assertArrayHasKey('maxScore', $jsonData);
-        self::assertEquals($maxScore, $jsonData['maxScore']);
+        $this->assertArrayHasKey('maxScore', $jsonData);
+        $this->assertEquals($maxScore, $jsonData['maxScore']);
 
-        self::assertArrayHasKey('url', $jsonData);
-        self::assertEquals($groupUrl, $jsonData['url']);
+        $this->assertArrayHasKey('url', $jsonData);
+        $this->assertEquals($groupUrl, $jsonData['url']);
 
-        self::assertArrayHasKey('items', $jsonData);
-        self::assertEquals([], $jsonData['items']);
+        $this->assertArrayHasKey('items', $jsonData);
+        $this->assertEquals([], $jsonData['items']);
     }
 }

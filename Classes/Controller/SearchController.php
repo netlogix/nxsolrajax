@@ -1,7 +1,10 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Controller;
 
+use Override;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet as SolrSearchResultSet;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use ApacheSolrForTypo3\Solr\Domain\Search\Suggest\SuggestService;
@@ -16,36 +19,33 @@ use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 
 class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchController
 {
-
     public function indexAction(): ResponseInterface
     {
         try {
             $searchResultSet = $this->getSearchResultSet();
-        } catch (SolrCommunicationException $e) {
+        } catch (SolrCommunicationException) {
             return $this->handleSolrUnavailable();
         }
-
-        if (strpos($this->request->getHeaderLine('Accept') ?? '', 'application/json') !== false) {
-            $response = $this->jsonResponse(json_encode($searchResultSet));
-        } else {
-            if ($searchResultSet instanceof SearchResultSet) {
-                $searchResultSet->forceAddFacetData();
-            }
-            $jsonData = json_encode($searchResultSet);
-            $this->view->assign('resultSet', json_decode($jsonData, true));
-
-            $response = $this->htmlResponse();
+        if (str_contains($this->request->getHeaderLine('Accept') ?? '', 'application/json')) {
+            return $this->jsonResponse(json_encode($searchResultSet));
+        }
+        if ($searchResultSet instanceof SearchResultSet) {
+            $searchResultSet->forceAddFacetData();
         }
 
-        return $response;
+        $jsonData = json_encode($searchResultSet);
+        $this->view->assign('resultSet', json_decode($jsonData, true));
+
+        return $this->htmlResponse();
     }
 
+    #[Override]
     public function resultsAction(): ResponseInterface
     {
         try {
             $searchResultSet = $this->getSearchResultSet();
             return $this->jsonResponse(json_encode($searchResultSet));
-        } catch (SolrCommunicationException $e) {
+        } catch (SolrCommunicationException) {
             return $this->handleSolrUnavailable();
         }
     }
@@ -58,7 +58,7 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
         try {
             $queryString = $this->request->getArgument('q');
             $additionalFilters = $this->request->hasArgument('filters') ? $this->request->getArgument('filters') : [];
-        } catch (NoSuchArgumentException $e) {
+        } catch (NoSuchArgumentException) {
             return $this->jsonResponse(json_encode([]));
         }
 
@@ -66,13 +66,12 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             $searchRequest = $this->getSuggestRequest();
             $suggestService = GeneralUtility::makeInstance(
                 SuggestService::class,
-                $this->typoScriptFrontendController,
-                $this->searchService,
-                $this->typoScriptConfiguration
+                $this->typoScriptConfiguration,
+                $this->searchService
             );
             assert($suggestService instanceof SuggestService);
 
-            $result = $suggestService->getSuggestions($searchRequest, $additionalFilters);
+            $result = $suggestService->getSuggestions($this->request, $searchRequest, $additionalFilters);
 
             $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)
                 ->dispatch(
@@ -92,14 +91,15 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             );
 
             return $this->jsonResponse(json_encode($suggestResult));
-        } catch (SolrCommunicationException $e) {
+        } catch (SolrCommunicationException) {
             return $this->handleSolrUnavailable();
         }
     }
 
+    #[Override]
     public function solrNotAvailableAction(): ResponseInterface
     {
-        return strpos($this->request->getHeaderLine('Accept') ?? '', 'application/json') !== false
+        return str_contains($this->request->getHeaderLine('Accept') ?? '', 'application/json')
             ? $this->jsonResponse(json_encode(['status' => 503, 'message' => self::STATUS_503_MESSAGE]))
             : $this->htmlResponse(self::STATUS_503_MESSAGE)
                 ->withStatus(503, self::STATUS_503_MESSAGE);
@@ -120,14 +120,9 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
 
     protected function getSearchRequest(): SearchRequest
     {
-        if ($this->request->hasArgument('q')) {
-            $rawQuery = htmlspecialchars(mb_strtolower(trim($this->request->getArgument('q'))));
-        } else {
-            $rawQuery = '';
-        }
         $arguments = $this->request->getArguments();
-        $pageId = $this->typoScriptFrontendController->getRequestedId();
-        $languageId = $this->typoScriptFrontendController->getLanguage()->getLanguageId();
+        $pageId = $this->request->getAttribute('routing')->getPageId();
+        $languageId = $this->request->getAttribute('language')->getLanguageId();
         return $this->getSearchRequestBuilder()->buildForSearch(
             $arguments,
             $pageId,
@@ -138,13 +133,14 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
     protected function getSuggestRequest(): SearchRequest
     {
         if ($this->request->hasArgument('q')) {
-            $rawQuery = htmlspecialchars(mb_strtolower(trim($this->request->getArgument('q'))));
+            $rawQuery = htmlspecialchars(mb_strtolower(trim((string) $this->request->getArgument('q'))));
         } else {
             $rawQuery = '';
         }
+
         $arguments = $this->request->getArguments();
-        $pageId = $this->typoScriptFrontendController->getRequestedId();
-        $languageId = $this->typoScriptFrontendController->getLanguage()->getLanguageId();
+        $pageId = $this->request->getAttribute('routing')->getPageId();
+        $languageId = $this->request->getAttribute('language')->getLanguageId();
         return $this->getSearchRequestBuilder()->buildForSuggest(
             $arguments,
             $rawQuery,

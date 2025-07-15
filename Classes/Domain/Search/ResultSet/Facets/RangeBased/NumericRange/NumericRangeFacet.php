@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\NumericRange;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\NumericRange\NumericRangeCount;
@@ -11,7 +13,7 @@ class NumericRangeFacet extends SolrNumericRangeFacet implements JsonSerializabl
 {
     use FacetUrlTrait;
 
-    function jsonSerialize(): array
+    public function jsonSerialize(): array
     {
         $range = $this->getRange();
 
@@ -24,7 +26,7 @@ class NumericRangeFacet extends SolrNumericRangeFacet implements JsonSerializabl
             'count' => $range->getDocumentCount(),
             'selected' => $range->getSelected(),
             'rangeCounts' => array_map(
-                fn (NumericRangeCount $numericRangeCount) => [
+                fn (NumericRangeCount $numericRangeCount): array => [
                     'count' => $numericRangeCount->getDocumentCount(),
                     'name' => $numericRangeCount->getRangeItem()
                 ],
