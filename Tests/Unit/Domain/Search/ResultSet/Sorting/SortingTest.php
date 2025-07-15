@@ -28,13 +28,11 @@ class SortingTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $searchUriBuilder->expects(self::once())->method('getSetSortingUri');
+        $searchUriBuilder->expects($this->once())->method('getSetSortingUri');
         $searchResultSet = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
             ->getMock();
         $searchResultSet->method('getUsedSearchRequest')->willReturn(new SearchRequest());
-
-        GeneralUtility::addInstance(SearchUriBuilder::class, $searchUriBuilder);
 
         $subject = new Sorting(
             resultSet: $searchResultSet,
@@ -43,27 +41,28 @@ class SortingTest extends UnitTestCase
             direction: $direction,
             label: $label,
         );
+        $subject->setSearchUriBuilder($searchUriBuilder);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('label', $jsonData);
-        self::assertEquals($label, $jsonData['label']);
+        $this->assertArrayHasKey('label', $jsonData);
+        $this->assertEquals($label, $jsonData['label']);
 
 //        self::assertArrayHasKey('url', $jsonData);
 //        self::assertEquals($resultsPerPage, $jsonData['url']);
 
-        self::assertArrayHasKey('direction', $jsonData);
-        self::assertEquals($direction, $jsonData['direction']);
+        $this->assertArrayHasKey('direction', $jsonData);
+        $this->assertEquals($direction, $jsonData['direction']);
 
-        self::assertArrayHasKey('resetOption', $jsonData);
-        self::assertEquals(false, $jsonData['resetOption']);
+        $this->assertArrayHasKey('resetOption', $jsonData);
+        $this->assertEquals(false, $jsonData['resetOption']);
 
-        self::assertArrayHasKey('selected', $jsonData);
-        self::assertEquals(false, $jsonData['selected']);
+        $this->assertArrayHasKey('selected', $jsonData);
+        $this->assertEquals(false, $jsonData['selected']);
     }
 
     #[Test]
@@ -72,17 +71,15 @@ class SortingTest extends UnitTestCase
         $searchUriBuilder = $this->getMockBuilder(SearchUriBuilder::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $searchUriBuilder->expects(self::once())->method('getRemoveSortingUri')->with(
+        $searchUriBuilder->expects($this->once())->method('getRemoveSortingUri')->with(
             previousSearchRequest: self::isInstanceOf(SearchRequest::class)
         );
-        $searchUriBuilder->expects(self::once())->method('getRemoveSortingUri');
+        $searchUriBuilder->expects($this->once())->method('getRemoveSortingUri');
 
         $searchResultSet = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
             ->getMock();
         $searchResultSet->method('getUsedSearchRequest')->willReturn(new SearchRequest());
-
-        GeneralUtility::addInstance(SearchUriBuilder::class, $searchUriBuilder);
 
         $subject = new Sorting(
             resultSet: $searchResultSet,
@@ -93,6 +90,7 @@ class SortingTest extends UnitTestCase
             selected: false,
             isResetOption: true,
         );
+        $subject->setSearchUriBuilder($searchUriBuilder);
 
         $subject->getUrl();
     }
@@ -103,7 +101,7 @@ class SortingTest extends UnitTestCase
         $searchUriBuilder = $this->getMockBuilder(SearchUriBuilder::class)
             ->disableOriginalConstructor()
             ->getMock();
-        $searchUriBuilder->expects(self::once())->method('getSetSortingUri')->with(
+        $searchUriBuilder->expects($this->once())->method('getSetSortingUri')->with(
             previousSearchRequest: self::isInstanceOf(SearchRequest::class),
             sortingName: self::isType('string'),
             sortingDirection: SolrSorting::DIRECTION_DESC,
@@ -114,8 +112,6 @@ class SortingTest extends UnitTestCase
             ->getMock();
         $searchResultSet->method('getUsedSearchRequest')->willReturn(new SearchRequest());
 
-        GeneralUtility::addInstance(SearchUriBuilder::class, $searchUriBuilder);
-
         $subject = new Sorting(
             resultSet: $searchResultSet,
             name: uniqid('name'),
@@ -125,6 +121,7 @@ class SortingTest extends UnitTestCase
             selected: true,
             isResetOption: false,
         );
+        $subject->setSearchUriBuilder($searchUriBuilder);
 
         $subject->getUrl();
     }

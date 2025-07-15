@@ -1,44 +1,29 @@
 <?xml version="1.0"?>
 <phpunit
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:noNamespaceSchemaLocation=".Build/vendor/phpunit/phpunit/phpunit.xsd"
-        backupGlobals="true"
-        bootstrap=".Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php"
-        colors="true"
-        failOnWarning="true"
-        failOnRisky="true"
-        displayDetailsOnTestsThatTriggerWarnings="true"
-        timeoutForSmallTests="0"
-        cacheResult="false"
-        beStrictAboutTestsThatDoNotTestAnything="false"
->
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation=".Build/vendor/phpunit/phpunit/phpunit.xsd" backupGlobals="true" bootstrap=".Build/vendor/typo3/testing-framework/Resources/Core/Build/UnitTestsBootstrap.php" displayDetailsOnTestsThatTriggerWarnings="true" colors="true" failOnWarning="true" failOnRisky="true" timeoutForSmallTests="0" cacheResult="false" beStrictAboutTestsThatDoNotTestAnything="false">
     <testsuites>
         <testsuite name="Unit Tests">
             <directory>Tests/Unit/</directory>
         </testsuite>
     </testsuites>
-
     <source>
         <include>
             <directory>Classes</directory>
         </include>
     </source>
-
-    <coverage cacheDirectory=".Build/cache">
+    <coverage>
         <report>
-            <clover outputFile=".Build/logs/coverage/unit.xml"/>
-            <html outputDirectory=".Build/logs/coverage/unit"/>
+            <clover outputFile=".Build/artifacts/reports/unit/clover.xml"/>
+            <php outputFile=".Build/artifacts/coverage/unit.cov"/>
+            <html outputDirectory=".Build/artifacts/coverage/unit"/>
         </report>
     </coverage>
-
     <logging>
-        <junit outputFile=".Build/logs/junit/unit.xml"/>
+        <junit outputFile=".Build/artifacts/reports/unit/phpunit.xml"/>
     </logging>
-
     <php>
         <ini name="date.timezone" value="Europe/Berlin"/>
         <ini name="display_errors" value="1"/>
         <env name="TYPO3_CONTEXT" value="Testing"/>
     </php>
-
 </phpunit>

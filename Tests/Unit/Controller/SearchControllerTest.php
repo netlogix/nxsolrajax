@@ -4,6 +4,10 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Tests\Unit\Controller;
 
+use Override;
+use InvalidArgumentException;
+use ReflectionObject;
+use RuntimeException;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequestBuilder;
@@ -15,25 +19,25 @@ use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use ReflectionClass;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
 use TYPO3\CMS\Core\Http\StreamFactory;
+use TYPO3\CMS\Core\Routing\PageArguments;
 use TYPO3\CMS\Core\Site\Entity\SiteLanguage;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Http\ForwardResponse;
 use TYPO3\CMS\Extbase\Mvc\ExtbaseRequestParameters;
 use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Fluid\View\TemplateView;
-use TYPO3\CMS\Frontend\Controller\TypoScriptFrontendController;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
 class SearchControllerTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;
 
-    public function setUp(): void
+    #[Override]
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -41,7 +45,8 @@ class SearchControllerTest extends UnitTestCase
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'] = [];
     }
 
-    public function tearDown(): void
+    #[Override]
+    protected function tearDown(): void
     {
         parent::tearDown();
 
@@ -71,7 +76,7 @@ class SearchControllerTest extends UnitTestCase
         );
         $response = $searchController->indexAction();
 
-        self::assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
+        $this->assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
     #[Test]
@@ -94,8 +99,8 @@ class SearchControllerTest extends UnitTestCase
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
         $response = $searchController->indexAction();
-        self::assertInstanceOf(ForwardResponse::class, $response);
-        self::assertEquals('solrNotAvailable', $response->getActionName());
+        $this->assertInstanceOf(ForwardResponse::class, $response);
+        $this->assertSame('solrNotAvailable', $response->getActionName());
     }
 
     #[Test]
@@ -106,7 +111,7 @@ class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['assign'])
             ->getMock();
 
-        $viewMock->expects(self::exactly(1))
+        $viewMock->expects($this->exactly(1))
             ->method('assign')
             ->with('resultSet', []);
 
@@ -138,7 +143,7 @@ class SearchControllerTest extends UnitTestCase
         $this->inject($subject, 'streamFactory', new StreamFactory());
 
         $response = $subject->resultsAction();
-        self::assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
+        $this->assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
     #[Test]
@@ -161,8 +166,8 @@ class SearchControllerTest extends UnitTestCase
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
         $response = $searchController->resultsAction();
-        self::assertInstanceOf(ForwardResponse::class, $response);
-        self::assertEquals('solrNotAvailable', $response->getActionName());
+        $this->assertInstanceOf(ForwardResponse::class, $response);
+        $this->assertSame('solrNotAvailable', $response->getActionName());
     }
 
     #[Test]
@@ -172,8 +177,7 @@ class SearchControllerTest extends UnitTestCase
         $request = $this->createRequest()
             ->withArgument('q', $queryString);
 
-        $typoScriptFrontendController =$this->typoscriptFrontendControllerMock();
-        $typoscriptConfiguration = new TypoScriptConfiguration([], (int) $typoScriptFrontendController->getRequestedId());
+        $typoscriptConfiguration = new TypoScriptConfiguration([]);
 
         $searchRequest = $this->getMockBuilder(SearchRequest::class)
             ->disableOriginalConstructor()
@@ -204,14 +208,13 @@ class SearchControllerTest extends UnitTestCase
             ->getMock();
 
         $this->inject($searchController, 'request', $request);
-        $this->inject($searchController, 'typoScriptFrontendController', $typoScriptFrontendController);
         $this->inject($searchController, 'typoScriptConfiguration', $typoscriptConfiguration);
         $this->inject($searchController, 'responseFactory', new ResponseFactory());
         $this->inject($searchController, 'streamFactory', new StreamFactory());
 
         $result = $searchController->suggestAction();
 
-        self::assertEquals('application/json; charset=utf-8', $result->getHeaderLine('Content-Type'));
+        $this->assertEquals('application/json; charset=utf-8', $result->getHeaderLine('Content-Type'));
     }
 
     #[Test]
@@ -240,8 +243,8 @@ class SearchControllerTest extends UnitTestCase
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
         $response = $searchController->suggestAction();
-        self::assertInstanceOf(ForwardResponse::class, $response);
-        self::assertEquals('solrNotAvailable', $response->getActionName());
+        $this->assertInstanceOf(ForwardResponse::class, $response);
+        $this->assertSame('solrNotAvailable', $response->getActionName());
     }
 
     #[Test]
@@ -260,11 +263,11 @@ class SearchControllerTest extends UnitTestCase
 
         $res = $subject->solrNotAvailableAction();
 
-        self::assertEquals('text/html; charset=utf-8', $res->getHeaderLine('Content-Type'));
+        $this->assertSame('text/html; charset=utf-8', $res->getHeaderLine('Content-Type'));
 
         $res->getBody()->rewind();
 
-        self::assertEquals('Apache Solr Server is not available.', $res->getBody()->getContents());
+        $this->assertSame('Apache Solr Server is not available.', $res->getBody()->getContents());
     }
 
     #[Test]
@@ -283,12 +286,12 @@ class SearchControllerTest extends UnitTestCase
 
         $res = $subject->solrNotAvailableAction();
 
-        self::assertEquals('application/json; charset=utf-8', $res->getHeaderLine('Content-Type'));
+        $this->assertSame('application/json; charset=utf-8', $res->getHeaderLine('Content-Type'));
 
         $res->getBody()->rewind();
 
         json_decode($res->getBody()->getContents());
-        self::assertEquals(JSON_ERROR_NONE, json_last_error(), 'failed decoding content to JSON');
+        $this->assertSame(JSON_ERROR_NONE, json_last_error(), 'failed decoding content to JSON');
     }
 
     #[Test]
@@ -311,13 +314,13 @@ class SearchControllerTest extends UnitTestCase
 
         $resData = json_decode($res->getBody()->getContents(), true);
 
-        self::assertCount(2, $resData);
+        $this->assertCount(2, $resData);
 
-        self::assertArrayHasKey('status', $resData);
-        self::assertEquals(503, $resData['status']);
+        $this->assertArrayHasKey('status', $resData);
+        $this->assertEquals(503, $resData['status']);
 
-        self::assertArrayHasKey('message', $resData);
-        self::assertEquals('Apache Solr Server is not available.', $resData['message']);
+        $this->assertArrayHasKey('message', $resData);
+        $this->assertEquals('Apache Solr Server is not available.', $resData['message']);
     }
 
     #[Test]
@@ -331,20 +334,20 @@ class SearchControllerTest extends UnitTestCase
             ->getMock();
 
         $subject->method('getSearchResultSet')->willThrowException(new SolrUnavailableException());
-        $subject->expects(self::once())->method('handleSolrUnavailable')->willReturn($expectedResponse);
+        $subject->expects($this->once())->method('handleSolrUnavailable')->willReturn($expectedResponse);
 
         $res = $subject->resultsAction();
 
-        self::assertSame($expectedResponse, $res);
+        $this->assertSame($expectedResponse, $res);
     }
 
-    protected function inject($target, $name, $dependency)
+    protected function inject($target, string $name, $dependency)
     {
         if (! is_object($target)) {
-            throw new \InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
+            throw new InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
         }
 
-        $objectReflection = new \ReflectionObject($target);
+        $objectReflection = new ReflectionObject($target);
         $methodNamePart = strtoupper($name[0]) . substr($name, 1);
         if ($objectReflection->hasMethod('set' . $methodNamePart)) {
             $methodName = 'set' . $methodNamePart;
@@ -357,8 +360,8 @@ class SearchControllerTest extends UnitTestCase
             $property->setAccessible(true);
             $property->setValue($target, $dependency);
         } else {
-            throw new \RuntimeException(
-                'Could not inject ' . $name . ' into object of type ' . get_class($target),
+            throw new RuntimeException(
+                'Could not inject ' . $name . ' into object of type ' . $target::class,
                 1476107339
             );
         }
@@ -366,29 +369,27 @@ class SearchControllerTest extends UnitTestCase
 
     protected function createRequest(): Request
     {
-        $serverRequest = (new ServerRequest())->withAttribute('extbase', new ExtbaseRequestParameters());
-        return (new Request($serverRequest))
-            ->withControllerExtensionName('SearchController')
-            ->withControllerName('Search')
-            ->withControllerActionName('index');
-    }
-
-    protected function typoscriptFrontendControllerMock(): TypoScriptFrontendController
-    {
-
         $siteLanguage = $this->getMockBuilder(SiteLanguage::class)
             ->disableOriginalConstructor()
             ->onlyMethods(['getLanguageId'])
             ->getMock();
         $siteLanguage->method('getLanguageId')->willReturn(0);
 
-        $mock = $this->getMockBuilder(TypoScriptFrontendController::class)
+        $siteRouteResult = $this->getMockBuilder(PageArguments::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['getRequestedId', 'getLanguage'])
+            ->onlyMethods(['getPageId'])
             ->getMock();
-        $mock->method('getRequestedId')->willReturn(1);
-        $mock->method('getLanguage')->willReturn($siteLanguage);
-        return $mock;
+        $siteRouteResult->method('getPageId')->willReturn(1);
+
+        $serverRequest = (new ServerRequest())
+            ->withAttribute('extbase', new ExtbaseRequestParameters())
+            ->withAttribute('language', $siteLanguage)
+            ->withAttribute('routing', $siteRouteResult);
+
+        return (new Request($serverRequest))
+            ->withControllerExtensionName('SearchController')
+            ->withControllerName('Search')
+            ->withControllerActionName('index');
     }
 
     protected function registerEvent(string $className, ...$args): EventDispatcherInterface&MockObject
@@ -397,7 +398,7 @@ class SearchControllerTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $eventDispatcher->expects(self::once())->method('dispatch')->with(
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
             self::isInstanceOf($className)
         )->willReturn(new $className(...$args));
 

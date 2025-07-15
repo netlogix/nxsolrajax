@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\Node as SolrNode;
@@ -10,7 +12,7 @@ class Node extends SolrNode implements JsonSerializable
 {
     use FacetUrlTrait;
 
-    function jsonSerialize(): array
+    public function jsonSerialize(): array
     {
         return [
             'id' => $this->getKey(),
@@ -19,7 +21,7 @@ class Node extends SolrNode implements JsonSerializable
             'count' => $this->getDocumentCount(),
             'selected' => $this->getSelected(),
             'active' => $this->isActive(),
-            'options' => array_values($this->childNodes->getArrayCopy()),
+            'options' => $this->addSearchUriBuilderToOptions(array_values($this->childNodes->getArrayCopy())),
             'links' => [
                 'self' => $this->getUrl(),
             ]
@@ -31,12 +33,14 @@ class Node extends SolrNode implements JsonSerializable
         if ($this->getSelected()) {
             return true;
         }
+
         /** @var Node $childNode */
         foreach ($this->childNodes as $childNode) {
             if ($childNode->isActive()) {
                 return true;
             }
         }
+
         return false;
     }
 

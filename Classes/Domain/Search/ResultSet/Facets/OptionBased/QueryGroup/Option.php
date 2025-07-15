@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Option as SolrOption;
@@ -10,7 +12,7 @@ class Option extends SolrOption implements JsonSerializable
 {
     use FacetUrlTrait;
 
-    function jsonSerialize(): array
+    public function jsonSerialize(): array
     {
         return [
             'label' => $this->getLabel(),

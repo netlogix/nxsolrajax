@@ -15,7 +15,7 @@ class SearchResultTest extends UnitTestCase
     public function itCanBeSerializedToJSON(): void
     {
         $data = [
-            'id' => (string)rand(1, 9999999),
+            'id' => (string)random_int(1, 9999999),
             'type' => uniqid('type_'),
             'title' => uniqid('title_'),
             'content' => uniqid('content_'),
@@ -28,25 +28,25 @@ class SearchResultTest extends UnitTestCase
         $subject = new SearchResult($data, [], []);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('id', $jsonData);
-        self::assertEquals($data['id'], $jsonData['id']);
+        $this->assertArrayHasKey('id', $jsonData);
+        $this->assertEquals($data['id'], $jsonData['id']);
 
-        self::assertArrayHasKey('type', $jsonData);
-        self::assertEquals($data['type'], $jsonData['type']);
+        $this->assertArrayHasKey('type', $jsonData);
+        $this->assertEquals($data['type'], $jsonData['type']);
 
-        self::assertArrayHasKey('title', $jsonData);
-        self::assertEquals($data['title'], $jsonData['title']);
+        $this->assertArrayHasKey('title', $jsonData);
+        $this->assertEquals($data['title'], $jsonData['title']);
 
-        self::assertArrayHasKey('image', $jsonData);
-        self::assertEquals($data['image'], $jsonData['image']);
+        $this->assertArrayHasKey('image', $jsonData);
+        $this->assertEquals($data['image'], $jsonData['image']);
 
-        self::assertArrayHasKey('url', $jsonData);
-        self::assertEquals($data['url'], $jsonData['url']);
+        $this->assertArrayHasKey('url', $jsonData);
+        $this->assertEquals($data['url'], $jsonData['url']);
     }
 
     #[Test]
@@ -56,7 +56,7 @@ class SearchResultTest extends UnitTestCase
 
         $subject = new SearchResult($data, [], []);
 
-        self::assertEquals($data['highlightedContent'], $subject->getContent());
+        $this->assertSame($data['highlightedContent'], $subject->getContent());
     }
 
     #[Test]
@@ -66,7 +66,7 @@ class SearchResultTest extends UnitTestCase
 
         $subject = new SearchResult($data, [], []);
 
-        self::assertEquals($data['abstract'], $subject->getContent());
+        $this->assertSame($data['abstract'], $subject->getContent());
     }
 
     #[Test]
@@ -79,6 +79,6 @@ class SearchResultTest extends UnitTestCase
 
         $subject = new SearchResult($data, [], []);
 
-        self::assertEquals($data['highlightedContent'], $subject->getContent());
+        $this->assertSame($data['highlightedContent'], $subject->getContent());
     }
 }

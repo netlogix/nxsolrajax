@@ -1,18 +1,15 @@
 <?php
 
-/** @noinspection PhpFullyQualifiedNameUsageInspection */
-defined('TYPO3') or die();
+declare(strict_types=1);
 
-call_user_func(function () {
+use TYPO3\CMS\Extbase\Utility\ExtensionUtility;
 
-    $pluginLabel = 'LLL:EXT:nxsolrajax/Resources/Private/Language/locallang_db.xml:plugins.%s.title';
+defined('TYPO3') || die();
 
-    foreach (['index'] as $pluginName) {
-        \TYPO3\CMS\Extbase\Utility\ExtensionUtility::registerPlugin(
-            'nxsolrajax',
-            $pluginName,
-            sprintf($pluginLabel, $pluginName)
-        );
-        $GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['nxsolrajax_' . $pluginName] = 'layout,select_key,pages,recursive';
-    }
-});
+ExtensionUtility::registerPlugin(
+    'nxsolrajax',
+    'index',
+    'LLL:EXT:nxsolrajax/Resources/Private/Language/locallang_db.xml:plugins.index.title'
+);
+
+$GLOBALS['TCA']['tt_content']['types']['list']['subtypes_excludelist']['nxsolrajax_index'] = 'layout,select_key,pages,recursive';

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\RangeBased\DateRange\DateRangeFacet as SolrDateRangeFacet;
@@ -10,7 +12,7 @@ class DateRangeFacet extends SolrDateRangeFacet implements JsonSerializable
 {
     use FacetUrlTrait;
 
-    function jsonSerialize(): array
+    public function jsonSerialize(): array
     {
         return [
             'name' => $this->getName(),

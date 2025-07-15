@@ -21,7 +21,7 @@ class NodeTest extends UnitTestCase
 
         $subject = new Node($facetMock, null, uniqid('key_'), '', uniqid('value_'), 0, true);
 
-        self::assertTrue($subject->isActive());
+        $this->assertTrue($subject->isActive());
     }
 
     #[Test]
@@ -33,7 +33,7 @@ class NodeTest extends UnitTestCase
 
         $subject = new Node($facetMock, null, uniqid('key_'), '', uniqid('value_'), 0, false);
 
-        self::assertFalse($subject->isActive());
+        $this->assertFalse($subject->isActive());
     }
 
     #[Test]
@@ -55,7 +55,7 @@ class NodeTest extends UnitTestCase
             new Node($facetMock, $subject, uniqid('key_'), '', uniqid('value_'), 0, false)
         );
 
-        self::assertTrue($subject->isActive());
+        $this->assertTrue($subject->isActive());
     }
 
     #[Test]
@@ -68,7 +68,7 @@ class NodeTest extends UnitTestCase
         $key = uniqid('key_');
         $value = uniqid('value_');
         $label = uniqid('lebel_');
-        $count = rand(0, 999);
+        $count = random_int(0, 999);
         $selected = $count % 2 == 0;
         $url = sprintf('https://www.example.com/%s', $key);
 
@@ -80,36 +80,36 @@ class NodeTest extends UnitTestCase
         $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('id', $jsonData);
-        self::assertEquals($key, $jsonData['id']);
+        $this->assertArrayHasKey('id', $jsonData);
+        $this->assertEquals($key, $jsonData['id']);
 
-        self::assertArrayHasKey('label', $jsonData);
-        self::assertEquals($label, $jsonData['label']);
+        $this->assertArrayHasKey('label', $jsonData);
+        $this->assertEquals($label, $jsonData['label']);
 
-        self::assertArrayHasKey('name', $jsonData);
-        self::assertEquals($value, $jsonData['name']);
+        $this->assertArrayHasKey('name', $jsonData);
+        $this->assertEquals($value, $jsonData['name']);
 
-        self::assertArrayHasKey('count', $jsonData);
-        self::assertEquals($count, $jsonData['count']);
+        $this->assertArrayHasKey('count', $jsonData);
+        $this->assertEquals($count, $jsonData['count']);
 
-        self::assertArrayHasKey('selected', $jsonData);
-        self::assertEquals($selected, $jsonData['selected']);
+        $this->assertArrayHasKey('selected', $jsonData);
+        $this->assertEquals($selected, $jsonData['selected']);
 
-        self::assertArrayHasKey('active', $jsonData);
-        self::assertEquals($selected, $jsonData['active']);
+        $this->assertArrayHasKey('active', $jsonData);
+        $this->assertEquals($selected, $jsonData['active']);
 
-        self::assertArrayHasKey('options', $jsonData);
+        $this->assertArrayHasKey('options', $jsonData);
         // no child data is set
-        self::assertEmpty($jsonData['options']);
+        $this->assertEmpty($jsonData['options']);
 
-        self::assertArrayHasKey('links', $jsonData);
-        self::assertArrayHasKey('self', $jsonData['links']);
-        self::assertEquals($url, $jsonData['links']['self']);
+        $this->assertArrayHasKey('links', $jsonData);
+        $this->assertArrayHasKey('self', $jsonData['links']);
+        $this->assertEquals($url, $jsonData['links']['self']);
     }
 
 }

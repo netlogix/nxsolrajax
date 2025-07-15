@@ -6,7 +6,6 @@ namespace Netlogix\Nxsolrajax\Traits;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacetItem;
-use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
 use Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -14,6 +13,8 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait FacetUrlTrait
 {
+
+    use SearchUriBuilderTrait;
 
     /**
      * Generates a reset URL for a given facet
@@ -32,7 +33,7 @@ trait FacetUrlTrait
         }
 
         $previousRequest = $facet->getResultSet()->getUsedSearchRequest();
-        return GeneralUtility::makeInstance(SearchUriBuilder::class)->getRemoveFacetUri(
+        return $this->searchUriBuilder->getRemoveFacetUri(
             $previousRequest,
             $facet->getName()
         );
@@ -55,10 +56,20 @@ trait FacetUrlTrait
         }
 
         $previousRequest = $facetItem->getFacet()->getResultSet()->getUsedSearchRequest();
-        return GeneralUtility::makeInstance(SearchUriBuilder::class)->getSetFacetValueUri(
+        return $this->searchUriBuilder->getSetFacetValueUri(
             $previousRequest,
             $facetItem->getFacet()->getName(),
-            $overrideUriValue ?: $facetItem->getUriValue()
+            $overrideUriValue !== '' && $overrideUriValue !== '0' ? $overrideUriValue : $facetItem->getUriValue()
         );
+    }
+
+    protected function addSearchUriBuilderToOptions(array $options): array
+    {
+        foreach ($options as $option) {
+            if (method_exists($option, 'setSearchUriBuilder')) {
+                $option->setSearchUriBuilder($this->searchUriBuilder);
+            }
+        }
+        return $options;
     }
 }

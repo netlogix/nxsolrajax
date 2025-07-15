@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Domain\Search\ResultSet;
 
 use JsonSerializable;
@@ -7,14 +9,8 @@ use JsonSerializable;
 class SuggestResultSet implements JsonSerializable
 {
 
-    protected array $suggestions = [];
-
-    protected string $keyword = '';
-
-    public function __construct(array $suggestions, string $keyword)
+    public function __construct(protected array $suggestions, protected string $keyword)
     {
-        $this->suggestions = $suggestions;
-        $this->keyword = $keyword;
     }
 
     public function jsonSerialize(): array

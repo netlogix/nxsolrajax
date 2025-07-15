@@ -39,7 +39,7 @@ class FacetUrlTraitTest extends UnitTestCase
 {
 
     #[Test]
-    public function dispatchGenerateFacetItemUrlEventForUrlGeneration()
+    public function dispatchGenerateFacetItemUrlEventForUrlGeneration(): void
     {
         $trait = new FacetUrlTraitTestClass();
 
@@ -48,20 +48,21 @@ class FacetUrlTraitTest extends UnitTestCase
             ->getMock();
 
         $this->registerEventUrlEvent(GenerateFacetItemUrlEvent::class, $option, 'https://www.example.com/');
-        self::assertEquals('https://www.example.com/', $trait->getUrl($option));
+        $this->assertSame('https://www.example.com/', $trait->getUrl($option));
     }
 
     #[Test]
-    public function generateUrl()
+    public function generateUrl(): void
     {
         $trait = new FacetUrlTraitTestClass();
 
         $searchUriBuilder = $this->getSearchUriBuilder();
-        $searchUriBuilder->expects(self::once())->method('getSetFacetValueUri')->with(
+        $searchUriBuilder->expects($this->once())->method('getSetFacetValueUri')->with(
             self::isInstanceOf(SearchRequest::class),
             'foo_bar',
             'bar'
         )->willReturn('https://www.example.com/');
+        $trait->setSearchUriBuilder($searchUriBuilder);
 
         $option = $this->getMockBuilder(AbstractFacetItem::class)
             ->disableOriginalConstructor()
@@ -73,22 +74,22 @@ class FacetUrlTraitTest extends UnitTestCase
 
         $this->registerEventUrlEvent(GenerateFacetItemUrlEvent::class, $option, '');
 
-        self::assertEquals('https://www.example.com/', $trait->getUrl($option));
+        $this->assertSame('https://www.example.com/', $trait->getUrl($option));
     }
 
     #[Test]
-    public function dispatchGenerateFacetResetUrlEventForResetUrlGeneration()
+    public function dispatchGenerateFacetResetUrlEventForResetUrlGeneration(): void
     {
         $trait = new FacetUrlTraitTestClass();
 
         $facet = $this->getFacet();
 
         $this->registerEventUrlEvent(GenerateFacetResetUrlEvent::class, $facet, 'https://www.example.com/');
-        self::assertEquals('https://www.example.com/', $trait->getResetUrl($facet));
+        $this->assertSame('https://www.example.com/', $trait->getResetUrl($facet));
     }
 
     #[Test]
-    public function generateResetUrl()
+    public function generateResetUrl(): void
     {
         $trait = new FacetUrlTraitTestClass();
 
@@ -97,14 +98,15 @@ class FacetUrlTraitTest extends UnitTestCase
 
         $searchUriBuilder = $this->getSearchUriBuilder();
 
-        $searchUriBuilder->expects(self::once())->method('getRemoveFacetUri')->with(
+        $searchUriBuilder->expects($this->once())->method('getRemoveFacetUri')->with(
             self::isInstanceOf(SearchRequest::class),
             'foo_bar',
         )->willReturn('https://www.example.com/');
+        $trait->setSearchUriBuilder($searchUriBuilder);
 
         $this->registerEventUrlEvent(GenerateFacetResetUrlEvent::class, $facet, '');
 
-        self::assertEquals('https://www.example.com/', $trait->getResetUrl($facet));
+        $this->assertSame('https://www.example.com/', $trait->getResetUrl($facet));
     }
 
     private function getFacet(): OptionsFacet&MockObject
@@ -127,22 +129,18 @@ class FacetUrlTraitTest extends UnitTestCase
 
     private function getSearchUriBuilder(): SearchUriBuilder&MockObject
     {
-        $searchUriBuilder = $this->getMockBuilder(SearchUriBuilder::class)
+        return $this->getMockBuilder(SearchUriBuilder::class)
             ->disableOriginalConstructor()
             ->getMock();
-
-        GeneralUtility::addInstance(SearchUriBuilder::class, $searchUriBuilder);
-
-        return $searchUriBuilder;
     }
 
-    private function registerEventUrlEvent(string $className, ...$args): EventDispatcherInterface&MockObject
+    private function registerEventUrlEvent(string $className, (AbstractFacetItem&MockObject)|(OptionsFacet&MockObject)|string ...$args): EventDispatcherInterface&MockObject
     {
         $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $eventDispatcher->expects(self::once())->method('dispatch')->with(
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
             self::isInstanceOf($className)
         )->willReturn(new $className(...$args));
 

@@ -23,7 +23,7 @@ class DateRangeTest extends UnitTestCase
 
         $key = uniqid('key_');
 
-        $documentCount = rand(0, 999);
+        $documentCount = random_int(0, 999);
         $url = sprintf('https://www.example.com/%s', $key);
 
         $startRequested = (new DateTime())->sub(new DateInterval('P1W'));
@@ -52,30 +52,30 @@ class DateRangeTest extends UnitTestCase
         $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('selected', $jsonData);
-        self::assertTrue($jsonData['selected']);
-        self::assertEquals(true, $jsonData['selected']);
+        $this->assertArrayHasKey('selected', $jsonData);
+        $this->assertTrue($jsonData['selected']);
+        $this->assertEquals(true, $jsonData['selected']);
 
-        self::assertArrayHasKey('start', $jsonData);
-        self::assertEquals($startRequested->getTimestamp(), $jsonData['start'], 'start time in request not correct');
+        $this->assertArrayHasKey('start', $jsonData);
+        $this->assertEquals($startRequested->getTimestamp(), $jsonData['start'], 'start time in request not correct');
 
-        self::assertArrayHasKey('end', $jsonData);
-        self::assertEquals($endRequested->getTimestamp(), $jsonData['end'], 'end time in request not correct');
+        $this->assertArrayHasKey('end', $jsonData);
+        $this->assertEquals($endRequested->getTimestamp(), $jsonData['end'], 'end time in request not correct');
 
-        self::assertArrayHasKey('min', $jsonData);
-        self::assertEquals($startInResponse->getTimestamp(), $jsonData['min'], 'min time in response not correct');
+        $this->assertArrayHasKey('min', $jsonData);
+        $this->assertEquals($startInResponse->getTimestamp(), $jsonData['min'], 'min time in response not correct');
 
-        self::assertArrayHasKey('max', $jsonData);
-        self::assertEquals($endInResponse->getTimestamp(), $jsonData['max'], 'max time in response not correct');
+        $this->assertArrayHasKey('max', $jsonData);
+        $this->assertEquals($endInResponse->getTimestamp(), $jsonData['max'], 'max time in response not correct');
 
-        self::assertArrayHasKey('links', $jsonData);
-        self::assertArrayHasKey('self', $jsonData['links']);
-        self::assertEquals($url, $jsonData['links']['self']);
+        $this->assertArrayHasKey('links', $jsonData);
+        $this->assertArrayHasKey('self', $jsonData['links']);
+        $this->assertEquals($url, $jsonData['links']['self']);
     }
 
     #[Test]
@@ -95,29 +95,29 @@ class DateRangeTest extends UnitTestCase
         $subject->method('getFacetItemUrl')->willReturn($url);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('selected', $jsonData);
-        self::assertEquals(false, $jsonData['selected']);
+        $this->assertArrayHasKey('selected', $jsonData);
+        $this->assertEquals(false, $jsonData['selected']);
 
-        self::assertArrayHasKey('start', $jsonData);
-        self::assertEquals('', $jsonData['start'], 'start time in request not correct');
+        $this->assertArrayHasKey('start', $jsonData);
+        $this->assertEquals('', $jsonData['start'], 'start time in request not correct');
 
-        self::assertArrayHasKey('end', $jsonData);
-        self::assertEquals('', $jsonData['end'], 'end time in request not correct');
+        $this->assertArrayHasKey('end', $jsonData);
+        $this->assertEquals('', $jsonData['end'], 'end time in request not correct');
 
-        self::assertArrayHasKey('min', $jsonData);
-        self::assertEquals('', $jsonData['min'], 'min time in response not correct');
+        $this->assertArrayHasKey('min', $jsonData);
+        $this->assertEquals('', $jsonData['min'], 'min time in response not correct');
 
-        self::assertArrayHasKey('max', $jsonData);
-        self::assertEquals('', $jsonData['max'], 'max time in response not correct');
+        $this->assertArrayHasKey('max', $jsonData);
+        $this->assertEquals('', $jsonData['max'], 'max time in response not correct');
 
-        self::assertArrayHasKey('links', $jsonData);
-        self::assertArrayHasKey('self', $jsonData['links']);
-        self::assertEquals($url, $jsonData['links']['self']);
+        $this->assertArrayHasKey('links', $jsonData);
+        $this->assertArrayHasKey('self', $jsonData['links']);
+        $this->assertEquals($url, $jsonData['links']['self']);
     }
 }
 

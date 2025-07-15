@@ -4,6 +4,12 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Tests\Unit\Service;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
+use stdClass;
+use InvalidArgumentException;
+use ReflectionObject;
+use RuntimeException;
+use ReflectionClass;
 use ApacheSolrForTypo3\Solr\Domain\Search\Query\Query;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\FacetCollection;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet;
@@ -25,7 +31,7 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 class SearchResultSetConverterServiceTest extends UnitTestCase
 {
 
-    protected $mockedBasicData = [
+    protected array $mockedBasicData = [
         'search' => [
             'q' => '*:*',
             'suggestion' => 'foo_suggestion',
@@ -54,17 +60,13 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $subject = $this->getMockBuilder(SearchResultSetConverterService::class)
             ->onlyMethods(['toArray'])
             ->getMock();
-        $subject->expects(self::once())->method('toArray')->with($searchResultSet)->willReturn($this->mockedBasicData);
+        $subject->expects($this->once())->method('toArray')->with($searchResultSet)->willReturn($this->mockedBasicData);
 
         $res = $subject->toJSON($searchResultSet);
 
         $json = json_decode($res, true);
-        self::assertEquals(
-            JSON_ERROR_NONE,
-            json_last_error(),
-            sprintf('unexpected JSON error: %s', json_last_error_msg())
-        );
-        self::assertEquals($this->mockedBasicData, $json);
+        $this->assertSame(JSON_ERROR_NONE, json_last_error(), sprintf('unexpected JSON error: %s', json_last_error_msg()));
+        $this->assertEquals($this->mockedBasicData, $json);
     }
 
     #[Test]
@@ -85,7 +87,7 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $subject = $this->getMockBuilder(SearchResultSetConverterService::class)
             ->onlyMethods(['toArray'])
             ->getMock();
-        $subject->expects(self::once())->method('toArray')->with($searchResultSet)->willReturn($arrayWithReference);
+        $subject->expects($this->once())->method('toArray')->with($searchResultSet)->willReturn($arrayWithReference);
 
         $subject->toJSON($searchResultSet);
     }
@@ -117,26 +119,26 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
         $res = $subject->toArray($searchResultSetMock);
 
-        self::assertArrayHasKey('search', $res);
-        self::assertNotEmpty($res['search']);
-        self::assertArrayHasKey('q', $res['search']);
-        self::assertEquals($query, $res['search']['q']);
+        $this->assertArrayHasKey('search', $res);
+        $this->assertNotEmpty($res['search']);
+        $this->assertArrayHasKey('q', $res['search']);
+        $this->assertEquals($query, $res['search']['q']);
         // test if links are present
-        self::assertArrayHasKey('links', $res['search']);
-        self::assertArrayHasKey('reset', $res['search']['links']);
-        self::assertEquals($resetUrl, $res['search']['links']['reset']);
-        self::assertArrayHasKey('search', $res['search']['links']);
-        self::assertEquals($searchUrl, $res['search']['links']['search']);
-        self::assertArrayHasKey('suggest', $res['search']['links']);
-        self::assertEquals($suggestUrl, $res['search']['links']['suggest']);
-        self::assertArrayHasKey('suggestion', $res['search']['links']);
-        self::assertEquals($suggestionUrl, $res['search']['links']['suggestion']);
+        $this->assertArrayHasKey('links', $res['search']);
+        $this->assertArrayHasKey('reset', $res['search']['links']);
+        $this->assertEquals($resetUrl, $res['search']['links']['reset']);
+        $this->assertArrayHasKey('search', $res['search']['links']);
+        $this->assertEquals($searchUrl, $res['search']['links']['search']);
+        $this->assertArrayHasKey('suggest', $res['search']['links']);
+        $this->assertEquals($suggestUrl, $res['search']['links']['suggest']);
+        $this->assertArrayHasKey('suggestion', $res['search']['links']);
+        $this->assertEquals($suggestionUrl, $res['search']['links']['suggestion']);
 
-        self::assertArrayHasKey('facets', $res);
-        self::assertEmpty($res['facets']);
+        $this->assertArrayHasKey('facets', $res);
+        $this->assertEmpty($res['facets']);
 
-        self::assertArrayHasKey('result', $res);
-        self::assertEmpty($res['result']);
+        $this->assertArrayHasKey('result', $res);
+        $this->assertEmpty($res['result']);
     }
 
     #[Test]
@@ -160,27 +162,28 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $subject->method('generateBasicSearchResultData')->willReturn($mockedData);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
+            ->disableOriginalConstructor()
             ->onlyMethods([])
             ->getMock();
 
-        $subject->expects(self::once())->method('highlightSearchResults')->with($searchResultSetMock);
-        $subject->expects(self::once())->method('addLinksToSearchResultData')->with(
+        $subject->expects($this->once())->method('highlightSearchResults')->with($searchResultSetMock);
+        $subject->expects($this->once())->method('addLinksToSearchResultData')->with(
             $mockedData,
             $searchResultSetMock
         )->willReturn($mockedData);
-        $subject->expects(self::once())->method('addQueryToSearchResultData')->with(
+        $subject->expects($this->once())->method('addQueryToSearchResultData')->with(
             $mockedData,
             $searchResultSetMock
         )->willReturn($mockedData);
-        $subject->expects(self::once())->method('addFacetsToSearchResultData')->with(
+        $subject->expects($this->once())->method('addFacetsToSearchResultData')->with(
             $mockedData,
             $searchResultSetMock
         )->willReturn($mockedData);
-        $subject->expects(self::once())->method('addSortingToSearchResultData')->with(
+        $subject->expects($this->once())->method('addSortingToSearchResultData')->with(
             $mockedData,
             $searchResultSetMock
         )->willReturn($mockedData);
-        $subject->expects(self::once())->method('groupSearchResultData')->with(
+        $subject->expects($this->once())->method('groupSearchResultData')->with(
             $mockedData,
             $searchResultSetMock
         )->willReturn($mockedData);
@@ -197,8 +200,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $documentId = uniqid('documentID_');
         $highlightString = uniqid('highlight_');
 
-        $highlightedContent = new \stdClass();
-        $highlightedContent->$documentId = new \stdClass();
+        $highlightedContent = new stdClass();
+        $highlightedContent->$documentId = new stdClass();
         $highlightedContent->$documentId->content = [$highlightString];
 
         $searchResultSet = $this->getMockBuilder(SearchResultSet::class)
@@ -222,11 +225,11 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $this->callMethod($searchResultSetConverterService, 'highlightSearchResults', [$searchResultSet]);
 
         $documents = $searchResultSet->getSearchResults();
-        self::assertCount(1, $documents);
+        $this->assertCount(1, $documents);
         /** @var Document $doc */
         $doc = $documents->getByPosition(0);
 
-        self::assertEquals($highlightString, $doc->highlightedContent);
+        $this->assertEquals($highlightString, $doc->highlightedContent);
     }
 
     #[Test]
@@ -248,11 +251,11 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
         $this->callMethod($searchResultSetConverterService, 'highlightSearchResults', [$searchResultSet]);
 
         $documents = $searchResultSet->getSearchResults();
-        self::assertCount(1, $documents);
+        $this->assertCount(1, $documents);
         /** @var Document $doc */
         $doc = $documents->getByPosition(0);
 
-        self::assertNull($doc->highlightedContent);
+        $this->assertNull($doc->highlightedContent);
     }
 
     #[Test]
@@ -280,19 +283,19 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             [$data, $searchResultSetMock]
         );
 
-        self::assertEquals($firstUrl, $result['search']['links']['first']);
-        self::assertEquals($prevUrl, $result['search']['links']['prev']);
-        self::assertEquals($nextUrl, $result['search']['links']['next']);
-        self::assertEquals($lastUrl, $result['search']['links']['last']);
+        $this->assertEquals($firstUrl, $result['search']['links']['first']);
+        $this->assertEquals($prevUrl, $result['search']['links']['prev']);
+        $this->assertEquals($nextUrl, $result['search']['links']['next']);
+        $this->assertEquals($lastUrl, $result['search']['links']['last']);
     }
 
     #[Test]
     public function itAddsQueryDataToResults(): void
     {
         $query = uniqid('query_');
-        $usedResultsPerPage = rand(1, 10);
-        $offset = rand(1, 10);
-        $resultCount = rand(100, 99999);
+        $usedResultsPerPage = random_int(1, 10);
+        $offset = random_int(1, 10);
+        $resultCount = random_int(100, 99999);
 
         $data = $this->mockedBasicData;
 
@@ -320,23 +323,23 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             [$data, $searchResultSetMock]
         );
 
-        self::assertArrayHasKey('q', $result['result']);
-        self::assertEquals($query, $result['result']['q']);
+        $this->assertArrayHasKey('q', $result['result']);
+        $this->assertEquals($query, $result['result']['q']);
 
-        self::assertArrayHasKey('limit', $result['result']);
-        self::assertEquals($usedResultsPerPage, $result['result']['limit']);
+        $this->assertArrayHasKey('limit', $result['result']);
+        $this->assertEquals($usedResultsPerPage, $result['result']['limit']);
 
-        self::assertArrayHasKey('offset', $result['result']);
-        self::assertEquals($offset, $result['result']['offset']);
+        $this->assertArrayHasKey('offset', $result['result']);
+        $this->assertEquals($offset, $result['result']['offset']);
 
-        self::assertArrayHasKey('totalResults', $result['result']);
-        self::assertEquals($resultCount, $result['result']['totalResults']);
+        $this->assertArrayHasKey('totalResults', $result['result']);
+        $this->assertEquals($resultCount, $result['result']['totalResults']);
 
-        self::assertArrayHasKey('items', $result['result']);
-        self::assertEmpty($result['result']['items']);
+        $this->assertArrayHasKey('items', $result['result']);
+        $this->assertEmpty($result['result']['items']);
 
-        self::assertArrayHasKey('groups', $result['result']);
-        self::assertEmpty($result['result']['groups']);
+        $this->assertArrayHasKey('groups', $result['result']);
+        $this->assertEmpty($result['result']['groups']);
     }
 
     #[Test]
@@ -373,11 +376,11 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             [$data, $searchResultSetMock]
         );
 
-        self::assertArrayHasKey('facets', $result);
-        self::assertNotEmpty($result['facets']);
-        self::assertArrayHasKey($facetName, $result['facets']);
+        $this->assertArrayHasKey('facets', $result);
+        $this->assertNotEmpty($result['facets']);
+        $this->assertArrayHasKey($facetName, $result['facets']);
 
-        self::assertSame($facet, $result['facets'][$facetName]);
+        $this->assertSame($facet, $result['facets'][$facetName]);
     }
 
     #[Test]
@@ -385,7 +388,7 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
     {
         $data = $this->mockedBasicData;
 
-        self::assertArrayNotHasKey('sortings', $data);
+        $this->assertArrayNotHasKey('sortings', $data);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
@@ -400,7 +403,7 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             [$data, $searchResultSetMock]
         );
 
-        self::assertArrayNotHasKey('sortings', $result);
+        $this->assertArrayNotHasKey('sortings', $result);
     }
 
     #[Test]
@@ -412,13 +415,13 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             new \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet(),
             $sortingName,
             uniqid('field_'),
-            rand(1, 2) % 2 ? Sorting::DIRECTION_ASC : Sorting::DIRECTION_DESC,
+            random_int(1, 2) % 2 !== 0 ? Sorting::DIRECTION_ASC : Sorting::DIRECTION_DESC,
             uniqid('label_')
         );
 
         $data = $this->mockedBasicData;
 
-        self::assertArrayNotHasKey('sortings', $data);
+        $this->assertArrayNotHasKey('sortings', $data);
 
         $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
             ->disableOriginalConstructor()
@@ -435,9 +438,9 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             [$data, $searchResultSetMock]
         );
 
-        self::assertArrayHasKey('sortings', $result);
-        self::assertArrayHasKey($sortingName, $result['sortings']);
-        self::assertEquals($sorting->getDirection(), $result['sortings'][$sortingName]->getDirection());
+        $this->assertArrayHasKey('sortings', $result);
+        $this->assertArrayHasKey($sortingName, $result['sortings']);
+        $this->assertEquals($sorting->getDirection(), $result['sortings'][$sortingName]->getDirection());
     }
 
     #[Test]
@@ -461,12 +464,12 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             [$data, $searchResultSetMock]
         );
 
-        self::assertArrayHasKey('result', $result);
-        self::assertIsArray($result['result']);
-        self::assertArrayHasKey('items', $result['result']);
-        self::assertNotEmpty($result['result']['items']);
+        $this->assertArrayHasKey('result', $result);
+        $this->assertIsArray($result['result']);
+        $this->assertArrayHasKey('items', $result['result']);
+        $this->assertNotEmpty($result['result']['items']);
 
-        self::assertEquals($document, $result['result']['items'][0]);
+        $this->assertEquals($document, $result['result']['items'][0]);
     }
 
     #[Test]
@@ -486,7 +489,9 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             ->getMock();
         $searchResults->method('getGroups')->willReturn($groupCollection);
 
-        $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)->getMock();
+        $searchResultSetMock = $this->getMockBuilder(SearchResultSet::class)
+            ->disableOriginalConstructor()
+            ->getMock();
         $searchResultSetMock->method('isGroupingEnabled')->willReturn(true);
         $searchResultSetMock->method('getFacets')->willReturn(
             new FacetCollection(
@@ -510,20 +515,20 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             [$data, $searchResultSetMock]
         );
 
-        self::assertArrayHasKey('result', $result);
-        self::assertIsArray($result['result']);
-        self::assertArrayHasKey('groups', $result['result']);
-        self::assertNotEmpty($result['result']['groups']);
-        self::assertEquals($group, $result['result']['groups'][0]);
+        $this->assertArrayHasKey('result', $result);
+        $this->assertIsArray($result['result']);
+        $this->assertArrayHasKey('groups', $result['result']);
+        $this->assertNotEmpty($result['result']['groups']);
+        $this->assertEquals($group, $result['result']['groups'][0]);
     }
 
-    protected function inject($target, $name, $dependency)
+    protected function inject($target, string $name, $dependency)
     {
         if (! is_object($target)) {
-            throw new \InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
+            throw new InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
         }
 
-        $objectReflection = new \ReflectionObject($target);
+        $objectReflection = new ReflectionObject($target);
         $methodNamePart = strtoupper($name[0]) . substr($name, 1);
         if ($objectReflection->hasMethod('set' . $methodNamePart)) {
             $methodName = 'set' . $methodNamePart;
@@ -536,8 +541,8 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
             $property->setAccessible(true);
             $property->setValue($target, $dependency);
         } else {
-            throw new \RuntimeException(
-                'Could not inject ' . $name . ' into object of type ' . get_class($target),
+            throw new RuntimeException(
+                'Could not inject ' . $name . ' into object of type ' . $target::class,
                 1476107339
             );
         }
@@ -545,7 +550,7 @@ class SearchResultSetConverterServiceTest extends UnitTestCase
 
     protected function callMethod(object $object, string $method, array $args): mixed
     {
-        $class = new \ReflectionClass($object);
+        $class = new ReflectionClass($object);
         $reflectionMethod = $class->getMethod($method);
         $reflectionMethod->setAccessible(true);
         return $reflectionMethod->invokeArgs($object, $args);

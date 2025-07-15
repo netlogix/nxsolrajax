@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet\Facets\OptionBased\Options;
 
+use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\SearchResultSet;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
@@ -26,7 +27,7 @@ class OptionTest extends UnitTestCase
         $field = uniqid('field_');
         $label = uniqid('label_');
         $value = uniqid('value_');
-        $documentCount = rand(0, 9999);
+        $documentCount = random_int(0, 9999);
         $isSelected = $documentCount % 2 == 0;
         $configuration = ['foo' => uniqid('bar_')];
 
@@ -58,32 +59,32 @@ class OptionTest extends UnitTestCase
 
         $jsonString = json_encode($subject);
 
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertArrayHasKey('label', $jsonData);
-        self::assertEquals($label, $jsonData['label']);
+        $this->assertArrayHasKey('label', $jsonData);
+        $this->assertEquals($label, $jsonData['label']);
 
-        self::assertArrayHasKey('name', $jsonData);
-        self::assertEquals($value, $jsonData['name']);
+        $this->assertArrayHasKey('name', $jsonData);
+        $this->assertEquals($value, $jsonData['name']);
 
-        self::assertArrayHasKey('count', $jsonData);
-        self::assertEquals($documentCount, $jsonData['count']);
+        $this->assertArrayHasKey('count', $jsonData);
+        $this->assertEquals($documentCount, $jsonData['count']);
 
-        self::assertArrayHasKey('selected', $jsonData);
-        self::assertEquals($isSelected, $jsonData['selected']);
+        $this->assertArrayHasKey('selected', $jsonData);
+        $this->assertEquals($isSelected, $jsonData['selected']);
 
-        self::assertArrayHasKey('links', $jsonData);
-        self::assertArrayHasKey('self', $jsonData['links']);
-        self::assertEquals($url, $jsonData['links']['self']);
-        self::assertArrayHasKey('reset', $jsonData['links']);
-        self::assertEquals($resetUrl, $jsonData['links']['reset']);
+        $this->assertArrayHasKey('links', $jsonData);
+        $this->assertArrayHasKey('self', $jsonData['links']);
+        $this->assertEquals($url, $jsonData['links']['self']);
+        $this->assertArrayHasKey('reset', $jsonData['links']);
+        $this->assertEquals($resetUrl, $jsonData['links']['reset']);
     }
 
     #[Test]
-    public function dispatchGenerateFacetItemUrlEventForUrlGeneration()
+    public function dispatchGenerateFacetItemUrlEventForUrlGeneration(): void
     {
         $facet = $this->getFacet();
         $option = new Option(
@@ -94,11 +95,11 @@ class OptionTest extends UnitTestCase
         );
 
         $this->registerEventUrlEvent(GenerateFacetItemUrlEvent::class, $option, 'https://www.example.com/');
-        self::assertEquals('https://www.example.com/', $option->getUrl());
+        $this->assertSame('https://www.example.com/', $option->getUrl());
     }
 
     #[Test]
-    public function generateUrl()
+    public function generateUrl(): void
     {
         $facet = $this->getFacet();
         $searchUriBuilder = $this->getSearchUriBuilder();
@@ -113,22 +114,23 @@ class OptionTest extends UnitTestCase
 
         $this->registerEventUrlEvent(GenerateFacetItemUrlEvent::class, $option, '');
 
-        $facet->expects(self::once())->method('getConfiguration')->willReturn([
+        $facet->expects($this->once())->method('getConfiguration')->willReturn([
             'keepAllOptionsOnSelection' => 1,
             'operator' => 'or',
         ]);
 
-        $searchUriBuilder->expects(self::once())->method('getAddFacetValueUri')->with(
+        $searchUriBuilder->expects($this->once())->method('getAddFacetValueUri')->with(
             self::isInstanceOf(SearchRequest::class),
             'foo_bar',
             'bar'
         )->willReturn('https://www.example.com/');
+        $option->setSearchUriBuilder($searchUriBuilder);
 
-        self::assertEquals('https://www.example.com/', $option->getUrl());
+        $this->assertSame('https://www.example.com/', $option->getUrl());
     }
 
     #[Test]
-    public function dispatchGenerateFacetResetUrlEventForResetUrlGeneration()
+    public function dispatchGenerateFacetResetUrlEventForResetUrlGeneration(): void
     {
         $facet = $this->getFacet();
         $option = new Option(
@@ -139,11 +141,11 @@ class OptionTest extends UnitTestCase
         );
 
         $this->registerEventUrlEvent(GenerateFacetResetUrlEvent::class, $option->getFacet(), 'https://www.example.com/');
-        self::assertEquals('https://www.example.com/', $option->getResetUrl());
+        $this->assertSame('https://www.example.com/', $option->getResetUrl());
     }
 
     #[Test]
-    public function generateResetUrl()
+    public function generateResetUrl(): void
     {
         $facet = $this->getFacet();
         $searchUriBuilder = $this->getSearchUriBuilder();
@@ -158,18 +160,19 @@ class OptionTest extends UnitTestCase
 
         $this->registerEventUrlEvent(GenerateFacetResetUrlEvent::class, $option->getFacet(), '');
 
-        $facet->expects(self::once())->method('getConfiguration')->willReturn([
+        $facet->expects($this->once())->method('getConfiguration')->willReturn([
             'keepAllOptionsOnSelection' => 1,
             'operator' => 'or',
         ]);
 
-        $searchUriBuilder->expects(self::once())->method('getRemoveFacetValueUri')->with(
+        $searchUriBuilder->expects($this->once())->method('getRemoveFacetValueUri')->with(
             self::isInstanceOf(SearchRequest::class),
             'foo_bar',
             'bar'
         )->willReturn('https://www.example.com/');
+        $option->setSearchUriBuilder($searchUriBuilder);
 
-        self::assertEquals('https://www.example.com/', $option->getResetUrl());
+        $this->assertSame('https://www.example.com/', $option->getResetUrl());
     }
 
     private function getFacet(): OptionsFacet&MockObject
@@ -192,22 +195,18 @@ class OptionTest extends UnitTestCase
 
     private function getSearchUriBuilder(): SearchUriBuilder&MockObject
     {
-        $searchUriBuilder = $this->getMockBuilder(SearchUriBuilder::class)
+        return $this->getMockBuilder(SearchUriBuilder::class)
             ->disableOriginalConstructor()
             ->getMock();
-
-        GeneralUtility::addInstance(SearchUriBuilder::class, $searchUriBuilder);
-
-        return $searchUriBuilder;
     }
 
-    private function registerEventUrlEvent(string $className, ...$args): EventDispatcherInterface&MockObject
+    private function registerEventUrlEvent(string $className, Option|AbstractFacet|string ...$args): EventDispatcherInterface&MockObject
     {
         $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $eventDispatcher->expects(self::once())->method('dispatch')->with(
+        $eventDispatcher->expects($this->once())->method('dispatch')->with(
             self::isInstanceOf($className)
         )->willReturn(new $className(...$args));
 

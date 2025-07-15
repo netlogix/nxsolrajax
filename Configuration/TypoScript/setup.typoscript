@@ -43,14 +43,9 @@ tx_nxsolrajax_suggest_page {
         }
     }
 
-    10 = USER
+    10 = EXTBASEPLUGIN
     10 {
-        userFunc = TYPO3\CMS\Extbase\Core\Bootstrap->run
-
-        vendorName = Netlogix
         extensionName = Nxsolrajax
         pluginName = suggest
-        controller = Search
-        action = suggest
     }
 }

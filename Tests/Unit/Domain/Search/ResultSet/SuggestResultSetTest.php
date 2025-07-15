@@ -16,27 +16,24 @@ class SuggestResultSetTest extends UnitTestCase
         $keyword = uniqid('keyword_');
 
         $suggestions = [
-            'keyword_0' => rand(1, 999),
-            'keyword_1' => rand(1, 999),
-            'keyword_2' => rand(1, 999)
+            'keyword_0' => random_int(1, 999),
+            'keyword_1' => random_int(1, 999),
+            'keyword_2' => random_int(1, 999)
         ];
 
         $subject = new SuggestResultSet($suggestions, $keyword);
 
         $jsonString = json_encode($subject);
-        self::assertIsString($jsonString);
+        $this->assertIsString($jsonString);
 
         $jsonData = json_decode($jsonString, true);
-        self::assertIsArray($jsonData);
+        $this->assertIsArray($jsonData);
 
-        self::assertNotEmpty($jsonData);
-        self::assertCount(3, $jsonData);
+        $this->assertNotEmpty($jsonData);
+        $this->assertCount(3, $jsonData);
 
         foreach ([0, 1, 2] as $itemPos) {
-            self::assertEquals(
-                $jsonData[$itemPos],
-                ['count' => $suggestions['keyword_' . $itemPos], 'name' => 'keyword_' . $itemPos]
-            );
+            $this->assertEquals($jsonData[$itemPos], ['count' => $suggestions['keyword_' . $itemPos], 'name' => 'keyword_' . $itemPos]);
         }
     }
 }

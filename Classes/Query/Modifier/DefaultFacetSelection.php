@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Netlogix\Nxsolrajax\Query\Modifier;
 
 use ApacheSolrForTypo3\Solr\Domain\Search\Query\Query;
@@ -50,9 +52,7 @@ class DefaultFacetSelection
         $activeFacetNames = $searchRequest->getActiveFacetNames();
 
         $defaultValuesOfFacets = $this->getDefaultFacetSelections($searchRequest);
-        $defaultValuesOfFacets = array_filter($defaultValuesOfFacets, function ($facetName) use ($activeFacetNames) {
-            return ! in_array($facetName, $activeFacetNames);
-        }, ARRAY_FILTER_USE_KEY);
+        $defaultValuesOfFacets = array_filter($defaultValuesOfFacets, fn($facetName): bool => ! in_array($facetName, $activeFacetNames), ARRAY_FILTER_USE_KEY);
 
         foreach ($defaultValuesOfFacets as $facetName => $defaultSelection) {
             $defaultSelections = GeneralUtility::trimExplode(',', $defaultSelection);
@@ -61,7 +61,7 @@ class DefaultFacetSelection
                     'key' => 'type',
                     'query' => $this->getFacetQueryFilter(
                         $searchRequest->getContextTypoScriptConfiguration(),
-                        $facetName,
+                        (string) $facetName,
                         (array) $selection
                     ),
                 ]);
@@ -89,20 +89,14 @@ class DefaultFacetSelection
     protected function getDefaultFacetSelections(SearchRequest $searchRequest): array
     {
         $facets = $searchRequest->getContextTypoScriptConfiguration()->getSearchFacetingFacets();
-        if (empty($facets)) {
+        if ($facets === []) {
             return [];
         }
 
-        $activeFacets = array_filter($facets, function ($facetConfiguration) {
-            return (bool) $facetConfiguration['includeInAvailableFacets'];
-        });
-        $defaultFacetSelections = array_filter($activeFacets, function ($facetConfiguration) {
-            return isset($facetConfiguration['defaultValue']);
-        });
+        $activeFacets = array_filter($facets, fn($facetConfiguration): bool => (bool) $facetConfiguration['includeInAvailableFacets']);
+        $defaultFacetSelections = array_filter($activeFacets, fn($facetConfiguration): bool => isset($facetConfiguration['defaultValue']));
 
-        $defaultFacetSelections = array_map(function ($facetName, $facetConfiguration) {
-            return [rtrim($facetName, '.'), $facetConfiguration['defaultValue']];
-        }, array_keys($defaultFacetSelections), array_values($defaultFacetSelections));
+        $defaultFacetSelections = array_map(fn($facetName, $facetConfiguration): array => [rtrim((string) $facetName, '.'), $facetConfiguration['defaultValue']], array_keys($defaultFacetSelections), array_values($defaultFacetSelections));
 
         return array_column($defaultFacetSelections, 1, 0);
     }
@@ -133,16 +127,12 @@ class DefaultFacetSelection
      */
     protected function getFilterTag(array $facetConfiguration, bool $keepAllFacetsOnSelection): string
     {
-        $tag = '';
-        if (
-            (int) ($facetConfiguration['keepAllOptionsOnSelection'] ?? 0) === 1
-            || (int) ($facetConfiguration['addFieldAsTag'] ?? 0) === 1
-            || $keepAllFacetsOnSelection
-        ) {
-            $tag = '{!tag=' . addslashes($facetConfiguration['field']) . '}';
+        if ((int) ($facetConfiguration['keepAllOptionsOnSelection'] ?? 0) === 1
+        || (int) ($facetConfiguration['addFieldAsTag'] ?? 0) === 1
+        || $keepAllFacetsOnSelection) {
+            return '{!tag=' . addslashes((string) $facetConfiguration['field']) . '}';
         }
-
-        return $tag;
+        return '';
     }
 
     /**

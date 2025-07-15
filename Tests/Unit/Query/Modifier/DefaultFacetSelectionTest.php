@@ -127,7 +127,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
             ->getMock();
 
         $search->method('search')->willReturn(new ResponseAdapter(''));
-        $searchRequest->expects(self::never())->method('addFacetValue');
+        $searchRequest->expects($this->never())->method('addFacetValue');
 
         $query = new Query();
         $event = new AfterSearchQueryHasBeenPreparedEvent(
@@ -140,7 +140,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
         $defaultFacetSelection = new DefaultFacetSelection($queryBuilder, $facetRegistry);
         $defaultFacetSelection->__invoke($event);
 
-        self::assertCount(0, $query->getFilterQueries());
+        $this->assertCount(0, $query->getFilterQueries());
     }
 
     #[Test]
@@ -184,7 +184,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
                 'count' => 4,
             ],
         ])));
-        $searchRequest->expects(self::once())->method('addFacetValue')->with('bar', 'foo');
+        $searchRequest->expects($this->once())->method('addFacetValue')->with('bar', 'foo');
 
         $query = new Query();
         $event = new AfterSearchQueryHasBeenPreparedEvent(
@@ -197,7 +197,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
         $defaultFacetSelection = new DefaultFacetSelection($queryBuilder, $facetRegistry);
         $defaultFacetSelection->__invoke($event);
 
-        self::assertCount(1, $query->getFilterQueries());
+        $this->assertCount(1, $query->getFilterQueries());
     }
 
     #[Test]
@@ -233,10 +233,10 @@ class DefaultFacetSelectionTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $logger->expects(self::once())->method('warning');
+        $logger->expects($this->once())->method('warning');
 
         $search->method('search')->willReturn(new ResponseAdapter(''));
-        $searchRequest->expects(self::never())->method('addFacetValue');
+        $searchRequest->expects($this->never())->method('addFacetValue');
 
         $query = new Query();
         $event = new AfterSearchQueryHasBeenPreparedEvent(
