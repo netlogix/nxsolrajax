@@ -14,6 +14,7 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Exception\NoSuchArgumentException;
 
@@ -147,6 +148,11 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             $pageId,
             $languageId
         );
+    }
+
+    protected function jsonResponse(?string $json = null): ResponseInterface
+    {
+        throw new PropagateResponseException(parent::jsonResponse($json), 1752745900);
     }
 
 }
