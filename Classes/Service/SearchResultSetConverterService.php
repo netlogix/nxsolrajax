@@ -181,6 +181,7 @@ class SearchResultSetConverterService implements SingletonInterface
         $groups = $searchResultSet->getSearchResults()->getGroups()->getArrayCopy();
         foreach ($groups as $group) {
             assert($group instanceof Group);
+            $group->setSearchUriBuilder($this->searchUriBuilder);
             foreach ($group->getGroupItems() as $groupItem) {
                 if (($facet = $searchResultSet->getFacets()->getByName($group->getGroupName())->getByPosition(
                         0
