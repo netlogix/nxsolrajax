@@ -152,7 +152,9 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
 
     protected function jsonResponse(?string $json = null): ResponseInterface
     {
-        throw new PropagateResponseException(parent::jsonResponse($json), 1752745900);
+        $request = parent::jsonResponse($json)
+            ->withHeader('Vary', 'Accept');
+        throw new PropagateResponseException($request, 1752745900);
     }
 
 }
