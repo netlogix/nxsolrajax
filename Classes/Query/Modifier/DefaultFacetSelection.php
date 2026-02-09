@@ -15,9 +15,11 @@ use ApacheSolrForTypo3\Solr\Search;
 use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 use Psr\Log\LoggerAwareTrait;
 use Solarium\QueryType\Select\Query\FilterQuery;
+use TYPO3\CMS\Core\Attribute\AsEventListener;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Reflection\ObjectAccess;
 
+#[AsEventListener]
 class DefaultFacetSelection
 {
     use LoggerAwareTrait;
@@ -70,7 +72,7 @@ class DefaultFacetSelection
 
                 $result = $search->search($defaultFacetSelectionQuery);
                 $rawCount = (int) ObjectAccess::getPropertyPath($result, 'response.numFound');
-                $groupedCount = (int) ObjectAccess::getPropertyPath($result, 'facets.count');
+                $groupedCount = (int) ObjectAccess::getPropertyPath($result, 'parsedData.grouped.' . $facetName .'_stringS.matches');
                 if ($rawCount > 0 || $groupedCount) {
                     $query->addFilterQuery($filterQuery);
                     $searchRequest->addFacetValue($facetName, $selection);
