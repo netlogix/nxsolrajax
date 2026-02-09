@@ -188,6 +188,7 @@ class SearchResultSetConverterService implements SingletonInterface
                     )) !== null) {
                     assert($groupItem instanceof GroupItem);
                     $option = $facet->getOptions()->getByValue($groupItem->getGroupValue());
+                    $option->setSearchUriBuilder($this->searchUriBuilder);
                     assert($option instanceof AbstractOptionFacetItem);
                     if ($option instanceof Option) {
                         $groupItem->setGroupUrl($option->getUrl());
