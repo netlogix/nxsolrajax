@@ -8,21 +8,19 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SearchResult;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class SearchResultTest extends UnitTestCase
+final class SearchResultTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanBeSerializedToJSON(): void
     {
         $data = [
-            'id' => (string)random_int(1, 9999999),
+            'id' => (string) random_int(1, 9999999),
             'type' => uniqid('type_'),
             'title' => uniqid('title_'),
             'content' => uniqid('content_'),
             'abstract' => uniqid('abstract_'),
             'image' => uniqid('https://www.example.com/') . '.jpg',
-            'url' => uniqid('https://www.example.com/')
-
+            'url' => uniqid('https://www.example.com/'),
         ];
 
         $subject = new SearchResult($data, [], []);
@@ -74,7 +72,7 @@ class SearchResultTest extends UnitTestCase
     {
         $data = [
             'highlightedContent' => uniqid('highlightedContent_'),
-            'abstract' => uniqid('abstract_')
+            'abstract' => uniqid('abstract_'),
         ];
 
         $subject = new SearchResult($data, [], []);

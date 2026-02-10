@@ -35,7 +35,7 @@ class Option extends SolrOption implements JsonSerializable
     public function getUrl(): string
     {
         $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
-            new GenerateFacetItemUrlEvent($this, '')
+            new GenerateFacetItemUrlEvent($this, ''),
         );
 
         $url = $event->getUrl();
@@ -47,17 +47,22 @@ class Option extends SolrOption implements JsonSerializable
 
         $settings = $this->getFacet()->getConfiguration();
         $keepAllOptionsOnSelection = (int) ($settings['keepAllOptionsOnSelection'] ?? 0);
-        $operator = in_array(strtolower($settings['operator'] ?? ''), ['', '0'], true) ? 'and' : strtolower($settings['operator'] ?? '');
+        $operator = in_array(strtolower($settings['operator'] ?? ''), ['', '0'], true)
+            ? 'and'
+            : strtolower($settings['operator'] ?? '');
         return match (true) {
-            $keepAllOptionsOnSelection == 1 && $operator === 'or', $keepAllOptionsOnSelection == 0 => $this->searchUriBuilder->getAddFacetValueUri(
+            $keepAllOptionsOnSelection === 1 && $operator === 'or',
+            $keepAllOptionsOnSelection === 0
+                => $this->searchUriBuilder->getAddFacetValueUri(
                 $previousRequest,
                 $this->getFacet()->getName(),
-                $this->getUriValue()
+                $this->getUriValue(),
             ),
-            $keepAllOptionsOnSelection == 1 && $operator === 'and' => $this->searchUriBuilder->getSetFacetValueUri(
+            $keepAllOptionsOnSelection === 1 && $operator === 'and'
+                => $this->searchUriBuilder->getSetFacetValueUri(
                 $previousRequest,
                 $this->getFacet()->getName(),
-                $this->getUriValue()
+                $this->getUriValue(),
             ),
             default => '',
         };
@@ -66,7 +71,7 @@ class Option extends SolrOption implements JsonSerializable
     public function getResetUrl(): string
     {
         $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
-            new GenerateFacetResetUrlEvent($this->facet, '')
+            new GenerateFacetResetUrlEvent($this->facet, ''),
         );
 
         $url = $event->getUrl();
@@ -78,16 +83,20 @@ class Option extends SolrOption implements JsonSerializable
 
         $settings = $this->getFacet()->getConfiguration();
         $keepAllOptionsOnSelection = (int) ($settings['keepAllOptionsOnSelection'] ?? 0);
-        $operator = in_array(strtolower($settings['operator'] ?? ''), ['', '0'], true) ? 'and' : strtolower($settings['operator'] ?? '');
+        $operator = in_array(strtolower($settings['operator'] ?? ''), ['', '0'], true)
+            ? 'and'
+            : strtolower($settings['operator'] ?? '');
         return match (true) {
-            $keepAllOptionsOnSelection == 1 && $operator === 'or', $keepAllOptionsOnSelection == 0 => $this->searchUriBuilder->getRemoveFacetValueUri(
+            $keepAllOptionsOnSelection === 1 && $operator === 'or',
+            $keepAllOptionsOnSelection === 0
+                => $this->searchUriBuilder->getRemoveFacetValueUri(
                 $previousRequest,
                 $this->getFacet()->getName(),
-                $this->getUriValue()
+                $this->getUriValue(),
             ),
-            $keepAllOptionsOnSelection == 1 && $operator === 'and' => $this->searchUriBuilder->getRemoveFacetUri(
+            $keepAllOptionsOnSelection === 1 && $operator === 'and' => $this->searchUriBuilder->getRemoveFacetUri(
                 $previousRequest,
-                $this->getFacet()->getName()
+                $this->getFacet()->getName(),
             ),
             default => '',
         };

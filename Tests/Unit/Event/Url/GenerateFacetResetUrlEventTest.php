@@ -9,16 +9,14 @@ use Netlogix\Nxsolrajax\Event\Url\GenerateFacetResetUrlEvent;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class GenerateFacetResetUrlEventTest extends UnitTestCase
+final class GenerateFacetResetUrlEventTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;
 
     #[Test]
     public function itExposesFacet(): void
     {
-        $facetMock = $this->getMockBuilder(AbstractFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(AbstractFacet::class);
 
         $subject = new GenerateFacetResetUrlEvent($facetMock, '');
 
@@ -30,9 +28,7 @@ class GenerateFacetResetUrlEventTest extends UnitTestCase
     {
         $url = uniqid('https://www.example.com/');
 
-        $facetMock = $this->getMockBuilder(AbstractFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(AbstractFacet::class);
 
         $subject = new GenerateFacetResetUrlEvent($facetMock, $url);
 
@@ -45,9 +41,7 @@ class GenerateFacetResetUrlEventTest extends UnitTestCase
         $url1 = uniqid('https://www.example.com/');
         $url2 = uniqid('https://www.example.com/');
 
-        $facetMock = $this->getMockBuilder(AbstractFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(AbstractFacet::class);
 
         $subject = new GenerateFacetResetUrlEvent($facetMock, $url1);
 

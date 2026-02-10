@@ -19,6 +19,7 @@ use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\EventDispatcher\EventDispatcherInterface;
+use TYPO3\CMS\Core\Http\PropagateResponseException;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Http\ResponseFactory;
 use TYPO3\CMS\Core\Http\ServerRequest;
@@ -32,15 +33,13 @@ use TYPO3\CMS\Extbase\Mvc\Request;
 use TYPO3\CMS\Fluid\View\TemplateView;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class SearchControllerTest extends UnitTestCase
+final class SearchControllerTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;
 
-    #[Override]
     protected function setUp(): void
     {
         parent::setUp();
-
         $GLOBALS['TYPO3_CONF_VARS']['SYS']['fluid']['interceptors'] = [];
         $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'] = [];
     }
@@ -62,19 +61,20 @@ class SearchControllerTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['getSearchResultSet'])
             ->getMock();
-        $searchController->method('getSearchResultSet')->willReturn(
-            new SearchResultSet()
-        );
+        $searchController->method('getSearchResultSet')->willReturn(new SearchResultSet());
 
         $this->inject($searchController, 'responseFactory', new ResponseFactory());
         $this->inject($searchController, 'streamFactory', new StreamFactory());
         $this->inject(
             $searchController,
             'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'application/json')
+            $this->createRequest()->withHeader('Accept', 'application/json'),
         );
-        $response = $searchController->indexAction();
+        try {
+            $response = $searchController->indexAction();
+        } catch (PropagateResponseException $propagateResponseException) {
+            $response = $propagateResponseException->getResponse();
+        }
 
         $this->assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
@@ -93,7 +93,8 @@ class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['getSearchResultSet'])
             ->getMock();
 
-        $searchController->method('getSearchResultSet')
+        $searchController
+            ->method('getSearchResultSet')
             ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
@@ -111,9 +112,7 @@ class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['assign'])
             ->getMock();
 
-        $viewMock->expects($this->exactly(1))
-            ->method('assign')
-            ->with('resultSet', []);
+        $viewMock->expects($this->exactly(1))->method('assign')->with('resultSet', []);
 
         $searchController = $this->getMockBuilder(SearchController::class)
             ->onlyMethods(['getSearchResultSet', 'htmlResponse'])
@@ -142,7 +141,12 @@ class SearchControllerTest extends UnitTestCase
         $this->inject($subject, 'responseFactory', new ResponseFactory());
         $this->inject($subject, 'streamFactory', new StreamFactory());
 
-        $response = $subject->resultsAction();
+        try {
+            $response = $subject->resultsAction();
+        } catch (PropagateResponseException $propagateResponseException) {
+            $response = $propagateResponseException->getResponse();
+        }
+
         $this->assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
@@ -160,7 +164,8 @@ class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['getSearchResultSet'])
             ->getMock();
 
-        $searchController->method('getSearchResultSet')
+        $searchController
+            ->method('getSearchResultSet')
             ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
@@ -174,8 +179,7 @@ class SearchControllerTest extends UnitTestCase
     public function suggestActionsWillReturnResultsAsJson(): void
     {
         $queryString = uniqid('query_');
-        $request = $this->createRequest()
-            ->withArgument('q', $queryString);
+        $request = $this->createRequest()->withArgument('q', $queryString);
 
         $typoscriptConfiguration = new TypoScriptConfiguration([]);
 
@@ -200,7 +204,12 @@ class SearchControllerTest extends UnitTestCase
 
         GeneralUtility::addInstance(SuggestService::class, $suggestService);
         GeneralUtility::addInstance(SearchRequestBuilder::class, $searchRequestBuilder);
-        $this->registerEvent(AfterGetSuggestionsEvent::class, $queryString, $suggestions, $typoscriptConfiguration);
+        $this->registerEvent(
+            AfterGetSuggestionsEvent::class,
+            $queryString,
+            $suggestions,
+            $typoscriptConfiguration,
+        );
 
         $searchController = $this->getMockBuilder(SearchController::class)
             ->disableOriginalConstructor()
@@ -212,9 +221,13 @@ class SearchControllerTest extends UnitTestCase
         $this->inject($searchController, 'responseFactory', new ResponseFactory());
         $this->inject($searchController, 'streamFactory', new StreamFactory());
 
-        $result = $searchController->suggestAction();
+        try {
+            $response = $searchController->suggestAction();
+        } catch (PropagateResponseException $propagateResponseException) {
+            $response = $propagateResponseException->getResponse();
+        }
 
-        $this->assertEquals('application/json; charset=utf-8', $result->getHeaderLine('Content-Type'));
+        $this->assertEquals('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
     }
 
     #[Test]
@@ -231,15 +244,11 @@ class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['getSuggestRequest'])
             ->getMock();
 
-        $searchController->method('getSuggestRequest')
+        $searchController
+            ->method('getSuggestRequest')
             ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
-        $this->inject(
-            $searchController,
-            'request',
-            $this->createRequest()
-                ->withArgument('q', uniqid('query_'))
-        );
+        $this->inject($searchController, 'request', $this->createRequest()->withArgument('q', uniqid('query_')));
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
         $response = $searchController->suggestAction();
@@ -252,12 +261,7 @@ class SearchControllerTest extends UnitTestCase
     {
         $subject = new SearchController();
 
-        $this->inject(
-            $subject,
-            'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'text/html')
-        );
+        $this->inject($subject, 'request', $this->createRequest()->withHeader('Accept', 'text/html'));
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
@@ -275,22 +279,21 @@ class SearchControllerTest extends UnitTestCase
     {
         $subject = new SearchController();
 
-        $this->inject(
-            $subject,
-            'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'application/json')
-        );
+        $this->inject($subject, 'request', $this->createRequest()->withHeader('Accept', 'application/json'));
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
-        $res = $subject->solrNotAvailableAction();
+        try {
+            $response = $subject->solrNotAvailableAction();
+        } catch (PropagateResponseException $propagateResponseException) {
+            $response = $propagateResponseException->getResponse();
+        }
 
-        $this->assertSame('application/json; charset=utf-8', $res->getHeaderLine('Content-Type'));
+        $this->assertSame('application/json; charset=utf-8', $response->getHeaderLine('Content-Type'));
 
-        $res->getBody()->rewind();
+        $response->getBody()->rewind();
 
-        json_decode($res->getBody()->getContents());
+        json_decode($response->getBody()->getContents());
         $this->assertSame(JSON_ERROR_NONE, json_last_error(), 'failed decoding content to JSON');
     }
 
@@ -299,16 +302,15 @@ class SearchControllerTest extends UnitTestCase
     {
         $subject = new SearchController();
 
-        $this->inject(
-            $subject,
-            'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'application/json')
-        );
+        $this->inject($subject, 'request', $this->createRequest()->withHeader('Accept', 'application/json'));
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
-        $res = $subject->solrNotAvailableAction();
+        try {
+            $res = $subject->solrNotAvailableAction();
+        } catch (PropagateResponseException $propagateResponseException) {
+            $res = $propagateResponseException->getResponse();
+        }
 
         $res->getBody()->rewind();
 
@@ -341,9 +343,9 @@ class SearchControllerTest extends UnitTestCase
         $this->assertSame($expectedResponse, $res);
     }
 
-    protected function inject($target, string $name, $dependency)
+    protected function inject($target, string $name, $dependency): void
     {
-        if (! is_object($target)) {
+        if (!is_object($target)) {
             throw new InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
         }
 
@@ -357,12 +359,11 @@ class SearchControllerTest extends UnitTestCase
             $target->$methodName($dependency);
         } elseif ($objectReflection->hasProperty($name)) {
             $property = $objectReflection->getProperty($name);
-            $property->setAccessible(true);
             $property->setValue($target, $dependency);
         } else {
             throw new RuntimeException(
                 'Could not inject ' . $name . ' into object of type ' . $target::class,
-                1476107339
+                1476107339,
             );
         }
     }
@@ -394,13 +395,13 @@ class SearchControllerTest extends UnitTestCase
 
     protected function registerEvent(string $className, ...$args): EventDispatcherInterface&MockObject
     {
-        $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects($this->once())->method('dispatch')->with(
-            self::isInstanceOf($className)
-        )->willReturn(new $className(...$args));
+        $eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf($className))
+            ->willReturn(new $className(...$args));
 
         GeneralUtility::addInstance(EventDispatcherInterface::class, $eventDispatcher);
 

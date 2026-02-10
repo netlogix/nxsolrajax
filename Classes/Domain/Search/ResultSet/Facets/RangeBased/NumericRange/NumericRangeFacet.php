@@ -26,11 +26,11 @@ class NumericRangeFacet extends SolrNumericRangeFacet implements JsonSerializabl
             'count' => $range->getDocumentCount(),
             'selected' => $range->getSelected(),
             'rangeCounts' => array_map(
-                fn (NumericRangeCount $numericRangeCount): array => [
+                fn(NumericRangeCount $numericRangeCount): array => [
                     'count' => $numericRangeCount->getDocumentCount(),
-                    'name' => $numericRangeCount->getRangeItem()
+                    'name' => $numericRangeCount->getRangeItem(),
                 ],
-                $range->getRangeCounts()
+                $range->getRangeCounts(),
             ),
 
             'step' => $range->getGap(),
@@ -41,8 +41,8 @@ class NumericRangeFacet extends SolrNumericRangeFacet implements JsonSerializabl
 
             'links' => [
                 'self' => $this->getUrl(),
-                'reset' => $this->getResetUrl()
-            ]
+                'reset' => $this->getResetUrl(),
+            ],
         ];
     }
 
@@ -55,5 +55,4 @@ class NumericRangeFacet extends SolrNumericRangeFacet implements JsonSerializabl
     {
         return $this->getFacetItemUrl($this->getRange(), '___FROM___-___TO___');
     }
-
 }

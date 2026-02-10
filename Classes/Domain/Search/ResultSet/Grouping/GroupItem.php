@@ -61,6 +61,7 @@ class GroupItem extends SolrGroupItem implements JsonSerializable
                 $option->setSearchUriBuilder($this->searchUriBuilder);
             }
         }
+
         return $options;
     }
 }

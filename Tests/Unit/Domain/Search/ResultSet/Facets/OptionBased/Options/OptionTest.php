@@ -18,7 +18,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class OptionTest extends UnitTestCase
+final class OptionTest extends UnitTestCase
 {
     #[Test]
     public function itCanBeSerializedToJSON(): void
@@ -28,26 +28,13 @@ class OptionTest extends UnitTestCase
         $label = uniqid('label_');
         $value = uniqid('value_');
         $documentCount = random_int(0, 9999);
-        $isSelected = $documentCount % 2 == 0;
+        $isSelected = $documentCount % 2 === 0;
         $configuration = ['foo' => uniqid('bar_')];
 
-        $facet = new OptionsFacet(
-            new SearchResultSet(),
-            $name,
-            $field,
-            $label,
-            $configuration
-        );
+        $facet = new OptionsFacet(new SearchResultSet(), $name, $field, $label, $configuration);
 
         $subject = $this->getMockBuilder(Option::class)
-            ->setConstructorArgs([
-                $facet,
-                $label,
-                $value,
-                $documentCount,
-                $isSelected,
-                []
-            ])
+            ->setConstructorArgs([$facet, $label, $value, $documentCount, $isSelected, []])
             ->onlyMethods(['getUrl', 'getResetUrl'])
             ->getMock();
 
@@ -87,12 +74,7 @@ class OptionTest extends UnitTestCase
     public function dispatchGenerateFacetItemUrlEventForUrlGeneration(): void
     {
         $facet = $this->getFacet();
-        $option = new Option(
-            facet: $facet,
-            label: 'foo',
-            value: 'bar',
-            documentCount: 10
-        );
+        $option = new Option(facet: $facet, label: 'foo', value: 'bar', documentCount: 10);
 
         $this->registerEventUrlEvent(GenerateFacetItemUrlEvent::class, $option, 'https://www.example.com/');
         $this->assertSame('https://www.example.com/', $option->getUrl());
@@ -104,26 +86,23 @@ class OptionTest extends UnitTestCase
         $facet = $this->getFacet();
         $searchUriBuilder = $this->getSearchUriBuilder();
 
-        $option = new Option(
-            facet: $facet,
-            label: 'foo',
-            value: 'bar',
-            documentCount: 10
-        );
-
+        $option = new Option(facet: $facet, label: 'foo', value: 'bar', documentCount: 10);
 
         $this->registerEventUrlEvent(GenerateFacetItemUrlEvent::class, $option, '');
 
-        $facet->expects($this->once())->method('getConfiguration')->willReturn([
-            'keepAllOptionsOnSelection' => 1,
-            'operator' => 'or',
-        ]);
+        $facet
+            ->expects($this->once())
+            ->method('getConfiguration')
+            ->willReturn([
+                'keepAllOptionsOnSelection' => 1,
+                'operator' => 'or',
+            ]);
 
-        $searchUriBuilder->expects($this->once())->method('getAddFacetValueUri')->with(
-            self::isInstanceOf(SearchRequest::class),
-            'foo_bar',
-            'bar'
-        )->willReturn('https://www.example.com/');
+        $searchUriBuilder
+            ->expects($this->once())
+            ->method('getAddFacetValueUri')
+            ->with(self::isInstanceOf(SearchRequest::class), 'foo_bar', 'bar')
+            ->willReturn('https://www.example.com/');
         $option->setSearchUriBuilder($searchUriBuilder);
 
         $this->assertSame('https://www.example.com/', $option->getUrl());
@@ -133,14 +112,13 @@ class OptionTest extends UnitTestCase
     public function dispatchGenerateFacetResetUrlEventForResetUrlGeneration(): void
     {
         $facet = $this->getFacet();
-        $option = new Option(
-            facet: $facet,
-            label: 'foo',
-            value: 'bar',
-            documentCount: 10
-        );
+        $option = new Option(facet: $facet, label: 'foo', value: 'bar', documentCount: 10);
 
-        $this->registerEventUrlEvent(GenerateFacetResetUrlEvent::class, $option->getFacet(), 'https://www.example.com/');
+        $this->registerEventUrlEvent(
+            GenerateFacetResetUrlEvent::class,
+            $option->getFacet(),
+            'https://www.example.com/',
+        );
         $this->assertSame('https://www.example.com/', $option->getResetUrl());
     }
 
@@ -150,26 +128,23 @@ class OptionTest extends UnitTestCase
         $facet = $this->getFacet();
         $searchUriBuilder = $this->getSearchUriBuilder();
 
-        $option = new Option(
-            facet: $facet,
-            label: 'foo',
-            value: 'bar',
-            documentCount: 10
-        );
-
+        $option = new Option(facet: $facet, label: 'foo', value: 'bar', documentCount: 10);
 
         $this->registerEventUrlEvent(GenerateFacetResetUrlEvent::class, $option->getFacet(), '');
 
-        $facet->expects($this->once())->method('getConfiguration')->willReturn([
-            'keepAllOptionsOnSelection' => 1,
-            'operator' => 'or',
-        ]);
+        $facet
+            ->expects($this->once())
+            ->method('getConfiguration')
+            ->willReturn([
+                'keepAllOptionsOnSelection' => 1,
+                'operator' => 'or',
+            ]);
 
-        $searchUriBuilder->expects($this->once())->method('getRemoveFacetValueUri')->with(
-            self::isInstanceOf(SearchRequest::class),
-            'foo_bar',
-            'bar'
-        )->willReturn('https://www.example.com/');
+        $searchUriBuilder
+            ->expects($this->once())
+            ->method('getRemoveFacetValueUri')
+            ->with(self::isInstanceOf(SearchRequest::class), 'foo_bar', 'bar')
+            ->willReturn('https://www.example.com/');
         $option->setSearchUriBuilder($searchUriBuilder);
 
         $this->assertSame('https://www.example.com/', $option->getResetUrl());
@@ -177,16 +152,11 @@ class OptionTest extends UnitTestCase
 
     private function getFacet(): OptionsFacet&MockObject
     {
-        $facet = $this->getMockBuilder(OptionsFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facet = $this->createMock(OptionsFacet::class);
         $facet->method('getName')->willReturn('foo_bar');
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
 
         $searchResultSet = new SearchResultSet();
-        $searchResultSet->setUsedSearchRequest($searchRequest);
+        $searchResultSet->setUsedSearchRequest($this->createStub(SearchRequest::class));
 
         $facet->method('getResultSet')->willReturn($searchResultSet);
 
@@ -195,20 +165,18 @@ class OptionTest extends UnitTestCase
 
     private function getSearchUriBuilder(): SearchUriBuilder&MockObject
     {
-        return $this->getMockBuilder(SearchUriBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        return $this->createMock(SearchUriBuilder::class);
     }
 
-    private function registerEventUrlEvent(string $className, Option|AbstractFacet|string ...$args): EventDispatcherInterface&MockObject
+    private function registerEventUrlEvent(string $className, ...$args): EventDispatcherInterface&MockObject
     {
-        $eventDispatcher = $this->getMockBuilder(EventDispatcherInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects($this->once())->method('dispatch')->with(
-            self::isInstanceOf($className)
-        )->willReturn(new $className(...$args));
+        $eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf($className))
+            ->willReturn(new $className(...$args));
 
         GeneralUtility::addInstance(EventDispatcherInterface::class, $eventDispatcher);
 

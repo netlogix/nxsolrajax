@@ -10,35 +10,21 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Op
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class OptionTest extends UnitTestCase
+final class OptionTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanBesSerializedToJSON(): void
     {
-        $queryGroupFacet = new QueryGroupFacet(
-            new SearchResultSet(),
-            uniqid('name_'),
-            uniqid('field_'),
-            '',
-            []
-        );
-
+        $queryGroupFacet = new QueryGroupFacet(new SearchResultSet(), uniqid('name_'), uniqid('field_'), '', []);
 
         $label = uniqid('label_');
         $value = uniqid('value_');
         $documentCount = random_int(0, 999);
-        $selected = $documentCount % 2 == 0;
+        $selected = $documentCount % 2 === 0;
         $url = sprintf('https://www.example.com/%s', $value);
 
         $subject = $this->getMockBuilder(Option::class)
-            ->setConstructorArgs([
-                $queryGroupFacet,
-                $label,
-                $value,
-                $documentCount,
-                $selected
-            ])
+            ->setConstructorArgs([$queryGroupFacet, $label, $value, $documentCount, $selected])
             ->onlyMethods(['getFacetItemUrl'])
             ->getMock();
 

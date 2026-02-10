@@ -8,9 +8,8 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\Group;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class GroupTest extends UnitTestCase
+final class GroupTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanBeSerializedToJSON(): void
     {

@@ -8,10 +8,7 @@ use JsonSerializable;
 
 class SuggestResultSet implements JsonSerializable
 {
-
-    public function __construct(protected array $suggestions, protected string $keyword)
-    {
-    }
+    public function __construct(protected array $suggestions, protected string $keyword) {}
 
     public function jsonSerialize(): array
     {

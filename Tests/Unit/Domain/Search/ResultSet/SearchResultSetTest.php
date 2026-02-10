@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Netlogix\Nxsolrajax\Tests\Unit\Domain\Search\ResultSet;
 
+use PHPUnit\Framework\MockObject\MockObject;
 use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Spellchecking\Suggestion;
 use ApacheSolrForTypo3\Solr\Domain\Search\SearchRequest;
 use ApacheSolrForTypo3\Solr\Domain\Search\Uri\SearchUriBuilder;
@@ -16,22 +17,19 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class SearchResultSetTest extends UnitTestCase
+final class SearchResultSetTest extends UnitTestCase
 {
-
     protected bool $resetSingletonInstances = true;
-    protected SearchUriBuilder $searchUriBuilder;
-    protected UriBuilder $uriBuilder;
+
+    protected MockObject $searchUriBuilder;
+
+    protected MockObject $uriBuilder;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->searchUriBuilder = $this->getMockBuilder(SearchUriBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->uriBuilder = $this->getMockBuilder(UriBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->searchUriBuilder = $this->createMock(SearchUriBuilder::class);
+        $this->uriBuilder = $this->createMock(UriBuilder::class);
         GeneralUtility::addInstance(SearchUriBuilder::class, $this->searchUriBuilder);
         GeneralUtility::addInstance(UriBuilder::class, $this->uriBuilder);
     }
@@ -39,9 +37,7 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function itCanForceAddingFacetData(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
 
         $searchResultSet = new SearchResultSet();
         $searchResultSet->setUsedSearchRequest($searchRequest);
@@ -55,9 +51,7 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function itIsAddingFacetDataOnPageOne(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $searchRequest->method('getPage')->willReturn(1, 10);
 
         $searchResultSet = new SearchResultSet();
@@ -69,14 +63,15 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function itJsonSerialize(): void
     {
-        $searchResultSetConverterService = $this->getMockBuilder(SearchResultSetConverterService::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchResultSetConverterService = $this->createMock(SearchResultSetConverterService::class);
         GeneralUtility::setSingletonInstance(
             SearchResultSetConverterService::class,
-            $searchResultSetConverterService
+            $searchResultSetConverterService,
         );
-        $searchResultSetConverterService->expects($this->once())->method('setSearchUriBuilder')->willReturn($searchResultSetConverterService);
+        $searchResultSetConverterService
+            ->expects($this->once())
+            ->method('setSearchUriBuilder')
+            ->willReturn($searchResultSetConverterService);
         $searchResultSetConverterService->expects($this->once())->method('toArray')->willReturn([]);
 
         $searchResultSet = new SearchResultSet();
@@ -112,14 +107,13 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getSearchUrl(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createStub(SearchRequest::class);
 
-        $this->searchUriBuilder->expects($this->once())->method('getNewSearchUri')->with(
-            $searchRequest,
-            '{query}'
-        )->willReturn('https://www.example.com');
+        $this->searchUriBuilder
+            ->expects($this->once())
+            ->method('getNewSearchUri')
+            ->with($searchRequest, '{query}')
+            ->willReturn('https://www.example.com');
 
         $searchResultSet = new SearchResultSet();
         $searchResultSet->setUsedSearchRequest($searchRequest);
@@ -150,14 +144,12 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getSuggestionUrl(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->searchUriBuilder->expects($this->once())->method('getNewSearchUri')->with(
-            $searchRequest,
-            'asdfasdfasd'
-        )->willReturn('https://www.example.com?tx_solr[q]=asdfasdfasd');
-
+        $searchRequest = $this->createStub(SearchRequest::class);
+        $this->searchUriBuilder
+            ->expects($this->once())
+            ->method('getNewSearchUri')
+            ->with($searchRequest, 'asdfasdfasd')
+            ->willReturn('https://www.example.com?tx_solr[q]=asdfasdfasd');
 
         $searchResultSet = new SearchResultSet();
         $searchResultSet->addSpellCheckingSuggestion(new Suggestion('asdfasdfasd'));
@@ -168,9 +160,7 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getFirstUrlOnFirstPageIsEmpty(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $this->searchUriBuilder->expects($this->never())->method('getResultPageUri');
         $searchRequest->method('getPage')->willReturn(1);
 
@@ -182,13 +172,12 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getFirstUrl(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->searchUriBuilder->expects($this->once())->method('getResultPageUri')->with(
-            $searchRequest,
-            1
-        )->willReturn('https://www.example.com?tx_solr[page]=1');
+        $searchRequest = $this->createMock(SearchRequest::class);
+        $this->searchUriBuilder
+            ->expects($this->once())
+            ->method('getResultPageUri')
+            ->with($searchRequest, 1)
+            ->willReturn('https://www.example.com?tx_solr[page]=1');
 
         $searchRequest->method('getPage')->willReturn(3);
 
@@ -200,9 +189,7 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getPrevUrlOnFirstPageIsEmpty(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $this->searchUriBuilder->expects($this->never())->method('getResultPageUri');
 
         $searchRequest->method('getPage')->willReturn(1);
@@ -215,13 +202,12 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getPrevUrl(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->searchUriBuilder->expects($this->once())->method('getResultPageUri')->with(
-            $searchRequest,
-            2
-        )->willReturn('https://www.example.com?tx_solr[page]=2');
+        $searchRequest = $this->createMock(SearchRequest::class);
+        $this->searchUriBuilder
+            ->expects($this->once())
+            ->method('getResultPageUri')
+            ->with($searchRequest, 2)
+            ->willReturn('https://www.example.com?tx_solr[page]=2');
 
         $searchRequest->method('getPage')->willReturn(3);
 
@@ -233,9 +219,7 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getNextUrlOnLastPageIsEmpty(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $this->searchUriBuilder->expects($this->never())->method('getResultPageUri');
 
         $searchRequest->method('getPage')->willReturn(1);
@@ -248,16 +232,13 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getNextUrl(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->searchUriBuilder->expects($this->once())->method('getResultPageUri')->with(
-            $searchRequest,
-            2
-        )->willReturn('https://www.example.com?tx_solr[page]=2');
+        $searchRequest = $this->createMock(SearchRequest::class);
+        $search = $this->createMock(Search::class);
+        $this->searchUriBuilder
+            ->expects($this->once())
+            ->method('getResultPageUri')
+            ->with($searchRequest, 2)
+            ->willReturn('https://www.example.com?tx_solr[page]=2');
 
         $searchRequest->method('getPage')->willReturn(1);
         $search->method('getResultOffset')->willReturn(10);
@@ -272,12 +253,8 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getLastUrlOnLastPageIsEmpty(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
+        $search = $this->createMock(Search::class);
         $this->searchUriBuilder->expects($this->never())->method('getResultPageUri');
 
         $searchRequest->method('getPage')->willReturn(1);
@@ -293,16 +270,13 @@ class SearchResultSetTest extends UnitTestCase
     #[Test]
     public function getLastUrl(): void
     {
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $this->searchUriBuilder->expects($this->once())->method('getResultPageUri')->with(
-            $searchRequest,
-            5
-        )->willReturn('https://www.example.com?tx_solr[page]=5');
+        $searchRequest = $this->createMock(SearchRequest::class);
+        $search = $this->createMock(Search::class);
+        $this->searchUriBuilder
+            ->expects($this->once())
+            ->method('getResultPageUri')
+            ->with($searchRequest, 5)
+            ->willReturn('https://www.example.com?tx_solr[page]=5');
 
         $searchRequest->method('getPage')->willReturn(1);
         $search->method('getResultOffset')->willReturn(10);
@@ -326,7 +300,6 @@ class SearchResultSetTest extends UnitTestCase
     {
         $class = new ReflectionClass($object);
         $reflectionMethod = $class->getMethod($method);
-        $reflectionMethod->setAccessible(true);
         return $reflectionMethod->invokeArgs($object, $args);
     }
 }

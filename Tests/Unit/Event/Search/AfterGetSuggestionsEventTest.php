@@ -9,7 +9,7 @@ use Netlogix\Nxsolrajax\Event\Search\AfterGetSuggestionsEvent;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class AfterGetSuggestionsEventTest extends UnitTestCase
+final class AfterGetSuggestionsEventTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;
 
@@ -56,5 +56,4 @@ class AfterGetSuggestionsEventTest extends UnitTestCase
 
         $this->assertSame($configuration, $subject->typoScriptConfiguration);
     }
-
 }

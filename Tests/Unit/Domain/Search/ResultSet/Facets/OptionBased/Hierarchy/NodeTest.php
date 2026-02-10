@@ -9,15 +9,12 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\Nod
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 use PHPUnit\Framework\Attributes\Test;
 
-class NodeTest extends UnitTestCase
+final class NodeTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanDetermineOwnActiveStateIfSelected(): void
     {
-        $facetMock = $this->getMockBuilder(HierarchyFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(HierarchyFacet::class);
 
         $subject = new Node($facetMock, null, uniqid('key_'), '', uniqid('value_'), 0, true);
 
@@ -27,9 +24,7 @@ class NodeTest extends UnitTestCase
     #[Test]
     public function itCanDetermineOwnActiveStateIfNotSelected(): void
     {
-        $facetMock = $this->getMockBuilder(HierarchyFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(HierarchyFacet::class);
 
         $subject = new Node($facetMock, null, uniqid('key_'), '', uniqid('value_'), 0, false);
 
@@ -39,21 +34,13 @@ class NodeTest extends UnitTestCase
     #[Test]
     public function itCanDetermineOwnActiveStateIfOneChildIsActive(): void
     {
-        $facetMock = $this->getMockBuilder(HierarchyFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(HierarchyFacet::class);
 
         $subject = new Node($facetMock, null, uniqid('key_'), '', uniqid('value_'), 0, false);
 
-        $subject->addChildNode(
-            new Node($facetMock, $subject, uniqid('key_'), '', uniqid('value_'), 0, false)
-        );
-        $subject->addChildNode(
-            new Node($facetMock, $subject, uniqid('key_'), '', uniqid('value_'), 0, true)
-        );
-        $subject->addChildNode(
-            new Node($facetMock, $subject, uniqid('key_'), '', uniqid('value_'), 0, false)
-        );
+        $subject->addChildNode(new Node($facetMock, $subject, uniqid('key_'), '', uniqid('value_'), 0, false));
+        $subject->addChildNode(new Node($facetMock, $subject, uniqid('key_'), '', uniqid('value_'), 0, true));
+        $subject->addChildNode(new Node($facetMock, $subject, uniqid('key_'), '', uniqid('value_'), 0, false));
 
         $this->assertTrue($subject->isActive());
     }
@@ -61,15 +48,13 @@ class NodeTest extends UnitTestCase
     #[Test]
     public function itCanBeSerializedToJSON(): void
     {
-        $facetMock = $this->getMockBuilder(HierarchyFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(HierarchyFacet::class);
 
         $key = uniqid('key_');
         $value = uniqid('value_');
         $label = uniqid('lebel_');
         $count = random_int(0, 999);
-        $selected = $count % 2 == 0;
+        $selected = $count % 2 === 0;
         $url = sprintf('https://www.example.com/%s', $key);
 
         $subject = $this->getMockBuilder(Node::class)
@@ -111,5 +96,4 @@ class NodeTest extends UnitTestCase
         $this->assertArrayHasKey('self', $jsonData['links']);
         $this->assertEquals($url, $jsonData['links']['self']);
     }
-
 }

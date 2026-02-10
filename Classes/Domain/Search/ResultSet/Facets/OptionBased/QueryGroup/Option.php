@@ -21,7 +21,7 @@ class Option extends SolrOption implements JsonSerializable
             'selected' => $this->getSelected(),
             'links' => [
                 'self' => $this->getUrl(),
-            ]
+            ],
         ];
     }
 

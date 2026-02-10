@@ -22,7 +22,7 @@ class HierarchyFacet extends SolrHierarchyFacet implements JsonSerializable
             'options' => $this->addSearchUriBuilderToOptions(array_values($this->getChildNodes()->getArrayCopy())),
             'links' => [
                 'reset' => $this->getResetUrl(),
-            ]
+            ],
         ];
     }
 
@@ -30,5 +30,4 @@ class HierarchyFacet extends SolrHierarchyFacet implements JsonSerializable
     {
         return $this->getFacetResetUrl($this);
     }
-
 }

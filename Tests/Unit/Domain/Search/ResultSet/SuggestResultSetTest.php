@@ -8,7 +8,7 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\SuggestResultSet;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class SuggestResultSetTest extends UnitTestCase
+final class SuggestResultSetTest extends UnitTestCase
 {
     #[Test]
     public function itCanBeSerializedToJSON(): void
@@ -18,7 +18,7 @@ class SuggestResultSetTest extends UnitTestCase
         $suggestions = [
             'keyword_0' => random_int(1, 999),
             'keyword_1' => random_int(1, 999),
-            'keyword_2' => random_int(1, 999)
+            'keyword_2' => random_int(1, 999),
         ];
 
         $subject = new SuggestResultSet($suggestions, $keyword);
@@ -33,7 +33,10 @@ class SuggestResultSetTest extends UnitTestCase
         $this->assertCount(3, $jsonData);
 
         foreach ([0, 1, 2] as $itemPos) {
-            $this->assertEquals($jsonData[$itemPos], ['count' => $suggestions['keyword_' . $itemPos], 'name' => 'keyword_' . $itemPos]);
+            $this->assertEquals($jsonData[$itemPos], [
+                'count' => $suggestions['keyword_' . $itemPos],
+                'name' => 'keyword_' . $itemPos,
+            ]);
         }
     }
 }

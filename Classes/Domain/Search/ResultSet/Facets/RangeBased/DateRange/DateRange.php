@@ -17,13 +17,14 @@ class DateRange extends SolrDateRange implements JsonSerializable
     {
         return [
             'selected' => $this->getSelected(),
-            'start' => $this->getStartRequested() instanceof DateTime ? $this->getStartRequested()?->getTimestamp() : '',
+            'start' =>
+                $this->getStartRequested() instanceof DateTime ? $this->getStartRequested()?->getTimestamp() : '',
             'end' => $this->getEndRequested() instanceof DateTime ? $this->getEndRequested()?->getTimestamp() : '',
             'min' => $this->getStartInResponse()?->getTimestamp(),
             'max' => $this->getEndInResponse()?->getTimestamp(),
             'links' => [
                 'self' => $this->getUrl(),
-            ]
+            ],
         ];
     }
 
@@ -31,5 +32,4 @@ class DateRange extends SolrDateRange implements JsonSerializable
     {
         return $this->getFacetItemUrl($this, '___FROM___-___TO___');
     }
-
 }

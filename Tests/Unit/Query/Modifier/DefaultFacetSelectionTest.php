@@ -18,30 +18,19 @@ use Psr\Log\LoggerInterface;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class DefaultFacetSelectionTest extends UnitTestCase
+final class DefaultFacetSelectionTest extends UnitTestCase
 {
-
     protected bool $resetSingletonInstances = true;
 
     #[Test]
     public function itDoesNotModifyRequestWhenFacetingIsDisabled(): void
     {
-        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $facetRegistry = $this->getMockBuilder(FacetRegistry::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $queryBuilder = $this->createStub(QueryBuilder::class);
+        $facetRegistry = $this->createStub(FacetRegistry::class);
+        $searchRequest = $this->createStub(SearchRequest::class);
+        $search = $this->createStub(Search::class);
 
-        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $typoScriptConfiguration = $this->createMock(TypoScriptConfiguration::class);
         $typoScriptConfiguration->method('getSearchFaceting')->willReturn(false);
 
         $query = new Query();
@@ -49,7 +38,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
             query: $query,
             searchRequest: $searchRequest,
             search: $search,
-            typoScriptConfiguration: $typoScriptConfiguration
+            typoScriptConfiguration: $typoScriptConfiguration,
         );
 
         $defaultFacetSelection = new DefaultFacetSelection($queryBuilder, $facetRegistry);
@@ -59,34 +48,24 @@ class DefaultFacetSelectionTest extends UnitTestCase
     #[Test]
     public function itDoesNotModifyRequestWhenFacetsAreEmpty(): void
     {
-        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $typoScriptConfiguration = $this->createMock(TypoScriptConfiguration::class);
         $typoScriptConfiguration->method('getSearchFaceting')->willReturn(true);
         $typoScriptConfiguration->method('getSearchFacetingFacets')->willReturn([]);
-        $facetRegistry = $this->getMockBuilder(FacetRegistry::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetRegistry = $this->createStub(FacetRegistry::class);
 
-        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $queryBuilder = $this->createStub(QueryBuilder::class);
 
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $searchRequest->method('getContextTypoScriptConfiguration')->willReturn($typoScriptConfiguration);
 
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $search = $this->createStub(Search::class);
 
         $query = new Query();
         $event = new AfterSearchQueryHasBeenPreparedEvent(
             query: $query,
             searchRequest: $searchRequest,
             search: $search,
-            typoScriptConfiguration: $typoScriptConfiguration
+            typoScriptConfiguration: $typoScriptConfiguration,
         );
 
         $defaultFacetSelection = new DefaultFacetSelection($queryBuilder, $facetRegistry);
@@ -96,15 +75,13 @@ class DefaultFacetSelectionTest extends UnitTestCase
     #[Test]
     public function doNotAddFilterQueryWhenFacetValueHasNoResults(): void
     {
-        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $typoScriptConfiguration = $this->createMock(TypoScriptConfiguration::class);
         $typoScriptConfiguration->method('getSearchFaceting')->willReturn(true);
         $typoScriptConfiguration->method('getSearchFacetingFacets')->willReturn([
             [
                 'includeInAvailableFacets' => 1,
                 'defaultValue' => 'foo',
-            ]
+            ],
         ]);
         $typoScriptConfiguration->method('getSearchFacetingFacetByName')->willReturn([
             'field' => 'bar',
@@ -113,18 +90,12 @@ class DefaultFacetSelectionTest extends UnitTestCase
         ]);
         $facetRegistry = GeneralUtility::makeInstance(FacetRegistry::class);
 
-        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $queryBuilder = $this->createStub(QueryBuilder::class);
 
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $searchRequest->method('getContextTypoScriptConfiguration')->willReturn($typoScriptConfiguration);
 
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $search = $this->createMock(Search::class);
 
         $search->method('search')->willReturn(new ResponseAdapter(''));
         $searchRequest->expects($this->never())->method('addFacetValue');
@@ -134,7 +105,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
             query: $query,
             searchRequest: $searchRequest,
             search: $search,
-            typoScriptConfiguration: $typoScriptConfiguration
+            typoScriptConfiguration: $typoScriptConfiguration,
         );
 
         $defaultFacetSelection = new DefaultFacetSelection($queryBuilder, $facetRegistry);
@@ -146,15 +117,13 @@ class DefaultFacetSelectionTest extends UnitTestCase
     #[Test]
     public function addDefaultValueAsFilterQuery(): void
     {
-        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $typoScriptConfiguration = $this->createMock(TypoScriptConfiguration::class);
         $typoScriptConfiguration->method('getSearchFaceting')->willReturn(true);
         $typoScriptConfiguration->method('getSearchFacetingFacets')->willReturn([
             'bar' => [
                 'includeInAvailableFacets' => 1,
                 'defaultValue' => 'foo',
-            ]
+            ],
         ]);
         $typoScriptConfiguration->method('getSearchFacetingFacetByName')->willReturn([
             'field' => 'bar',
@@ -163,27 +132,25 @@ class DefaultFacetSelectionTest extends UnitTestCase
         ]);
         $facetRegistry = GeneralUtility::makeInstance(FacetRegistry::class);
 
-        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $queryBuilder = $this->createStub(QueryBuilder::class);
 
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $searchRequest->method('getContextTypoScriptConfiguration')->willReturn($typoScriptConfiguration);
 
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $search = $this->createMock(Search::class);
 
-        $search->method('search')->willReturn(new ResponseAdapter(json_encode([
-            'response' => [
-                'numFound' => 2,
-            ],
-            'facets' => [
-                'count' => 4,
-            ],
-        ])));
+        $search->method('search')->willReturn(
+            new ResponseAdapter(
+                json_encode([
+                    'response' => [
+                        'numFound' => 2,
+                    ],
+                    'facets' => [
+                        'count' => 4,
+                    ],
+                ]),
+            ),
+        );
         $searchRequest->expects($this->once())->method('addFacetValue')->with('bar', 'foo');
 
         $query = new Query();
@@ -191,7 +158,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
             query: $query,
             searchRequest: $searchRequest,
             search: $search,
-            typoScriptConfiguration: $typoScriptConfiguration
+            typoScriptConfiguration: $typoScriptConfiguration,
         );
 
         $defaultFacetSelection = new DefaultFacetSelection($queryBuilder, $facetRegistry);
@@ -203,35 +170,25 @@ class DefaultFacetSelectionTest extends UnitTestCase
     #[Test]
     public function logWarningForInvalidFacetConfiguration(): void
     {
-        $typoScriptConfiguration = $this->getMockBuilder(TypoScriptConfiguration::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $typoScriptConfiguration = $this->createMock(TypoScriptConfiguration::class);
         $typoScriptConfiguration->method('getSearchFaceting')->willReturn(true);
         $typoScriptConfiguration->method('getSearchFacetingFacets')->willReturn([
             [
                 'includeInAvailableFacets' => 1,
                 'defaultValue' => 'foo',
-            ]
+            ],
         ]);
         $typoScriptConfiguration->method('getSearchFacetingFacetByName')->willReturn([]);
         $facetRegistry = GeneralUtility::makeInstance(FacetRegistry::class);
 
-        $queryBuilder = $this->getMockBuilder(QueryBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $queryBuilder = $this->createStub(QueryBuilder::class);
 
-        $searchRequest = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $searchRequest = $this->createMock(SearchRequest::class);
         $searchRequest->method('getContextTypoScriptConfiguration')->willReturn($typoScriptConfiguration);
 
-        $search = $this->getMockBuilder(Search::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $search = $this->createMock(Search::class);
 
-        $logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $logger = $this->createMock(LoggerInterface::class);
 
         $logger->expects($this->once())->method('warning');
 
@@ -243,7 +200,7 @@ class DefaultFacetSelectionTest extends UnitTestCase
             query: $query,
             searchRequest: $searchRequest,
             search: $search,
-            typoScriptConfiguration: $typoScriptConfiguration
+            typoScriptConfiguration: $typoScriptConfiguration,
         );
 
         $defaultFacetSelection = new DefaultFacetSelection($queryBuilder, $facetRegistry);
