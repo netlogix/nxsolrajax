@@ -21,8 +21,8 @@ class DateRangeFacet extends SolrDateRangeFacet implements JsonSerializable
             'used' => $this->getIsUsed(),
             'options' => $this->getRange(),
             'links' => [
-                'reset' => $this->getResetUrl()
-            ]
+                'reset' => $this->getResetUrl(),
+            ],
         ];
     }
 
@@ -30,5 +30,4 @@ class DateRangeFacet extends SolrDateRangeFacet implements JsonSerializable
     {
         return $this->getFacetResetUrl($this);
     }
-
 }

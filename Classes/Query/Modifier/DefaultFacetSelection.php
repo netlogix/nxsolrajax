@@ -26,9 +26,8 @@ class DefaultFacetSelection
 
     public function __construct(
         protected readonly QueryBuilder $queryBuilder,
-        protected readonly FacetRegistry $facetRegistry
-    ) {
-    }
+        protected readonly FacetRegistry $facetRegistry,
+    ) {}
 
     public function __invoke(AfterSearchQueryHasBeenPreparedEvent $event): void
     {
@@ -41,20 +40,21 @@ class DefaultFacetSelection
         $query = $this->modifyQuery(
             searchRequest: $event->getSearchRequest(),
             query: $event->getQuery(),
-            search: $event->getSearch()
+            search: $event->getSearch(),
         );
         $event->setQuery($query);
     }
 
-    protected function modifyQuery(
-        SearchRequest $searchRequest,
-        Query $query,
-        Search $search
-    ): Query {
+    protected function modifyQuery(SearchRequest $searchRequest, Query $query, Search $search): Query
+    {
         $activeFacetNames = $searchRequest->getActiveFacetNames();
 
         $defaultValuesOfFacets = $this->getDefaultFacetSelections($searchRequest);
-        $defaultValuesOfFacets = array_filter($defaultValuesOfFacets, fn($facetName): bool => ! in_array($facetName, $activeFacetNames), ARRAY_FILTER_USE_KEY);
+        $defaultValuesOfFacets = array_filter(
+            $defaultValuesOfFacets,
+            fn($facetName): bool => !in_array($facetName, $activeFacetNames),
+            ARRAY_FILTER_USE_KEY,
+        );
 
         foreach ($defaultValuesOfFacets as $facetName => $defaultSelection) {
             $defaultSelections = GeneralUtility::trimExplode(',', $defaultSelection);
@@ -64,7 +64,7 @@ class DefaultFacetSelection
                     'query' => $this->getFacetQueryFilter(
                         $searchRequest->getContextTypoScriptConfiguration(),
                         (string) $facetName,
-                        (array) $selection
+                        (array) $selection,
                     ),
                 ]);
                 $defaultFacetSelectionQuery = clone $query;
@@ -72,7 +72,10 @@ class DefaultFacetSelection
 
                 $result = $search->search($defaultFacetSelectionQuery);
                 $rawCount = (int) ObjectAccess::getPropertyPath($result, 'response.numFound');
-                $groupedCount = (int) ObjectAccess::getPropertyPath($result, 'parsedData.grouped.' . $facetName .'_stringS.matches');
+                $groupedCount = (int) ObjectAccess::getPropertyPath(
+                    $result,
+                    'parsedData.grouped.' . $facetName . '_stringS.matches',
+                );
                 if ($rawCount > 0 || $groupedCount) {
                     $query->addFilterQuery($filterQuery);
                     $searchRequest->addFacetValue($facetName, $selection);
@@ -95,10 +98,23 @@ class DefaultFacetSelection
             return [];
         }
 
-        $activeFacets = array_filter($facets, fn($facetConfiguration): bool => (bool) $facetConfiguration['includeInAvailableFacets']);
-        $defaultFacetSelections = array_filter($activeFacets, fn($facetConfiguration): bool => isset($facetConfiguration['defaultValue']));
+        $activeFacets = array_filter(
+            $facets,
+            fn(array $facetConfiguration): bool => (bool) $facetConfiguration['includeInAvailableFacets'],
+        );
+        $defaultFacetSelections = array_filter(
+            $activeFacets,
+            fn(array $facetConfiguration): bool => isset($facetConfiguration['defaultValue']),
+        );
 
-        $defaultFacetSelections = array_map(fn($facetName, $facetConfiguration): array => [rtrim((string) $facetName, '.'), $facetConfiguration['defaultValue']], array_keys($defaultFacetSelections), array_values($defaultFacetSelections));
+        $defaultFacetSelections = array_map(
+            fn($facetName, $facetConfiguration): array => [
+                rtrim((string) $facetName, '.'),
+                $facetConfiguration['defaultValue'],
+            ],
+            array_keys($defaultFacetSelections),
+            array_values($defaultFacetSelections),
+        );
 
         return array_column($defaultFacetSelections, 1, 0);
     }
@@ -109,7 +125,7 @@ class DefaultFacetSelection
     protected function getFacetQueryFilter(
         TypoScriptConfiguration $typoScriptConfiguration,
         string $facetName,
-        array $filterValues
+        array $filterValues,
     ): string {
         $keepAllFacetsOnSelection = $typoScriptConfiguration->getSearchFacetingKeepAllFacetsOnSelection();
         $facetConfiguration = $typoScriptConfiguration->getSearchFacetingFacetByName($facetName);
@@ -129,11 +145,14 @@ class DefaultFacetSelection
      */
     protected function getFilterTag(array $facetConfiguration, bool $keepAllFacetsOnSelection): string
     {
-        if ((int) ($facetConfiguration['keepAllOptionsOnSelection'] ?? 0) === 1
-        || (int) ($facetConfiguration['addFieldAsTag'] ?? 0) === 1
-        || $keepAllFacetsOnSelection) {
+        if (
+            (int) ($facetConfiguration['keepAllOptionsOnSelection'] ?? 0) === 1 ||
+            (int) ($facetConfiguration['addFieldAsTag'] ?? 0) === 1 ||
+            $keepAllFacetsOnSelection
+        ) {
             return '{!tag=' . addslashes((string) $facetConfiguration['field']) . '}';
         }
+
         return '';
     }
 
@@ -151,7 +170,9 @@ class DefaultFacetSelection
         $filterEncoder = $this->facetRegistry->getPackage($type)->getUrlDecoder();
 
         foreach ($filterValues as $filterValue) {
-            $filterOptions = isset($facetConfiguration['type']) ? ($facetConfiguration[$facetConfiguration['type'] . '.'] ?? null) : null;
+            $filterOptions = isset($facetConfiguration['type'])
+                ? $facetConfiguration[$facetConfiguration['type'] . '.'] ?? null
+                : null;
             if (empty($filterOptions)) {
                 $filterOptions = [];
             }
@@ -160,10 +181,10 @@ class DefaultFacetSelection
             if (($facetConfiguration['field'] ?? '') !== '' && $filterValue !== '') {
                 $filterParts[] = $facetConfiguration['field'] . ':' . $filterValue;
             } else {
-                $this->logger->warning(
-                    'Invalid filter options found, skipping.',
-                    ['facet' => $facetName, 'configuration' => $facetConfiguration]
-                );
+                $this->logger->warning('Invalid filter options found, skipping.', [
+                    'facet' => $facetName,
+                    'configuration' => $facetConfiguration,
+                ]);
             }
         }
 

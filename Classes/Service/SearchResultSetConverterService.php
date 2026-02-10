@@ -53,7 +53,7 @@ class SearchResultSetConverterService implements SingletonInterface
     {
         $json = json_encode($this->toArray($searchResultSet));
 
-        if (json_last_error() != JSON_ERROR_NONE) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             // todo add custom exception
             throw new Exception(json_last_error_msg(), 1659079186);
         }
@@ -65,7 +65,10 @@ class SearchResultSetConverterService implements SingletonInterface
     {
         return [
             'search' => [
-                'q' => $searchResultSet->getUsedQuery() instanceof Query ? $searchResultSet->getUsedQuery()->getQuery() : '',
+                'q' =>
+                    $searchResultSet->getUsedQuery() instanceof Query
+                        ? $searchResultSet->getUsedQuery()->getQuery()
+                        : '',
                 'suggestion' => $searchResultSet->getSuggestion(),
                 'links' => [
                     'reset' => $searchResultSet->getResetUrl(),
@@ -75,8 +78,8 @@ class SearchResultSetConverterService implements SingletonInterface
                     'last' => '',
                     'search' => $searchResultSet->getSearchUrl(),
                     'suggest' => $searchResultSet->getSuggestUrl(),
-                    'suggestion' => $searchResultSet->getSuggestionUrl()
-                ]
+                    'suggestion' => $searchResultSet->getSuggestionUrl(),
+                ],
             ],
             'facets' => [],
             'result' => [],
@@ -115,7 +118,8 @@ class SearchResultSetConverterService implements SingletonInterface
             $uri = new Uri($uri);
             $query = $uri->getQuery();
             $query = explode('&', $query);
-            $query = array_filter($query, fn ($query): bool => $query !== 'tx_solr[page]=1');
+            $query = array_filter($query, fn($query): bool => $query !== 'tx_solr[page]=1');
+
             $queryString = trim(implode('&', $query), '&');
             return (string) $uri->withQuery($queryString);
         }, $result['search']['links']);
@@ -125,7 +129,10 @@ class SearchResultSetConverterService implements SingletonInterface
     protected function addQueryToSearchResultData(array $result, SearchResultSet $searchResultSet): array
     {
         $result['result'] = [
-            'q' => $searchResultSet->getUsedQuery() instanceof Query ? $searchResultSet->getUsedQuery()->getQuery() : '',
+            'q' =>
+                $searchResultSet->getUsedQuery() instanceof Query
+                    ? $searchResultSet->getUsedQuery()->getQuery()
+                    : '',
             'limit' => $searchResultSet->getUsedResultsPerPage(),
             'offset' => $searchResultSet->getUsedSearch()->getResultOffset(),
             'totalResults' => $searchResultSet->getAllResultCount(),
@@ -143,8 +150,10 @@ class SearchResultSetConverterService implements SingletonInterface
                 if (!method_exists($facet, 'setSearchUriBuilder')) {
                     continue;
                 }
+
                 $facet->setSearchUriBuilder($this->searchUriBuilder);
             }
+
             $result['facets'] = $facets;
         }
 
@@ -158,8 +167,10 @@ class SearchResultSetConverterService implements SingletonInterface
             if (!method_exists($sorting, 'setSearchUriBuilder')) {
                 continue;
             }
+
             $sorting->setSearchUriBuilder($this->searchUriBuilder);
         }
+
         $result['sortings'] = $sortings;
         if ($result['sortings'] === []) {
             unset($result['sortings']);
@@ -183,9 +194,12 @@ class SearchResultSetConverterService implements SingletonInterface
             assert($group instanceof Group);
             $group->setSearchUriBuilder($this->searchUriBuilder);
             foreach ($group->getGroupItems() as $groupItem) {
-                if (($facet = $searchResultSet->getFacets()->getByName($group->getGroupName())->getByPosition(
-                        0
-                    )) !== null) {
+                if (
+                    ($facet = $searchResultSet
+                        ->getFacets()
+                        ->getByName($group->getGroupName())
+                        ->getByPosition(0)) !== null
+                ) {
                     assert($groupItem instanceof GroupItem);
                     $option = $facet->getOptions()->getByValue($groupItem->getGroupValue());
                     $option->setSearchUriBuilder($this->searchUriBuilder);

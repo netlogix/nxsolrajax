@@ -9,7 +9,7 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\Qu
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class QueryGroupFacetTest extends UnitTestCase
+final class QueryGroupFacetTest extends UnitTestCase
 {
     #[Test]
     public function itCanBesSerializedToJSON(): void
@@ -18,16 +18,10 @@ class QueryGroupFacetTest extends UnitTestCase
         $field = uniqid('field_');
         $label = uniqid('label_');
         $resetUrl = sprintf('https://www.example.com/%s', $name);
-        $isUsed = random_int(0, 1) == 0;
+        $isUsed = random_int(0, 1) === 0;
 
         $subject = $this->getMockBuilder(QueryGroupFacet::class)
-            ->setConstructorArgs([
-                new SearchResultSet(),
-                $name,
-                $field,
-                $label,
-                []
-            ])
+            ->setConstructorArgs([new SearchResultSet(), $name, $field, $label, []])
             ->onlyMethods(['getFacetResetUrl'])
             ->getMock();
 
@@ -44,7 +38,10 @@ class QueryGroupFacetTest extends UnitTestCase
         $this->assertEquals($name, $jsonData['name']);
 
         $this->assertArrayHasKey('type', $jsonData);
-        $this->assertEquals(\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet::TYPE_QUERY_GROUP, $jsonData['type']);
+        $this->assertEquals(
+            \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\QueryGroup\QueryGroupFacet::TYPE_QUERY_GROUP,
+            $jsonData['type'],
+        );
 
         $this->assertArrayHasKey('label', $jsonData);
         $this->assertEquals($label, $jsonData['label']);

@@ -9,16 +9,14 @@ use Netlogix\Nxsolrajax\Event\Url\GenerateFacetItemUrlEvent;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class GenerateFacetItemUrlEventTest extends UnitTestCase
+final class GenerateFacetItemUrlEventTest extends UnitTestCase
 {
     protected bool $resetSingletonInstances = true;
 
     #[Test]
     public function itExposesFacetItem(): void
     {
-        $facetMock = $this->getMockBuilder(AbstractFacetItem::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(AbstractFacetItem::class);
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, '');
 
@@ -30,24 +28,19 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
     {
         $overrideUriValue = uniqid('overrideUriValue_');
 
-        $facetMock = $this->getMockBuilder(AbstractFacetItem::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(AbstractFacetItem::class);
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, '', $overrideUriValue);
 
         $this->assertSame($overrideUriValue, $subject->overrideUriValue);
     }
 
-
     #[Test]
     public function itExposesUrl(): void
     {
         $url = uniqid('https://www.example.com/');
 
-        $facetMock = $this->getMockBuilder(AbstractFacetItem::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(AbstractFacetItem::class);
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, $url);
 
@@ -60,9 +53,7 @@ class GenerateFacetItemUrlEventTest extends UnitTestCase
         $url1 = uniqid('https://www.example.com/');
         $url2 = uniqid('https://www.example.com/');
 
-        $facetMock = $this->getMockBuilder(AbstractFacetItem::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(AbstractFacetItem::class);
 
         $subject = new GenerateFacetItemUrlEvent($facetMock, $url1);
 

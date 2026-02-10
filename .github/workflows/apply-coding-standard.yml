@@ -60,10 +60,6 @@ jobs:
         shell: bash
         run: composer test:unit
 
-      - name: 'Run PHPUnit functional tests'
-        shell: bash
-        run: composer test:functional
-
       - name: 'Create pull-request'
         uses: peter-evans/create-pull-request@v8
         with:

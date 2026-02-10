@@ -13,7 +13,6 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 
 trait FacetUrlTrait
 {
-
     use SearchUriBuilderTrait;
 
     /**
@@ -24,7 +23,7 @@ trait FacetUrlTrait
     protected function getFacetResetUrl(AbstractFacet $facet): string
     {
         $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
-            new GenerateFacetResetUrlEvent($facet, '')
+            new GenerateFacetResetUrlEvent($facet, ''),
         );
 
         $url = $event->getUrl();
@@ -33,10 +32,7 @@ trait FacetUrlTrait
         }
 
         $previousRequest = $facet->getResultSet()->getUsedSearchRequest();
-        return $this->searchUriBuilder->getRemoveFacetUri(
-            $previousRequest,
-            $facet->getName()
-        );
+        return $this->searchUriBuilder->getRemoveFacetUri($previousRequest, $facet->getName());
     }
 
     /**
@@ -47,7 +43,7 @@ trait FacetUrlTrait
     protected function getFacetItemUrl(AbstractFacetItem $facetItem, string $overrideUriValue = ''): string
     {
         $event = GeneralUtility::makeInstance(EventDispatcherInterface::class)->dispatch(
-            new GenerateFacetItemUrlEvent($facetItem, '', $overrideUriValue)
+            new GenerateFacetItemUrlEvent($facetItem, '', $overrideUriValue),
         );
 
         $url = $event->getUrl();
@@ -59,7 +55,7 @@ trait FacetUrlTrait
         return $this->searchUriBuilder->getSetFacetValueUri(
             $previousRequest,
             $facetItem->getFacet()->getName(),
-            $overrideUriValue !== '' && $overrideUriValue !== '0' ? $overrideUriValue : $facetItem->getUriValue()
+            $overrideUriValue !== '' && $overrideUriValue !== '0' ? $overrideUriValue : $facetItem->getUriValue(),
         );
     }
 
@@ -70,6 +66,7 @@ trait FacetUrlTrait
                 $option->setSearchUriBuilder($this->searchUriBuilder);
             }
         }
+
         return $options;
     }
 }

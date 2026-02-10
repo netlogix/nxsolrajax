@@ -8,13 +8,11 @@ use ApacheSolrForTypo3\Solr\System\Configuration\TypoScriptConfiguration;
 
 final class AfterGetSuggestionsEvent
 {
-
     public function __construct(
         public readonly string $query,
         private array $suggestions,
-        public readonly TypoScriptConfiguration $typoScriptConfiguration
-    ) {
-    }
+        public readonly TypoScriptConfiguration $typoScriptConfiguration,
+    ) {}
 
     public function getSuggestions(): array
     {

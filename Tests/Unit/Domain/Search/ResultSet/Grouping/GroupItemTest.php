@@ -10,9 +10,8 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Grouping\GroupItem;
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class GroupItemTest extends UnitTestCase
+final class GroupItemTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanBeSerializedToJSON(): void
     {
@@ -22,13 +21,11 @@ class GroupItemTest extends UnitTestCase
         $groupValue = uniqid('groupValue_');
         $numFound = random_int(0, 999);
         $start = random_int(0, 99);
-        $maxScore = random_int(1, 99999) * .1;
+        $maxScore = random_int(1, 99999) * 0.1;
 
         $group = new Group($groupName, $resultsPerPage);
 
-        $usedSearchRequestMock = $this->getMockBuilder(SearchRequest::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $usedSearchRequestMock = $this->createStub(SearchRequest::class);
 
         $subject = new GroupItem($group, $groupValue, $numFound, $start, $maxScore, $usedSearchRequestMock);
 

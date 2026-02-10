@@ -24,7 +24,7 @@ class Node extends SolrNode implements JsonSerializable
             'options' => $this->addSearchUriBuilderToOptions(array_values($this->childNodes->getArrayCopy())),
             'links' => [
                 'self' => $this->getUrl(),
-            ]
+            ],
         ];
     }
 
@@ -48,5 +48,4 @@ class Node extends SolrNode implements JsonSerializable
     {
         return $this->getFacetItemUrl($this);
     }
-
 }

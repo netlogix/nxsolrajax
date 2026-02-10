@@ -9,9 +9,8 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Options\Optio
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class OptionsFacetTest extends UnitTestCase
+final class OptionsFacetTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanBeSerializedToJSON(): void
     {
@@ -22,16 +21,10 @@ class OptionsFacetTest extends UnitTestCase
         $label = uniqid('label_');
         $configuration = ['foo' => uniqid('bar_')];
         $resetUrl = sprintf('https://www.example.com/%s', $name);
-        $isUsed = random_int(0, 1) == 1;
+        $isUsed = random_int(0, 1) === 1;
 
         $subject = $this->getMockBuilder(OptionsFacet::class)
-            ->setConstructorArgs([
-                $resultSet,
-                $name,
-                $field,
-                $label,
-                $configuration
-            ])
+            ->setConstructorArgs([$resultSet, $name, $field, $label, $configuration])
             ->onlyMethods(['getFacetResetUrl'])
             ->getMock();
 
@@ -49,7 +42,10 @@ class OptionsFacetTest extends UnitTestCase
         $this->assertEquals($name, $jsonData['name']);
 
         $this->assertArrayHasKey('type', $jsonData);
-        $this->assertEquals(\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet::TYPE_OPTIONS, $jsonData['type']);
+        $this->assertEquals(
+            \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Options\OptionsFacet::TYPE_OPTIONS,
+            $jsonData['type'],
+        );
 
         $this->assertArrayHasKey('label', $jsonData);
         $this->assertEquals($label, $jsonData['label']);
@@ -64,5 +60,4 @@ class OptionsFacetTest extends UnitTestCase
         $this->assertArrayHasKey('reset', $jsonData['links']);
         $this->assertEquals($resetUrl, $jsonData['links']['reset']);
     }
-
 }

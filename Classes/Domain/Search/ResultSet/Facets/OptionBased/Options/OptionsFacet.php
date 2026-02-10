@@ -22,7 +22,7 @@ class OptionsFacet extends SolrOptionsFacet implements JsonSerializable
             'options' => $this->addSearchUriBuilderToOptions(array_values($this->getOptions()->getArrayCopy())),
             'links' => [
                 'reset' => $this->getResetUrl(),
-            ]
+            ],
         ];
     }
 
@@ -30,5 +30,4 @@ class OptionsFacet extends SolrOptionsFacet implements JsonSerializable
     {
         return $this->getFacetResetUrl($this);
     }
-
 }

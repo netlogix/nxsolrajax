@@ -31,13 +31,14 @@ class Sorting extends SolrSorting implements JsonSerializable
         if ($this->getIsResetOption()) {
             return $this->searchUriBuilder->getRemoveSortingUri($previousRequest);
         }
+
         return $this->searchUriBuilder->getSetSortingUri(
             previousSearchRequest: $previousRequest,
             sortingName: $this->getName(),
             sortingDirection: match ($this->getSelected()) {
                 true => $this->getOppositeDirection(),
                 false => $this->getDirection(),
-            }
+            },
         );
     }
 }

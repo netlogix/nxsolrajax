@@ -22,7 +22,7 @@ class QueryGroupFacet extends SolrQueryGroupFacet implements JsonSerializable
             'options' => $this->addSearchUriBuilderToOptions(array_values($this->getOptions()->getArrayCopy())),
             'links' => [
                 'reset' => $this->getResetUrl(),
-            ]
+            ],
         ];
     }
 
@@ -30,5 +30,4 @@ class QueryGroupFacet extends SolrQueryGroupFacet implements JsonSerializable
     {
         return $this->getFacetResetUrl($this);
     }
-
 }

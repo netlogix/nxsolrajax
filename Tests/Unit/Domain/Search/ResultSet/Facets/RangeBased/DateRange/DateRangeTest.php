@@ -11,15 +11,12 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\Date
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class DateRangeTest extends UnitTestCase
+final class DateRangeTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanBeSerializedToJSONWhenAllDataIsPresent(): void
     {
-        $facetMock = $this->getMockBuilder(DateRangeFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(DateRangeFacet::class);
 
         $key = uniqid('key_');
 
@@ -33,19 +30,17 @@ class DateRangeTest extends UnitTestCase
         $endInResponse = (new DateTime())->add(new DateInterval('P1D'));
 
         $subject = $this->getMockBuilder(DateRange::class)
-            ->setConstructorArgs(
-                [
-                    $facetMock,
-                    $startRequested,
-                    $endRequested,
-                    $startInResponse,
-                    $endInResponse,
-                    '',
-                    $documentCount,
-                    [],
-                    true
-                ]
-            )
+            ->setConstructorArgs([
+                $facetMock,
+                $startRequested,
+                $endRequested,
+                $startInResponse,
+                $endInResponse,
+                '',
+                $documentCount,
+                [],
+                true,
+            ])
             ->onlyMethods(['getFacetItemUrl'])
             ->getMock();
 
@@ -62,13 +57,21 @@ class DateRangeTest extends UnitTestCase
         $this->assertEquals(true, $jsonData['selected']);
 
         $this->assertArrayHasKey('start', $jsonData);
-        $this->assertEquals($startRequested->getTimestamp(), $jsonData['start'], 'start time in request not correct');
+        $this->assertEquals(
+            $startRequested->getTimestamp(),
+            $jsonData['start'],
+            'start time in request not correct',
+        );
 
         $this->assertArrayHasKey('end', $jsonData);
         $this->assertEquals($endRequested->getTimestamp(), $jsonData['end'], 'end time in request not correct');
 
         $this->assertArrayHasKey('min', $jsonData);
-        $this->assertEquals($startInResponse->getTimestamp(), $jsonData['min'], 'min time in response not correct');
+        $this->assertEquals(
+            $startInResponse->getTimestamp(),
+            $jsonData['min'],
+            'min time in response not correct',
+        );
 
         $this->assertArrayHasKey('max', $jsonData);
         $this->assertEquals($endInResponse->getTimestamp(), $jsonData['max'], 'max time in response not correct');
@@ -83,9 +86,7 @@ class DateRangeTest extends UnitTestCase
     {
         $url = sprintf('https://www.example.com/%s', uniqid('key_'));
 
-        $facetMock = $this->getMockBuilder(DateRangeFacet::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $facetMock = $this->createStub(DateRangeFacet::class);
 
         $subject = $this->getMockBuilder(DateRange::class)
             ->setConstructorArgs([$facetMock, null, null, null, null, '', 0, []])
@@ -120,4 +121,3 @@ class DateRangeTest extends UnitTestCase
         $this->assertEquals($url, $jsonData['links']['self']);
     }
 }
-

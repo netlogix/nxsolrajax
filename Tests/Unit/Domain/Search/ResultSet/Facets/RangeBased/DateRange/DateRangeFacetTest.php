@@ -10,7 +10,7 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\RangeBased\DateRange\Date
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class DateRangeFacetTest extends UnitTestCase
+final class DateRangeFacetTest extends UnitTestCase
 {
     #[Test]
     public function itCanBeSerializedToJSON(): void
@@ -20,20 +20,12 @@ class DateRangeFacetTest extends UnitTestCase
         $name = uniqid('name_');
         $field = uniqid('_field');
         $label = uniqid('_label');
-        $isUsed = random_int(0, 999) % 2 == 0;
+        $isUsed = random_int(0, 999) % 2 === 0;
         $resetUrl = sprintf('https://www.example.com/%s', $name);
         $options = ['foo' => uniqid('bar_')];
 
         $subject = $this->getMockBuilder(DateRangeFacet::class)
-            ->setConstructorArgs(
-                [
-                    $searchResultSet,
-                    $name,
-                    $field,
-                    $label,
-                    $options
-                ]
-            )
+            ->setConstructorArgs([$searchResultSet, $name, $field, $label, $options])
             ->onlyMethods(['getFacetResetUrl'])
             ->getMock();
 
@@ -62,7 +54,7 @@ class DateRangeFacetTest extends UnitTestCase
 
         $this->assertArrayHasKey('options', $jsonData);
         // fixme this does not export options but dateRange
-//        self::assertEquals($jsonData['options'], $options);
+        //        self::assertEquals($jsonData['options'], $options);
 
         $this->assertArrayHasKey('links', $jsonData);
         $this->assertArrayHasKey('reset', $jsonData['links']);

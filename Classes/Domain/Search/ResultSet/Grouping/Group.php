@@ -10,7 +10,6 @@ use JsonSerializable;
 
 class Group extends SolrGroup implements JsonSerializable
 {
-
     protected SearchUriBuilder $searchUriBuilder;
 
     public function setSearchUriBuilder(SearchUriBuilder $searchUriBuilder): void
@@ -34,6 +33,7 @@ class Group extends SolrGroup implements JsonSerializable
                 $option->setSearchUriBuilder($this->searchUriBuilder);
             }
         }
+
         return $options;
     }
 }

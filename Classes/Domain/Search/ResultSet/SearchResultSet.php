@@ -15,7 +15,6 @@ use TYPO3\CMS\Extbase\Mvc\Web\Routing\UriBuilder;
 
 class SearchResultSet extends SolrSearchResult implements JsonSerializable
 {
-
     protected SearchUriBuilder $searchUriBuilder;
 
     protected UriBuilder $uriBuilder;
@@ -48,7 +47,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
 
     public function getSuggestion(): string
     {
-        if (! $this->getHasSpellCheckingSuggestions()) {
+        if (!$this->getHasSpellCheckingSuggestions()) {
             return '';
         }
 
@@ -73,7 +72,7 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
 
     public function getSuggestionUrl(): string
     {
-        if (! $this->getHasSpellCheckingSuggestions()) {
+        if (!$this->getHasSpellCheckingSuggestions()) {
             return '';
         }
 
@@ -85,14 +84,13 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
 
     public function getFirstUrl(): string
     {
-        $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
         $page = $this->getPage();
         if ($page > 2) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, 1);
+            return $this->searchUriBuilder->getResultPageUri($previousRequest, 1);
         }
 
-        return $uri;
+        return '';
     }
 
     protected function getPage(): int
@@ -103,19 +101,17 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
 
     public function getPrevUrl(): string
     {
-        $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
         $page = $this->getPage();
         if ($page > 1) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page - 1);
+            return $this->searchUriBuilder->getResultPageUri($previousRequest, $page - 1);
         }
 
-        return $uri;
+        return '';
     }
 
     public function getNextUrl(): string
     {
-        $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
         $page = $this->getPage();
         $resultsPerPage = $this->getUsedResultsPerPage();
@@ -123,28 +119,27 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
         $numberOfResults = $this->getAllResultCount();
 
         if ($numberOfResults - $resultsPerPage > $resultOffset) {
-            $uri = $this->searchUriBuilder->getResultPageUri($previousRequest, $page + 1);
+            return $this->searchUriBuilder->getResultPageUri($previousRequest, $page + 1);
         }
 
-        return $uri;
+        return '';
     }
 
     public function getLastUrl(): string
     {
-        $uri = '';
         $previousRequest = $this->getUsedSearchRequest();
         $resultsPerPage = $this->getUsedResultsPerPage();
         $resultOffset = $this->getUsedSearch()->getResultOffset();
         $numberOfResults = $this->getAllResultCount();
 
-        if ($numberOfResults - (2 * $resultsPerPage) > $resultOffset) {
-            $uri = $this->searchUriBuilder->getResultPageUri(
+        if ($numberOfResults - 2 * $resultsPerPage > $resultOffset) {
+            return $this->searchUriBuilder->getResultPageUri(
                 $previousRequest,
-                (int) ceil($numberOfResults / $resultsPerPage)
+                (int) ceil($numberOfResults / $resultsPerPage),
             );
         }
 
-        return $uri;
+        return '';
     }
 
     public function shouldAddFacetData(): bool
@@ -161,5 +156,4 @@ class SearchResultSet extends SolrSearchResult implements JsonSerializable
     {
         $this->forceAddFacetData = $forceAddFacetData;
     }
-
 }

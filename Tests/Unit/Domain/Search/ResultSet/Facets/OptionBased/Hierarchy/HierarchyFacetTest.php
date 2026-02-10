@@ -9,9 +9,8 @@ use Netlogix\Nxsolrajax\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\Hie
 use PHPUnit\Framework\Attributes\Test;
 use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 
-class HierarchyFacetTest extends UnitTestCase
+final class HierarchyFacetTest extends UnitTestCase
 {
-
     #[Test]
     public function itCanBeSerializedToJSON(): void
     {
@@ -22,21 +21,14 @@ class HierarchyFacetTest extends UnitTestCase
         $label = uniqid('label_');
         $configuration = ['foo' => uniqid('bar_')];
         $url = sprintf('https://www.example.com/%s', $name);
-        $isUsed = random_int(1, 2) == 1;
+        $isUsed = random_int(1, 2) === 1;
 
         $subject = $this->getMockBuilder(HierarchyFacet::class)
-            ->setConstructorArgs([
-                $resultSet,
-                $name,
-                $field,
-                $label,
-                $configuration
-            ])
+            ->setConstructorArgs([$resultSet, $name, $field, $label, $configuration])
             ->onlyMethods(['getFacetResetUrl'])
             ->getMock();
         $subject->method('getFacetResetUrl')->willReturn($url);
         $subject->setIsUsed($isUsed);
-
 
         $jsonString = json_encode($subject);
         $this->assertIsString($jsonString);
@@ -48,7 +40,10 @@ class HierarchyFacetTest extends UnitTestCase
         $this->assertEquals($name, $jsonData['name']);
 
         $this->assertArrayHasKey('type', $jsonData);
-        $this->assertEquals(\ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet::TYPE_HIERARCHY, $jsonData['type']);
+        $this->assertEquals(
+            \ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\OptionBased\Hierarchy\HierarchyFacet::TYPE_HIERARCHY,
+            $jsonData['type'],
+        );
 
         $this->assertArrayHasKey('label', $jsonData);
         $this->assertEquals($label, $jsonData['label']);

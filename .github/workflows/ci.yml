@@ -63,10 +63,6 @@ jobs:
         shell: bash
         run: composer test:unit
 
-#      - name: 'PHPUnit functional tests'
-#        shell: bash
-#        run: composer test:functional
-
       - name: 'Merge Coverage Reports'
         shell: bash
         run: .Build/bin/phpcov merge --html .Build/artifacts/coverage/merged --clover .Build/artifacts/coverage/clover.xml .Build/artifacts/coverage/

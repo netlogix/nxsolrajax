@@ -10,7 +10,6 @@ use JsonSerializable;
 
 class SearchResult extends SolrSearchResult implements JsonSerializable
 {
-
     #[Override]
     public function jsonSerialize(): array
     {
@@ -27,12 +26,11 @@ class SearchResult extends SolrSearchResult implements JsonSerializable
     #[Override]
     public function getContent(): string
     {
-        return $this->fields['highlightedContent'] ?? $this->fields['abstract'] ?? '';
+        return $this->fields['highlightedContent'] ?? ($this->fields['abstract'] ?? '');
     }
 
     public function getImage(): string
     {
         return $this->fields['image'] ?? '';
     }
-
 }

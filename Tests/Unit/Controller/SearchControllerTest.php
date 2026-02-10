@@ -61,17 +61,14 @@ final class SearchControllerTest extends UnitTestCase
             ->disableOriginalConstructor()
             ->onlyMethods(['getSearchResultSet'])
             ->getMock();
-        $searchController->method('getSearchResultSet')->willReturn(
-            new SearchResultSet()
-        );
+        $searchController->method('getSearchResultSet')->willReturn(new SearchResultSet());
 
         $this->inject($searchController, 'responseFactory', new ResponseFactory());
         $this->inject($searchController, 'streamFactory', new StreamFactory());
         $this->inject(
             $searchController,
             'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'application/json')
+            $this->createRequest()->withHeader('Accept', 'application/json'),
         );
         try {
             $response = $searchController->indexAction();
@@ -96,7 +93,8 @@ final class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['getSearchResultSet'])
             ->getMock();
 
-        $searchController->method('getSearchResultSet')
+        $searchController
+            ->method('getSearchResultSet')
             ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
@@ -114,9 +112,7 @@ final class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['assign'])
             ->getMock();
 
-        $viewMock->expects($this->exactly(1))
-            ->method('assign')
-            ->with('resultSet', []);
+        $viewMock->expects($this->exactly(1))->method('assign')->with('resultSet', []);
 
         $searchController = $this->getMockBuilder(SearchController::class)
             ->onlyMethods(['getSearchResultSet', 'htmlResponse'])
@@ -168,7 +164,8 @@ final class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['getSearchResultSet'])
             ->getMock();
 
-        $searchController->method('getSearchResultSet')
+        $searchController
+            ->method('getSearchResultSet')
             ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
@@ -182,8 +179,7 @@ final class SearchControllerTest extends UnitTestCase
     public function suggestActionsWillReturnResultsAsJson(): void
     {
         $queryString = uniqid('query_');
-        $request = $this->createRequest()
-            ->withArgument('q', $queryString);
+        $request = $this->createRequest()->withArgument('q', $queryString);
 
         $typoscriptConfiguration = new TypoScriptConfiguration([]);
 
@@ -208,7 +204,12 @@ final class SearchControllerTest extends UnitTestCase
 
         GeneralUtility::addInstance(SuggestService::class, $suggestService);
         GeneralUtility::addInstance(SearchRequestBuilder::class, $searchRequestBuilder);
-        $this->registerEvent(AfterGetSuggestionsEvent::class, $queryString, $suggestions, $typoscriptConfiguration);
+        $this->registerEvent(
+            AfterGetSuggestionsEvent::class,
+            $queryString,
+            $suggestions,
+            $typoscriptConfiguration,
+        );
 
         $searchController = $this->getMockBuilder(SearchController::class)
             ->disableOriginalConstructor()
@@ -243,15 +244,11 @@ final class SearchControllerTest extends UnitTestCase
             ->onlyMethods(['getSuggestRequest'])
             ->getMock();
 
-        $searchController->method('getSuggestRequest')
+        $searchController
+            ->method('getSuggestRequest')
             ->willThrowException(new SolrUnavailableException('Solr Server not available', 1505989391));
 
-        $this->inject(
-            $searchController,
-            'request',
-            $this->createRequest()
-                ->withArgument('q', uniqid('query_'))
-        );
+        $this->inject($searchController, 'request', $this->createRequest()->withArgument('q', uniqid('query_')));
         $this->inject($searchController, 'typoScriptConfiguration', $typoScriptConfiguration);
 
         $response = $searchController->suggestAction();
@@ -264,12 +261,7 @@ final class SearchControllerTest extends UnitTestCase
     {
         $subject = new SearchController();
 
-        $this->inject(
-            $subject,
-            'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'text/html')
-        );
+        $this->inject($subject, 'request', $this->createRequest()->withHeader('Accept', 'text/html'));
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
@@ -287,12 +279,7 @@ final class SearchControllerTest extends UnitTestCase
     {
         $subject = new SearchController();
 
-        $this->inject(
-            $subject,
-            'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'application/json')
-        );
+        $this->inject($subject, 'request', $this->createRequest()->withHeader('Accept', 'application/json'));
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
@@ -315,12 +302,7 @@ final class SearchControllerTest extends UnitTestCase
     {
         $subject = new SearchController();
 
-        $this->inject(
-            $subject,
-            'request',
-            $this->createRequest()
-                ->withHeader('Accept', 'application/json')
-        );
+        $this->inject($subject, 'request', $this->createRequest()->withHeader('Accept', 'application/json'));
         $subject->injectResponseFactory(new ResponseFactory());
         $subject->injectStreamFactory(new StreamFactory());
 
@@ -363,7 +345,7 @@ final class SearchControllerTest extends UnitTestCase
 
     protected function inject($target, string $name, $dependency): void
     {
-        if (! is_object($target)) {
+        if (!is_object($target)) {
             throw new InvalidArgumentException('Wrong type for argument $target, must be object.', 1476107338);
         }
 
@@ -381,7 +363,7 @@ final class SearchControllerTest extends UnitTestCase
         } else {
             throw new RuntimeException(
                 'Could not inject ' . $name . ' into object of type ' . $target::class,
-                1476107339
+                1476107339,
             );
         }
     }
@@ -415,9 +397,11 @@ final class SearchControllerTest extends UnitTestCase
     {
         $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
 
-        $eventDispatcher->expects($this->once())->method('dispatch')->with(
-            self::isInstanceOf($className)
-        )->willReturn(new $className(...$args));
+        $eventDispatcher
+            ->expects($this->once())
+            ->method('dispatch')
+            ->with(self::isInstanceOf($className))
+            ->willReturn(new $className(...$args));
 
         GeneralUtility::addInstance(EventDispatcherInterface::class, $eventDispatcher);
 

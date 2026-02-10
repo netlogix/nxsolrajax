@@ -8,12 +8,7 @@ use ApacheSolrForTypo3\Solr\Domain\Search\ResultSet\Facets\AbstractFacet;
 
 final class GenerateFacetResetUrlEvent
 {
-
-    public function __construct(
-        public readonly AbstractFacet $facet,
-        private string $url,
-    ) {
-    }
+    public function __construct(public readonly AbstractFacet $facet, private string $url) {}
 
     public function getUrl(): string
     {
