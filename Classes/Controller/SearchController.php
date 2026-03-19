@@ -71,8 +71,8 @@ class SearchController extends \ApacheSolrForTypo3\Solr\Controller\SearchControl
             $searchRequest = $this->getSuggestRequest();
             $suggestService = GeneralUtility::makeInstance(
                 SuggestService::class,
-                $this->typoScriptConfiguration,
                 $this->searchService,
+                $this->typoScriptConfiguration,
             );
             assert($suggestService instanceof SuggestService);
 
